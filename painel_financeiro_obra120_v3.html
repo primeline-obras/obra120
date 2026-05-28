@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Financeiro — Obra 120 QM-R-001</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ================================================================
+   PRIMELINE — PAINEL FINANCEIRO OBRA 120
+   Google Sheet ID: 1sysfTrmDV4BID-xzhXv4Eia6GTHFZw8MBoA8XEHnt0c
+   Para alterar dados: editar directamente a Google Sheet
+   ================================================================ */
+
+:root {
+  --bg:         #0A0C12;
+  --s0:         #0F1117;
+  --s1:         #151922;
+  --s2:         #1C2130;
+  --s3:         #232A3B;
+  --border:     #2A3348;
+  --border2:    #3D4F6A;
+  --text:       #E2E8F4;
+  --text2:      #8896B0;
+  --text3:      #4A5570;
+  --green:      #41D15A;
+  --green-dim:  #1A4024;
+  --green-mid:  #2A6038;
+  --amber:      #F0A830;
+  --amber-dim:  #2A1E00;
+  --red:        #F06060;
+  --red-dim:    #280F0F;
+  --blue:       #5B9BF0;
+  --blue-dim:   #0A1828;
+  --blue-mid:   #112240;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 28px 24px 60px;
+}
+
+.wrap { max-width: 1120px; margin: 0 auto; }
+
+/* ── loading / error ── */
+#loading {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 16px; z-index: 100;
+}
+.spinner {
+  width: 36px; height: 36px;
+  border: 2px solid var(--border);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.load-label { font-family: var(--mono); font-size: 12px; color: var(--text2); }
+
+#error-banner {
+  display: none;
+  background: var(--red-dim);
+  border: 1px solid var(--red);
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-size: 13px;
+  color: var(--red);
+  margin-bottom: 20px;
+  font-family: var(--mono);
+}
+
+/* ── header ── */
+.header {
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px 28px;
+  margin-bottom: 16px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: start;
+}
+.hd-brand {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 6px;
+}
+.hd-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+.hd-ref {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--blue);
+  background: var(--blue-dim);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-left: 8px;
+}
+.hd-desc { font-size: 13px; color: var(--text2); font-weight: 300; }
+.hd-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 28px; text-align: right; }
+.hd-item .lbl {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text3);
+  display: block;
+  margin-bottom: 2px;
+}
+.hd-item .val { font-size: 13px; font-weight: 500; }
+.pill {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  margin-left: 6px;
+}
+.pill-amber { background: var(--amber-dim); color: var(--amber); }
+.pill-blue  { background: var(--blue-dim);  color: var(--blue); }
+.pill-green { background: var(--green-dim); color: var(--green); }
+.pill-red   { background: var(--red-dim);   color: var(--red); }
+
+/* ── status bar ── */
+.statusbar {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 0;
+  align-items: center;
+  flex-wrap: wrap;
+  overflow: hidden;
+}
+.sb-item { display: flex; flex-direction: column; gap: 3px; padding: 0 20px; flex: 1; min-width: 120px; }
+.sb-item:first-child { padding-left: 0; }
+.sb-item + .sb-item { border-left: 1px solid var(--border); }
+.sb-lbl { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); }
+.sb-val { font-size: 13px; font-weight: 500; }
+
+/* ── section label ── */
+.sec-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin: 24px 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ── KPI grid ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.kpi-divider {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin: 2px 0;
+}
+.kpi-divider::before, .kpi-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.kpi {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  transition: border-color 0.15s;
+}
+.kpi:hover { border-color: var(--border2); }
+.kpi.accent-green { border-left: 3px solid var(--green); }
+.kpi.accent-blue  { border-left: 3px solid var(--blue); }
+.kpi.accent-amber { border-left: 3px solid var(--amber); }
+
+.kpi-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 8px;
+}
+.kpi-main {
+  font-family: var(--mono);
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+.kpi-sub { font-size: 12px; color: var(--text2); }
+.kpi-pct { font-family: var(--mono); font-size: 12px; font-weight: 500; }
+.kpi-real {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.kpi-real-lbl {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 3px;
+}
+.kpi-real-val { font-family: var(--mono); font-size: 15px; font-weight: 600; color: var(--green); }
+.kpi-real-pct { font-family: var(--mono); font-size: 11px; color: var(--green); opacity: 0.8; }
+
+/* ── scenarios ── */
+.scenario-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.scenario {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+.scenario.active {
+  border: 2px solid var(--blue);
+  background: var(--blue-mid);
+}
+.sc-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.scenario.active .sc-tag { color: var(--blue); }
+.sc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.sc-row:last-child { border-bottom: none; }
+.sc-row .l { color: var(--text2); }
+.sc-row .v { font-family: var(--mono); font-weight: 600; font-size: 13px; }
+.v-green { color: var(--green); }
+.v-amber { color: var(--amber); }
+.v-red   { color: var(--red); }
+.v-blue  { color: var(--blue); }
+
+/* ── two col ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+.card-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 12px;
+}
+.d-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.d-row:last-child { border-bottom: none; }
+.d-row .l { color: var(--text2); }
+.d-row .v { font-family: var(--mono); font-weight: 600; }
+
+/* ── progress ── */
+.prog-item { margin-bottom: 16px; }
+.prog-item:last-child { margin-bottom: 0; }
+.prog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 7px;
+  font-size: 12px;
+}
+.prog-lbl { color: var(--text2); }
+.prog-pct { font-family: var(--mono); font-weight: 600; font-size: 13px; }
+.prog-track { background: var(--s3); border-radius: 6px; height: 8px; overflow: hidden; }
+.prog-fill  { height: 100%; border-radius: 6px; transition: width 0.8s cubic-bezier(.4,0,.2,1); }
+
+/* ── sub-empreiteiros ── */
+.sub-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.sub-card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sub-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.sub-name { font-weight: 600; font-size: 13px; }
+.sub-scope { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+/* ── tables (TEEs / subempreitadas) ── */
+.tbl-wrap { overflow-x: auto; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+thead tr { background: var(--s3); }
+thead th {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text2);
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+tbody tr:hover { background: var(--s2); }
+tbody td { padding: 9px 12px; color: var(--text); vertical-align: middle; }
+td.mono { font-family: var(--mono); }
+td.right { text-align: right; font-family: var(--mono); }
+tfoot tr { background: var(--s3); }
+tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color: var(--green); border-top: 1px solid var(--border2); }
+
+.estado-pill {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+/* ── fluxo mensal ── */
+.fluxo-wrap {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+.fluxo-chart { display: flex; gap: 6px; align-items: flex-end; height: 160px; margin-bottom: 10px; }
+.fluxo-col { flex: 1; display: flex; flex-direction: column; gap: 3px; align-items: center; }
+.fluxo-bars { display: flex; gap: 3px; align-items: flex-end; width: 100%; }
+.bar-in  { flex: 1; border-radius: 4px 4px 0 0; background: var(--blue); min-height: 2px; transition: height 0.6s ease; }
+.bar-out { flex: 1; border-radius: 4px 4px 0 0; background: var(--amber); min-height: 2px; transition: height 0.6s ease; }
+.fluxo-month { font-family: var(--mono); font-size: 9px; color: var(--text3); margin-top: 4px; }
+.fluxo-legend {
+  display: flex; gap: 16px; font-size: 11px; color: var(--text2);
+  margin-bottom: 8px;
+}
+.legend-dot { width: 8px; height: 8px; border-radius: 2px; display: inline-block; margin-right: 5px; }
+
+/* ── alerts ── */
+.alerts { display: flex; flex-direction: column; gap: 8px; }
+.alert {
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13px;
+  line-height: 1.55;
+  border-left: 3px solid transparent;
+}
+.alert-red    { background: var(--red-dim);   color: #F4A0A0; border-left-color: var(--red); }
+.alert-orange { background: var(--amber-dim); color: #F0C878; border-left-color: var(--amber); }
+.alert-blue   { background: var(--blue-dim);  color: #90B8F0; border-left-color: var(--blue); }
+.alert-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 3px;
+  opacity: 0.7;
+}
+
+/* ── footer ── */
+.footer {
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+}
+.refresh-btn {
+  background: var(--s2);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 4px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.refresh-btn:hover { border-color: var(--blue); color: var(--blue); }
+
+.na { color: var(--text3); font-style: italic; font-family: var(--sans); font-size: 11px; font-weight: 400; }
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <div class="load-label">A carregar dados da sheet…</div>
+</div>
+
+<div class="wrap" id="app" style="display:none">
+  <div id="error-banner"></div>
+  <div id="content"></div>
+</div>
+
+<script>
+// ================================================================
+// CONFIGURAÇÃO — só alterar aqui se mudar a sheet
+// ================================================================
+const SHEET_ID = "1sysfTrmDV4BID-xzhXv4Eia6GTHFZw8MBoA8XEHnt0c";
+
+// GID de cada aba (visível no URL quando clicas na aba)
+// Depois de criares as abas na sheet, actualiza estes IDs
+const GIDS = {
+  painel:         "0",       // 1ª aba (default)
+  contratual:     "1",
+  tees:           "2",
+  subempreitadas: "3",
+  planeamento:    "4",
+  faturacao:      "5",
+  custos_fixos:   "6",
+  custos_internos:"7",
+};
+// ================================================================
+
+function csvUrl(gid) {
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/pub?gid=${gid}&single=true&output=csv`;
+}
+
+async function fetchCSV(gid) {
+  const r = await fetch(csvUrl(gid));
+  if (!r.ok) throw new Error(`HTTP ${r.status} — gid=${gid}`);
+  const text = await r.text();
+  return parseCSV(text);
+}
+
+function parseCSV(text) {
+  const rows = [];
+  const lines = text.split(/\r?\n/);
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    const cols = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      if (line[i] === '"') { inQ = !inQ; continue; }
+      if (line[i] === ',' && !inQ) { cols.push(cur.trim()); cur = ''; continue; }
+      cur += line[i];
+    }
+    cols.push(cur.trim());
+    rows.push(cols);
+  }
+  return rows;
+}
+
+// Converte CSV de duas colunas (chave, valor) em objecto
+function toObj(rows) {
+  const obj = {};
+  for (const [k, v] of rows) {
+    if (k) obj[k.trim()] = (v || "").trim();
+  }
+  return obj;
+}
+
+function num(v) {
+  if (!v) return 0;
+  return parseFloat(String(v).replace(/[^\d.,-]/g, "").replace(",", ".")) || 0;
+}
+
+function eur(n, dec=0) {
+  return num(n).toLocaleString("pt-PT", {
+    minimumFractionDigits: dec, maximumFractionDigits: dec
+  }) + " €";
+}
+
+function pct(n, dec=1) {
+  return num(n).toLocaleString("pt-PT", {
+    minimumFractionDigits: dec, maximumFractionDigits: dec
+  }) + "%";
+}
+
+function estadoPill(e) {
+  const map = {
+    "Aprovado DO":  ["var(--green-dim)", "var(--green)"],
+    "Em curso":     ["var(--amber-dim)", "var(--amber)"],
+    "Em análise":   ["var(--blue-dim)",  "var(--blue)"],
+    "Recusado":     ["var(--red-dim)",   "var(--red)"],
+    "Pago":         ["var(--green-dim)", "var(--green)"],
+    "Emitida":      ["var(--amber-dim)", "var(--amber)"],
+    "Em atraso":    ["var(--red-dim)",   "var(--red)"],
+    "Activo":       ["var(--blue-dim)",  "var(--blue)"],
+    "Por iniciar":  ["var(--s3)",        "var(--text3)"],
+    "Em execução":  ["var(--amber-dim)", "var(--amber)"],
+    "Concluído":    ["var(--green-dim)", "var(--green)"],
+  };
+  const [bg, fg] = map[e] || ["var(--s3)", "var(--text2)"];
+  return `<span class="estado-pill" style="background:${bg};color:${fg}">${e || "—"}</span>`;
+}
+
+function orNA(v, fn) {
+  if (!v || v === "—" || v === "") return '<span class="na">—</span>';
+  return fn ? fn(v) : v;
+}
+
+// ── render ──────────────────────────────────────────────────────
+function render(data) {
+  const { P, C, tees, subs, fases, fats, cf, ci } = data;
+
+  // calcular derivados
+  const vendaContratual  = num(C["Venda Contratual"]);
+  const cdContratual     = num(C["Custo Directo Contratual"]);
+  const margemBruta      = vendaContratual - cdContratual;
+  const margemBrutaPct   = vendaContratual ? margemBruta / vendaContratual * 100 : 0;
+  const teeVenda         = num(C["TEE Venda"]);
+  const teeCusto         = num(C["TEE Custo"]);
+  const teeMargem        = teeVenda - teeCusto;
+  const vendaTotal       = vendaContratual + teeVenda;
+  const cdTotal          = cdContratual + teeCusto;
+  const margemTotal      = vendaTotal - cdTotal;
+  const margemTotalPct   = vendaTotal ? margemTotal / vendaTotal * 100 : 0;
+  const custosFixos      = cdTotal * 0.085;
+  const lucroReal        = margemTotal - custosFixos;
+  const lucroRealPct     = vendaTotal ? lucroReal / vendaTotal * 100 : 0;
+  const cflowContratual  = num(C["CFlow Mensal Contratual"]);
+  const cflowTotal       = num(C["CFlow Mensal Total"]);
+  const margemRealEur    = num(C["Margem Real YTD"]);
+  const margemRealPct    = num(C["Margem Real YTD %"]);
+  const pctPrazo         = num(P["% Prazo Consumido"]);
+  const pctObra          = P["% Obra Executada"] ? num(P["% Obra Executada"]) : null;
+  const faturado         = num(C["Valor Faturado"]);
+  const porFaturar       = num(C["Valor Por Faturar"]);
+  const totalDespYTD     = num(C["Total Despesas YTD"]);
+  const desvio           = num(C["Desvio Orç %"]);
+
+  // subempreiteiros
+  const subColors = ["var(--blue)", "var(--green)", "var(--amber)", "var(--red)", "var(--blue)"];
+
+  // alertas da aba Painel
+  const alertas = [];
+  for (let i = 1; i <= 8; i++) {
+    const texto = P[`Nota ${i} Texto`];
+    const prio  = P[`Nota ${i} Prioridade`] || "blue";
+    if (texto) alertas.push({ texto, prio: prio.toLowerCase() });
+  }
+
+  // fluxo mensal — lê da aba faturacao e custos
+  const meses = {};
+  for (const row of fats.slice(1)) {
+    const mes = row[2] ? row[2].slice(3) : null; // MM/AAAA → pegar mês
+    if (!mes) continue;
+    const label = row[2] ? row[2].slice(3, 10) : "?"; // MM/YYYY
+    if (!meses[label]) meses[label] = { entrada: 0, saida: 0, label };
+    meses[label].entrada += num(row[3]);
+  }
+  for (const row of cf.slice(1)) {
+    const mes = row[0];
+    if (!mes) continue;
+    if (!meses[mes]) meses[mes] = { entrada: 0, saida: 0, label: mes };
+    meses[mes].saida += num(row[5]);
+  }
+  for (const row of ci.slice(1)) {
+    const mes = row[0];
+    if (!mes) continue;
+    if (!meses[mes]) meses[mes] = { entrada: 0, saida: 0, label: mes };
+    meses[mes].saida += num(row[6]);
+  }
+  const fluxoMeses = Object.values(meses).slice(0, 10);
+  const maxFluxo = Math.max(...fluxoMeses.flatMap(m => [m.entrada, m.saida]), 1);
+
+  // ── HTML ────────────────────────────────────────────────────
+  const html = `
+    <div class="header">
+      <div>
+        <div class="hd-brand">Primeline Engenharia e Construção</div>
+        <div class="hd-title">
+          ${P["Nome"] || "Quinta da Marinha — Casa R"}
+          <span class="hd-ref">${P["Referência"] || "QM-R-001"}</span>
+        </div>
+        <div class="hd-desc">${P["Descrição"] || ""} · ${P["Obra"] || "Obra 120"}</div>
+      </div>
+      <div class="hd-meta">
+        <div class="hd-item">
+          <span class="lbl">Dono de Obra</span>
+          <span class="val">${P["Dono de Obra"] || "—"}</span>
+        </div>
+        <div class="hd-item">
+          <span class="lbl">Diretor / Adjunta</span>
+          <span class="val">${P["Diretor de Obra"] || "—"} <span style="color:var(--text2);font-weight:300">/ ${P["Adjunta DO"] || "—"}</span></span>
+        </div>
+        <div class="hd-item">
+          <span class="lbl">Início</span>
+          <span class="val">${P["Início da obra"] || "—"}</span>
+        </div>
+        <div class="hd-item">
+          <span class="lbl">Prazo</span>
+          <span class="val">${P["Prazo contratual"] || "—"} <span class="pill pill-amber">${P["Prorrogação activa"] || ""}</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="statusbar">
+      <div class="sb-item">
+        <span class="sb-lbl">Prazo final</span>
+        <span class="sb-val">${P["Prazo c/ prorrogação"] || "—"}</span>
+      </div>
+      <div class="sb-item">
+        <span class="sb-lbl">Duração</span>
+        <span class="sb-val">${P["Duração contratual (M)"] || "—"} meses</span>
+      </div>
+      <div class="sb-item">
+        <span class="sb-lbl">% Prazo consumido</span>
+        <span class="sb-val" style="color:var(--blue)">${pct(pctPrazo)}</span>
+      </div>
+      <div class="sb-item">
+        <span class="sb-lbl">Custos fixos est.</span>
+        <span class="sb-val" style="color:var(--amber)">${eur(custosFixos)} <span style="font-size:11px;opacity:0.6">(8,5% C.D.)</span></span>
+      </div>
+      <div class="sb-item">
+        <span class="sb-lbl">Actualizado</span>
+        <span class="sb-val">${new Date().toLocaleDateString("pt-PT")}</span>
+      </div>
+    </div>
+
+    <div class="sec-label">KPIs — Base contratual</div>
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="kpi-tag">Venda contratual</div>
+        <div class="kpi-main">${eur(vendaContratual)}</div>
+        <div class="kpi-sub">C.D. <span class="kpi-pct">${eur(cdContratual)}</span></div>
+      </div>
+      <div class="kpi accent-green">
+        <div class="kpi-tag">Margem bruta contratual</div>
+        <div class="kpi-main">${eur(margemBruta)}</div>
+        <div class="kpi-sub">sobre venda <span class="kpi-pct" style="color:var(--green)">${pct(margemBrutaPct)}</span></div>
+        <div class="kpi-real">
+          <div class="kpi-real-lbl">Lucro real (após custos fixos)</div>
+          <div class="kpi-real-val">${eur(margemBruta - cdContratual * 0.085)}</div>
+          <div class="kpi-real-pct">${pct((margemBruta - cdContratual * 0.085) / vendaContratual * 100)} sobre venda</div>
+        </div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-tag">CFlow mensal contratual</div>
+        <div class="kpi-main">${eur(cflowContratual)}</div>
+        <div class="kpi-sub">por mês — base contrato</div>
+      </div>
+
+      <div class="kpi-divider">TEEs aprovados</div>
+
+      <div class="kpi accent-blue">
+        <div class="kpi-tag">TEE — Venda / Custo</div>
+        <div class="kpi-main">${eur(teeVenda)}</div>
+        <div class="kpi-sub">custo <span class="kpi-pct" style="color:var(--blue)">${eur(teeCusto)}</span></div>
+      </div>
+      <div class="kpi accent-green">
+        <div class="kpi-tag">Margem total c/ TEEs</div>
+        <div class="kpi-main">${eur(margemTotal)}</div>
+        <div class="kpi-sub">sobre venda total <span class="kpi-pct" style="color:var(--green)">${pct(margemTotalPct)}</span></div>
+        <div class="kpi-real">
+          <div class="kpi-real-lbl">Lucro real c/ TEEs</div>
+          <div class="kpi-real-val">${eur(lucroReal)}</div>
+          <div class="kpi-real-pct">${pct(lucroRealPct)} sobre venda total</div>
+        </div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-tag">CFlow mensal c/ TEEs</div>
+        <div class="kpi-main">${eur(cflowTotal)}</div>
+        <div class="kpi-sub">por mês — total</div>
+      </div>
+    </div>
+
+    <div class="sec-label">Cenários de prazo</div>
+    <div class="scenario-grid">
+      <div class="scenario">
+        <div class="sc-tag">Contratual</div>
+        <div class="sc-row"><span class="l">CFlow/mês</span><span class="v">${eur(cflowContratual)}</span></div>
+        <div class="sc-row"><span class="l">Margem bruta</span><span class="v v-green">${pct(margemBrutaPct)}</span></div>
+        <div class="sc-row"><span class="l">Margem bruta €</span><span class="v v-green">${eur(margemBruta)}</span></div>
+        <div class="sc-row"><span class="l">Lucro real</span><span class="v v-green">${eur(margemBruta - cdContratual * 0.085)}</span></div>
+      </div>
+      <div class="scenario active">
+        <div class="sc-tag">+1 mês (actual) <span class="pill pill-blue">activo</span></div>
+        <div class="sc-row"><span class="l">CFlow/mês</span><span class="v">${eur(cflowTotal)}</span></div>
+        <div class="sc-row"><span class="l">Margem total</span><span class="v v-green">${pct(margemTotalPct)}</span></div>
+        <div class="sc-row"><span class="l">Margem total €</span><span class="v v-green">${eur(margemTotal)}</span></div>
+        <div class="sc-row"><span class="l">Lucro real</span><span class="v v-green">${eur(lucroReal)}</span></div>
+      </div>
+      <div class="scenario">
+        <div class="sc-tag">Real acumulado YTD</div>
+        <div class="sc-row"><span class="l">CFlow/mês</span><span class="v">${eur(num(C["CFlow Real YTD"]) || cflowTotal)}</span></div>
+        <div class="sc-row"><span class="l">Margem real %</span><span class="v v-green">${pct(margemRealPct)}</span></div>
+        <div class="sc-row"><span class="l">Margem real €</span><span class="v v-green">${eur(margemRealEur)}</span></div>
+        <div class="sc-row"><span class="l">Desvio orç.</span><span class="v v-amber">${pct(desvio)}</span></div>
+      </div>
+    </div>
+
+    <div class="sec-label">Faturação e custos</div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Faturação ao DO</div>
+        <div class="d-row"><span class="l">Valor faturado</span><span class="v v-green">${eur(faturado)}</span></div>
+        <div class="d-row"><span class="l">Valor por faturar</span><span class="v v-amber">${eur(porFaturar)}</span></div>
+        <div class="d-row" style="border-top:1px solid var(--border2);margin-top:4px;padding-top:8px">
+          <span class="l">Total contrato</span><span class="v">${eur(vendaTotal)}</span>
+        </div>
+        <div class="d-row"><span class="l">% faturado</span><span class="v v-blue">${pct(vendaTotal ? faturado/vendaTotal*100 : 0)}</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Custos YTD</div>
+        <div class="d-row"><span class="l">Custos estimados</span><span class="v">${eur(num(C["Custos Estimados"]))}</span></div>
+        <div class="d-row"><span class="l">Pessoal + Viatura</span><span class="v">${eur(num(C["Pessoal Viatura"]))}</span></div>
+        <div class="d-row"><span class="l">Total despesas YTD</span><span class="v">${eur(totalDespYTD)}</span></div>
+        <div class="d-row"><span class="l">Desvio Orç. vs Desp.</span><span class="v v-red">${pct(desvio)}</span></div>
+        <div class="d-row"><span class="l">Margem real estimada</span><span class="v v-green">${eur(margemRealEur)} (${pct(margemRealPct,3)})</span></div>
+      </div>
+    </div>
+
+    <div class="sec-label">Progresso da obra</div>
+    <div class="card">
+      <div class="prog-item">
+        <div class="prog-header">
+          <span class="prog-lbl">% obra executada</span>
+          <span class="prog-pct" style="color:var(--green)">${pctObra !== null ? pct(pctObra) : '<span class="na">a preencher</span>'}</span>
+        </div>
+        <div class="prog-track">
+          <div class="prog-fill" style="width:${pctObra || 0}%;background:var(--green)"></div>
+        </div>
+      </div>
+      <div class="prog-item">
+        <div class="prog-header">
+          <span class="prog-lbl">% prazo consumido</span>
+          <span class="prog-pct" style="color:var(--blue)">${pct(pctPrazo)}</span>
+        </div>
+        <div class="prog-track">
+          <div class="prog-fill" style="width:${Math.min(pctPrazo,100)}%;background:var(--blue)"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-label">TEEs</div>
+    <div class="card tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th><th>Descrição</th><th>Estado</th>
+            <th>Submissão</th><th>Aprovação</th>
+            <th class="right">Venda</th><th class="right">Custo</th>
+            <th class="right">Margem €</th><th class="right">Margem %</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tees.slice(1).filter(r => r[0]).map(r => {
+            const v = num(r[5]), c = num(r[6]), m = v - c;
+            return `<tr>
+              <td class="mono">${r[0]||"—"}</td>
+              <td>${r[1]||"—"}</td>
+              <td>${estadoPill(r[2])}</td>
+              <td>${r[3]||"—"}</td>
+              <td>${r[4]||"—"}</td>
+              <td class="right">${orNA(r[5], eur)}</td>
+              <td class="right">${orNA(r[6], eur)}</td>
+              <td class="right" style="color:var(--green)">${v ? eur(m) : "—"}</td>
+              <td class="right" style="color:var(--green)">${v ? pct(m/v*100) : "—"}</td>
+            </tr>`;
+          }).join("") || `<tr><td colspan="9" style="color:var(--text3);text-align:center;padding:16px">Sem TEEs registados</td></tr>`}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="5">Total</td>
+            <td class="right">${eur(teeVenda)}</td>
+            <td class="right">${eur(teeCusto)}</td>
+            <td class="right">${eur(teeMargem)}</td>
+            <td class="right">${teeVenda ? pct(teeMargem/teeVenda*100) : "—"}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="sec-label">Subempreitadas</div>
+    <div class="card tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Empresa</th><th>Especialidade</th>
+            <th class="right">Contratado</th><th class="right">Executado</th>
+            <th class="right">% Exec.</th><th class="right">Pago</th>
+            <th class="right">Em falta</th><th class="right">Margem Prim.</th><th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${subs.slice(1).filter(r => r[0]).map((r, i) => {
+            const cont = num(r[2]), exec = num(r[3]), pago = num(r[5]);
+            const emfalta = cont - pago;
+            const pctExec = cont ? exec/cont*100 : 0;
+            const cor = subColors[i % subColors.length];
+            return `<tr>
+              <td><span style="display:flex;align-items:center;gap:8px">
+                <span style="width:8px;height:8px;border-radius:50%;background:${cor};flex-shrink:0"></span>
+                <strong>${r[0]}</strong></span></td>
+              <td>${r[1]||"—"}</td>
+              <td class="right">${orNA(r[2], eur)}</td>
+              <td class="right">${orNA(r[3], eur)}</td>
+              <td class="right" style="color:var(--amber)">${cont ? pct(pctExec) : "—"}</td>
+              <td class="right" style="color:var(--green)">${orNA(r[5], eur)}</td>
+              <td class="right" style="color:var(--amber)">${cont ? eur(emfalta) : "—"}</td>
+              <td class="right">${orNA(r[7], eur)}</td>
+              <td>${estadoPill(r[9])}</td>
+            </tr>`;
+          }).join("") || `<tr><td colspan="9" style="color:var(--text3);text-align:center;padding:16px">Sem subempreitadas registadas</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sec-label">Fluxo mensal — Entradas vs Saídas</div>
+    <div class="fluxo-wrap">
+      <div class="fluxo-legend">
+        <span><span class="legend-dot" style="background:var(--blue)"></span>Faturação (entradas)</span>
+        <span><span class="legend-dot" style="background:var(--amber)"></span>Custos (saídas)</span>
+      </div>
+      ${fluxoMeses.length ? `
+      <div class="fluxo-chart">
+        ${fluxoMeses.map(m => {
+          const hIn  = Math.round(m.entrada / maxFluxo * 140);
+          const hOut = Math.round(m.saida   / maxFluxo * 140);
+          return `<div class="fluxo-col">
+            <div class="fluxo-bars">
+              <div class="bar-in"  style="height:${hIn}px"  title="Entrada: ${eur(m.entrada)}"></div>
+              <div class="bar-out" style="height:${hOut}px" title="Saída: ${eur(m.saida)}"></div>
+            </div>
+            <div class="fluxo-month">${m.label}</div>
+          </div>`;
+        }).join("")}
+      </div>` : `<div style="color:var(--text3);font-size:13px;padding:20px 0">Sem dados de fluxo ainda — preenche as abas Faturação e Custos_Fixos.</div>`}
+    </div>
+
+    <div class="sec-label">Sub-empreiteiros activos</div>
+    <div class="sub-grid">
+      ${subs.slice(1).filter(r => r[0]).map((r, i) => `
+        <div class="sub-card">
+          <span class="sub-dot" style="background:${subColors[i % subColors.length]}"></span>
+          <div>
+            <div class="sub-name">${r[0]}</div>
+            <div class="sub-scope">${r[1]||""}</div>
+          </div>
+        </div>`).join("") || `<div style="color:var(--text3);font-size:13px">Sem subempreiteiros registados</div>`}
+    </div>
+
+    <div class="sec-label">Pontos de atenção</div>
+    <div class="alerts">
+      ${alertas.length ? alertas.map(a => `
+        <div class="alert alert-${a.prio === "urgente" ? "red" : a.prio === "atenção" ? "orange" : "blue"}">
+          <span class="alert-tag">${a.prio}</span>${a.texto}
+        </div>`).join("") : `<div style="color:var(--text3);font-size:13px;padding:8px 0">Sem notas para esta semana.</div>`}
+    </div>
+
+    <div class="footer">
+      <span>Primeline · ${P["Obra"]||"Obra 120"} · ${P["Referência"]||"QM-R-001"}</span>
+      <button class="refresh-btn" onclick="location.reload()">↻ Actualizar</button>
+      <span>Carregado ${new Date().toLocaleTimeString("pt-PT")}</span>
+    </div>
+  `;
+
+  document.getElementById("content").innerHTML = html;
+}
+
+// ── fetch all sheets ────────────────────────────────────────────
+async function loadAll() {
+  try {
+    const [
+      painelCSV, contratualCSV, teesCSV, subsCSV,
+      fasesCSV, fatCSV, cfCSV, ciCSV
+    ] = await Promise.all([
+      fetchCSV(GIDS.painel),
+      fetchCSV(GIDS.contratual),
+      fetchCSV(GIDS.tees),
+      fetchCSV(GIDS.subempreitadas),
+      fetchCSV(GIDS.planeamento),
+      fetchCSV(GIDS.faturacao),
+      fetchCSV(GIDS.custos_fixos),
+      fetchCSV(GIDS.custos_internos),
+    ]);
+
+    render({
+      P: toObj(painelCSV),
+      C: toObj(contratualCSV),
+      tees:  teesCSV,
+      subs:  subsCSV,
+      fases: fasesCSV,
+      fats:  fatCSV,
+      cf:    cfCSV,
+      ci:    ciCSV,
+    });
+
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("app").style.display = "block";
+
+  } catch (err) {
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    const banner = document.getElementById("error-banner");
+    banner.style.display = "block";
+    banner.textContent = `Erro ao carregar dados: ${err.message}. Verifica se a sheet está publicada (Ficheiro → Partilhar → Publicar na web).`;
+  }
+}
+
+loadAll();
+</script>
+</body>
+</html>
