@@ -467,8 +467,93 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   .month-grid { grid-template-columns: repeat(2,1fr); }
 }
 </style>
+<style>
+/* ── LOGIN ── */
+#login-screen {
+  position: fixed; inset: 0; z-index: 999;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+}
+.login-box {
+  background: var(--s1);
+  border: 1px solid var(--bd2);
+  border-radius: var(--r-lg);
+  padding: 40px 48px;
+  width: 340px;
+  text-align: center;
+}
+.login-logo {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--tx3);
+  margin-bottom: 6px;
+}
+.login-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--tx);
+  margin-bottom: 4px;
+}
+.login-sub {
+  font-size: 13px;
+  color: var(--tx2);
+  margin-bottom: 28px;
+}
+.login-input {
+  width: 100%;
+  background: var(--s2);
+  border: 1px solid var(--bd2);
+  border-radius: var(--r-sm);
+  color: var(--tx);
+  font-family: var(--mono);
+  font-size: 14px;
+  padding: 10px 14px;
+  outline: none;
+  text-align: center;
+  letter-spacing: 0.1em;
+  transition: border-color 0.15s;
+  margin-bottom: 12px;
+}
+.login-input:focus { border-color: var(--blu); }
+.login-btn {
+  width: 100%;
+  background: var(--blu);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.login-btn:hover { background: var(--blu2); }
+.login-error {
+  font-size: 12px;
+  color: var(--red);
+  margin-top: 10px;
+  min-height: 18px;
+  font-family: var(--mono);
+}
+</style>
 </head>
 <body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">Primeline Engenharia e Construção</div>
+    <div class="login-title">Obra 120 · QM-R-001</div>
+    <div class="login-sub">Painel de gestão financeira</div>
+    <input class="login-input" type="password" id="login-pwd"
+      placeholder="••••••••"
+      onkeydown="if(event.key==='Enter') checkLogin()">
+    <button class="login-btn" onclick="checkLogin()">Entrar</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
 
 <!-- NAV -->
 <nav class="nav">
@@ -782,6 +867,28 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
 <script>
 // ── CONFIGURAÇÃO ─────────────────────────────────────
 const API_URL = "https://script.google.com/macros/s/AKfycbwER0TXxOzhGtQwH5kmAjV4qeHUfA8fTYIq05UkUl9Suw6R4ql4nc4905CJ7d7lq24/exec";
+
+// ── PASSWORD ──────────────────────────────────────────
+// Para alterar a password, muda o valor abaixo
+const SENHA = "primeline120";
+
+function checkLogin() {
+  const val = document.getElementById('login-pwd').value;
+  if (val === SENHA) {
+    document.getElementById('login-screen').style.display = 'none';
+    sessionStorage.setItem('pl-auth', '1');
+    loadData();
+  } else {
+    document.getElementById('login-error').textContent = 'Password incorrecta.';
+    document.getElementById('login-pwd').value = '';
+    document.getElementById('login-pwd').focus();
+  }
+}
+
+// Se já autenticou nesta sessão, não pede de novo
+if (sessionStorage.getItem('pl-auth') === '1') {
+  document.getElementById('login-screen').style.display = 'none';
+}
 
 // ── THEME ─────────────────────────────────────────────
 function toggleTheme() {
@@ -1365,9 +1472,11 @@ async function loadData() {
     document.getElementById('theme-icon').textContent  = '☀️';
     document.getElementById('theme-label').textContent = 'Claro';
   }
+  // Só carrega dados se já autenticado
+  if (sessionStorage.getItem('pl-auth') === '1') {
+    loadData();
+  }
 })();
-
-loadData();
 </script>
 </body>
 </html>
