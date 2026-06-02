@@ -645,11 +645,14 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
     <table>
       <thead><tr>
         <th>Empresa</th><th>Especialidade</th><th>Fase</th>
-        <th class="td-r">Contratado</th><th class="td-r">Executado</th>
-        <th class="td-r">% Exec.</th><th class="td-r">Pago</th>
-        <th class="td-r">Em falta</th><th class="td-r">Margem</th><th>Estado</th>
+        <th class="td-r">C.D.</th><th class="td-r">P.V.</th>
+        <th class="td-r">Margem Inicial</th>
+        <th class="td-r">Adj. Efetivo</th>
+        <th class="td-r">Marg. Empreiteiro</th>
+        <th class="td-r">Pago</th>
+        <th class="td-r">% Pago</th><th>Estado</th>
       </tr></thead>
-      <tbody id="subs-tbody"><tr><td colspan="10" style="color:var(--tx3);text-align:center;padding:16px">A carregar…</td></tr></tbody>
+      <tbody id="subs-tbody"><tr><td colspan="11" style="color:var(--tx3);text-align:center;padding:16px">A carregar…</td></tr></tbody>
       <tfoot><tr id="subs-tfoot"></tr></tfoot>
     </table>
   </div>
@@ -998,47 +1001,56 @@ function renderP1(P, C, tees, subs) {
 
   // Subempreitadas table
   const subsCores = ['var(--blu)','var(--grn)','var(--amb)','var(--red)','var(--vio)'];
-  const subsFilt = subs.filter(s => s['Empresa']);
-  const totCont = subsFilt.reduce((s,r) => s+num(r['Valor Contratado (€)']),0);
-  const totExec = subsFilt.reduce((s,r) => s+num(r['Valor Executado (€)']),0);
-  const totPago = subsFilt.reduce((s,r) => s+num(r['Valor Pago (€)']),0);
-  const totMarg = subsFilt.reduce((s,r) => s+num(r['Margem Primeline (€)']),0);
+  const subsFilt = subs.filter(s => s['Empresa'] || s['Especialidade']);
+  const totCD    = subsFilt.reduce((s,r) => s+num(r['C.D.']),0);
+  const totPV    = subsFilt.reduce((s,r) => s+num(r['P.V.']),0);
+  const totAdj   = subsFilt.reduce((s,r) => s+num(r['Valor Adjudicação Efetivo']),0);
+  const totMarg  = subsFilt.reduce((s,r) => s+num(r['Margem face ao custo do empreiteiro']),0);
+  const totPago  = subsFilt.reduce((s,r) => s+num(r['Valor Pago']),0);
 
   document.getElementById('subs-tbody').innerHTML = subsFilt.map((r,i) => {
-    const cont=num(r['Valor Contratado (€)']), exec=num(r['Valor Executado (€)']), pago=num(r['Valor Pago (€)']);
-    const emfalta = cont - pago;
-    const pctExec = cont ? exec/cont*100 : 0;
+    const cd   = num(r['C.D.']),   pv  = num(r['P.V.']);
+    const adj  = num(r['Valor Adjudicação Efetivo']);
+    const marg = num(r['Margem face ao custo do empreiteiro']);
+    const pago = num(r['Valor Pago']);
+    const pctPago = adj ? pago/adj*100 : 0;
+    const empresa = r['Empresa'] || '—';
     return `<tr>
       <td><span style="display:flex;align-items:center;gap:8px">
         <span style="width:8px;height:8px;border-radius:50%;background:${subsCores[i%subsCores.length]};flex-shrink:0"></span>
-        <strong>${r['Empresa']}</strong></span></td>
+        <strong>${empresa}</strong></span></td>
       <td>${r['Especialidade']||'—'}</td>
       <td class="td-mono" style="color:var(--tx3)">${r['Fase']||'—'}</td>
-      <td class="td-r">${cont?eur(cont):'—'}</td>
-      <td class="td-r">${exec?eur(exec):'—'}</td>
-      <td class="td-r" style="color:var(--amb)">${cont?pct(pctExec):'—'}</td>
+      <td class="td-r">${cd?eur(cd):'—'}</td>
+      <td class="td-r">${pv?eur(pv):'—'}</td>
+      <td class="td-r" style="color:var(--tx2)">${cd&&pv?eur(pv-cd):'—'}</td>
+      <td class="td-r" style="color:var(--blu)">${adj?eur(adj):'—'}</td>
+      <td class="td-r" style="color:var(--grn)">${marg?eur(marg):'—'}</td>
       <td class="td-r" style="color:var(--grn)">${pago?eur(pago):'—'}</td>
-      <td class="td-r" style="color:var(--amb)">${cont?eur(emfalta):'—'}</td>
-      <td class="td-r" style="color:var(--grn)">${r['Margem Primeline (€)']?eur(num(r['Margem Primeline (€)'])):'—'}</td>
+      <td class="td-r" style="color:var(--amb)">${adj?pct(pctPago):'—'}</td>
       <td>${estadoPill(r['Estado'])}</td>
     </tr>`;
-  }).join('') || '<tr><td colspan="10" style="color:var(--tx3);text-align:center;padding:16px">Sem subempreitadas registadas</td></tr>';
+  }).join('') || '<tr><td colspan="11" style="color:var(--tx3);text-align:center;padding:16px">Sem subempreitadas registadas</td></tr>';
 
   document.getElementById('subs-tfoot').innerHTML = `
     <td colspan="3">Total</td>
-    <td class="td-r">${eur(totCont)}</td>
-    <td class="td-r">${eur(totExec)}</td>
-    <td class="td-r">${totCont?pct(totExec/totCont*100):'—'}</td>
+    <td class="td-r">${eur(totCD)}</td>
+    <td class="td-r">${eur(totPV)}</td>
+    <td class="td-r">${eur(totPV-totCD)}</td>
+    <td class="td-r">${eur(totAdj)}</td>
+    <td class="td-r">${eur(totMarg)}</td>
     <td class="td-r">${eur(totPago)}</td>
-    <td class="td-r">${eur(totCont-totPago)}</td>
-    <td class="td-r">${eur(totMarg)}</td><td></td>`;
+    <td class="td-r">${totAdj?pct(totPago/totAdj*100):'—'}</td>
+    <td></td>`;
 
   // Sub-empreiteiros activos (cards)
-  document.getElementById('sub-cards').innerHTML = subsFilt.map((r,i) => `
-    <div class="sub-card">
-      <span class="sub-dot" style="background:${subsCores[i%subsCores.length]}"></span>
-      <div><div class="sub-name">${r['Empresa']}</div><div class="sub-scope">${r['Especialidade']||''}</div></div>
-    </div>`).join('');
+  document.getElementById('sub-cards').innerHTML = subsFilt
+    .filter(r => r['Empresa'] && ['Adjudicado','Fase consultas','Em execução','Activo'].includes(r['Estado']))
+    .map((r,i) => `
+      <div class="sub-card">
+        <span class="sub-dot" style="background:${subsCores[i%subsCores.length]}"></span>
+        <div><div class="sub-name">${r['Empresa']}</div><div class="sub-scope">${r['Especialidade']||''}</div></div>
+      </div>`).join('') || '<div style="color:var(--tx3);font-size:13px">Sem subempreiteiros activos</div>';
 
   // Alertas
   const alertas = [];
@@ -1083,8 +1095,8 @@ function renderP2(fases, faturacao, custosFixos, custosInternos) {
 
   // Mapear entradas por mês (da faturação)
   const entradasMes = {};
-  faturacao.filter(f => f['Nº Fatura'] && f['Valor (€)']).forEach(f => {
-    const d = toDate(f['Data Emissão']);
+  faturacao.filter(f => f['Nº Auto'] && f['Valor (€)']).forEach(f => {
+    const d = toDate(f['Data Emissão Fatura']);
     if (!d) return;
     const k = `${d.getFullYear()}-${d.getMonth()}`;
     entradasMes[k] = (entradasMes[k]||0) + num(f['Valor (€)']);
