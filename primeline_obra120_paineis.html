@@ -1206,7 +1206,7 @@ function renderP1(P, C, tees, subs) {
 }
 
 // ── RENDER PAINEL 2 ───────────────────────────────────
-function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos) {
+function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, subs) {
   // Calcular datas extremas da obra
   const toDate = v => {
     if (!v || v === '' || v === 0) return null;
@@ -1631,8 +1631,8 @@ async function loadData() {
     const cf   = toObjArray(raw['7_Custos_Fixos']   || []);
     const ci   = toObjArray(raw['8_Custos_Internos']|| []);
 
-    renderP1(P, C, tees, subs);
-    renderP2(fases, fat, cf, ci, pags);
+    try { renderP1(P, C, tees, subs); } catch(e) { console.error('renderP1:', e); }
+    try { renderP2(fases, fat, cf, ci, pags, subs); } catch(e) { console.error('renderP2:', e); }
 
   } catch(err) {
     document.querySelectorAll('[id^="spin-"]').forEach(e => {
