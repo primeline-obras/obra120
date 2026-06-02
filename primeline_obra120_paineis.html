@@ -358,7 +358,8 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
 .tl-col { flex: 1; display: flex; flex-direction: column; gap: 3px; align-items: center; }
 .tl-bars { display: flex; gap: 2px; align-items: flex-end; width: 100%; }
 .bar-in { flex: 1; border-radius: 3px 3px 0 0; background: var(--blu); min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); position: relative; }
-.bar-out { flex: 1; border-radius: 3px 3px 0 0; background: var(--amb); min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); }
+.bar-out { flex: 1; border-radius: 0 0 3px 3px; background: var(--amb); min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); }
+.bar-est { flex: 1; border-radius: 3px 3px 0 0; background: var(--amb); opacity: 0.35; min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); border-top: 1px dashed var(--amb); }
 .bar-in.neg { background: var(--red); }
 .tl-month { font-family: var(--mono); font-size: 9px; color: var(--tx3); margin-top: 5px; text-align: center; }
 .tl-month.current { color: var(--blu); }
@@ -367,6 +368,9 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
 /* saldo line overlay */
 .chart-wrap { position: relative; }
 .saldo-line { position: absolute; bottom: 28px; left: 0; right: 0; pointer-events: none; }
+.saldo-svg { position:absolute; top:0; left:0; width:100%; pointer-events:none; overflow:visible; }
+.saldo-path { fill:none; stroke-width:2.5px; stroke-linejoin:round; stroke-linecap:round; }
+.saldo-zero-line { stroke:var(--tx3); stroke-width:1px; stroke-dasharray:4,4; opacity:0.5; }
 
 .cf-legend { display: flex; gap: 20px; font-size: 11px; color: var(--tx2); margin-bottom: 14px; flex-wrap: wrap; }
 .leg-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 5px; vertical-align: middle; }
@@ -785,10 +789,12 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   <div class="card">
     <div class="cf-legend">
       <span><span class="leg-dot" style="background:var(--blu)"></span>Faturação ao DO (entradas)</span>
-      <span><span class="leg-dot" style="background:var(--amb)"></span>Subempreitadas + Custos (saídas)</span>
-      <span><span class="leg-dot" style="background:var(--red);border-radius:50%"></span>Mês em risco (saídas &gt; entradas)</span>
+      <span><span class="leg-dot" style="background:var(--amb)"></span>Custos reais (saídas)</span>
+      <span><span class="leg-dot" style="background:var(--amb);opacity:0.35;border:1px dashed var(--amb)"></span>Subempreitadas estimadas</span>
+      <span><span style="display:inline-block;width:20px;height:2px;background:var(--grn);vertical-align:middle;margin-right:5px;border-radius:2px"></span>Saldo acumulado</span>
+      <span><span class="leg-dot" style="background:var(--red);border-radius:50%"></span>Mês em risco</span>
     </div>
-    <div class="chart-wrap">
+    <div class="chart-wrap" id="cf-chart-wrap">
       <div class="timeline" id="cf-chart"></div>
     </div>
     <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap" id="cf-summary"></div>
@@ -837,23 +843,23 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   <div class="g4">
     <div class="kpi gl">
       <div class="kpi-tag">Total entradas previstas</div>
-      <div class="kpi-val" style="color:var(--grn)">559 831 €</div>
-      <div class="kpi-sub">até Jan 2027</div>
+      <div class="kpi-val" style="color:var(--grn)">—</div>
+      <div class="kpi-sub">até fim da obra</div>
     </div>
     <div class="kpi al">
       <div class="kpi-tag">Total saídas previstas</div>
-      <div class="kpi-val" style="color:var(--amb)">430 569 €</div>
+      <div class="kpi-val" style="color:var(--amb)">—</div>
       <div class="kpi-sub">subempreit. + custos</div>
     </div>
     <div class="kpi bl">
       <div class="kpi-tag">Saldo previsional</div>
-      <div class="kpi-val" style="color:var(--blu)">129 262 €</div>
+      <div class="kpi-val" style="color:var(--blu)">—</div>
       <div class="kpi-sub">margem bruta total</div>
     </div>
-    <div class="kpi rl">
-      <div class="kpi-tag">Meses em risco</div>
-      <div class="kpi-val" style="color:var(--red)">2</div>
-      <div class="kpi-sub">Set e Out — saídas &gt; entradas</div>
+    <div class="kpi rl" id="kpi-pior-mes">
+      <div class="kpi-tag">Pior mês (saldo acumulado)</div>
+      <div class="kpi-val" style="color:var(--red)">—</div>
+      <div class="kpi-sub" id="kpi-pior-mes-sub">—</div>
     </div>
   </div>
 
@@ -1274,8 +1280,10 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos) {
     });
   }
 
-  // Mapear saídas por mês (custos fixos + internos + pagamentos subempreitadas)
-  const saidasMes = {};
+  // Mapear saídas por mês (custos fixos + internos + pagamentos reais)
+  const saidasMes = {};      // saídas reais
+  const saidasEstMes = {};   // saídas estimadas (subempreitadas não adjudicadas)
+
   [...custosFixos, ...custosInternos].forEach(r => {
     const d = toDate(r['Mês']);
     if (!d) return;
@@ -1285,7 +1293,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos) {
     saidasMes[k] = (saidasMes[k]||0) + val*afect;
   });
 
-  // Pagamentos de subempreitadas — saídas reais
+  // Pagamentos reais de subempreitadas
   (pagamentos||[]).filter(p => p['Data Pagamento'] && p['Valor Pago (€)']).forEach(p => {
     const d = toDate(p['Data Pagamento']);
     if (!d) return;
@@ -1293,12 +1301,46 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos) {
     saidasMes[k] = (saidasMes[k]||0) + num(p['Valor Pago (€)']);
   });
 
+  // Saídas estimadas — subempreitadas não adjudicadas distribuídas pela fase
+  // Cria índice de fases por código para acesso rápido
+  const faseIndex = {};
+  fasesData.forEach(f => { if (f['Código']) faseIndex[f['Código']] = f; });
+
+  (subs||[]).filter(s => {
+    const est = (s['Estado']||'').trim();
+    return ['Ainda não','Fase consultas'].includes(est) && num(s['C.D.']) > 0 && s['Fase'];
+  }).forEach(s => {
+    const fase = faseIndex[s['Fase']];
+    if (!fase) return;
+    const dI = toDate(fase['Data Início']), dF = toDate(fase['Data Fim Prevista']);
+    if (!dI || !dF) return;
+    // Calcular quantos meses tem a fase
+    let nMeses = 0;
+    let c = new Date(dI.getFullYear(), dI.getMonth(), 1);
+    while (c <= dF) { nMeses++; c = new Date(c.getFullYear(), c.getMonth()+1, 1); }
+    if (nMeses === 0) return;
+    const cdMensal = num(s['C.D.']) / nMeses;
+    // Distribuir por cada mês da fase
+    c = new Date(dI.getFullYear(), dI.getMonth(), 1);
+    while (c <= dF) {
+      const k = `${c.getFullYear()}-${c.getMonth()}`;
+      saidasEstMes[k] = (saidasEstMes[k]||0) + cdMensal;
+      c = new Date(c.getFullYear(), c.getMonth()+1, 1);
+    }
+  });
+
   // Construir CF por mês
   const CF = meses.map(m => {
     const k = `${m.y}-${m.m}`;
     const isReal  = m.y < hojeY || (m.y===hojeY && m.m < hojeM);
     const isAtual = m.y===hojeY && m.m===hojeM;
-    return { ...m, entrada: entradasMes[k]||0, saida: saidasMes[k]||0, real:isReal, atual:isAtual };
+    return {
+      ...m,
+      entrada:  entradasMes[k]||0,
+      saida:    saidasMes[k]||0,
+      saidaEst: saidasEstMes[k]||0,
+      real: isReal, atual: isAtual
+    };
   });
 
   // GANTT — calcular posições relativas
@@ -1348,37 +1390,154 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos) {
   ganttEl.innerHTML = ganttHTML;
 
   // CHART
-  const maxVal = Math.max(...CF.flatMap(m => [m.entrada, m.saida]), 1);
+  const maxVal = Math.max(...CF.flatMap(m => [m.entrada, m.saida + m.saidaEst]), 1);
   const chartH = 180;
   document.getElementById('cf-chart').innerHTML = CF.map(m => {
-    const hIn  = Math.round(m.entrada / maxVal * chartH);
-    const hOut = Math.round(m.saida   / maxVal * chartH);
-    const risk = m.saida > m.entrada;
+    const hIn  = Math.round(m.entrada   / maxVal * chartH);
+    const hOut = Math.round(m.saida     / maxVal * chartH);
+    const hEst = Math.round(m.saidaEst  / maxVal * chartH);
+    const totalOut = m.saida + m.saidaEst;
+    const risk = totalOut > m.entrada && (m.entrada > 0 || totalOut > 0);
     return `<div class="tl-col">
       <div class="tl-bars">
-        <div class="bar-in ${risk?'neg':''}" style="height:${Math.max(hIn,2)}px" title="${m.label} ${m.y}: Entrada ${eur(m.entrada)}"></div>
-        <div class="bar-out" style="height:${Math.max(hOut,2)}px" title="${m.label} ${m.y}: Saída ${eur(m.saida)}"></div>
+        <div class="bar-in ${risk?'neg':''}" style="height:${Math.max(hIn,2)}px"
+          title="${m.label} ${m.y}: Entradas ${eur(m.entrada)}"></div>
+        <div style="display:flex;flex-direction:column;flex:1;align-items:stretch;gap:1px">
+          ${hEst>0?`<div class="bar-est" style="height:${Math.max(hEst,2)}px"
+            title="${m.label} ${m.y}: Estimado ${eur(m.saidaEst)}"></div>`:''}
+          ${hOut>0?`<div class="bar-out" style="height:${Math.max(hOut,2)}px"
+            title="${m.label} ${m.y}: Real ${eur(m.saida)}"></div>`:''}
+          ${!hOut&&!hEst?`<div class="bar-out" style="height:2px;opacity:0.2"></div>`:''}
+        </div>
       </div>
       <div class="tl-month ${m.atual?'current':m.real?'':'future'}">${m.label}<br><span style="font-size:8px;opacity:0.6">${m.y2}</span></div>
     </div>`;
   }).join('');
 
-  // MONTH GRID
-  document.getElementById('month-grid').innerHTML = CF.map(m => {
-    const saldo = m.entrada - m.saida;
-    const risk    = m.saida > m.entrada && (m.entrada > 0 || m.saida > 0);
-    const caution = !risk && m.entrada > 0 && (m.saida/m.entrada > 0.85);
-    const cls = m.atual?'current':m.real?'past':risk?'risk':caution?'caution':'';
-    const saldoCol = saldo >= 0 ? 'var(--grn)' : 'var(--red)';
-    const badge = risk    ? '<div class="mc-badge" style="color:var(--red)">⚠ saídas > entradas</div>'
-                : caution ? '<div class="mc-badge" style="color:var(--amb)">↑ atenção</div>'
-                : m.real  ? '<div class="mc-badge" style="color:var(--tx3)">✓ real</div>'
-                : m.atual ? '<div class="mc-badge" style="color:var(--blu)">→ actual</div>' : '';
+  // LINHA DE SALDO ACUMULADO — SVG sobreposto
+  // Calcular saldo acumulado por mês
+  let saldoAcum = 0;
+  const saldos = CF.map(m => {
+    saldoAcum += m.entrada - m.saida - m.saidaEst;
+    return saldoAcum;
+  });
+  const maxSaldo = Math.max(...saldos.map(Math.abs), 1);
+
+  // Aguardar render das barras e desenhar SVG
+  requestAnimationFrame(() => {
+    const wrap = document.getElementById('cf-chart-wrap');
+    const chart = document.getElementById('cf-chart');
+    if (!wrap || !chart) return;
+    const cols = chart.querySelectorAll('.tl-col');
+    if (!cols.length) return;
+
+    const wW = wrap.offsetWidth;
+    const wH = chartH + 28; // altura das barras + labels
+    const svgNS = 'http://www.w3.org/2000/svg';
+
+    // Remover SVG anterior se existir
+    const old = wrap.querySelector('.saldo-svg');
+    if (old) old.remove();
+
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('class', 'saldo-svg');
+    svg.setAttribute('height', wH);
+    svg.setAttribute('viewBox', `0 0 ${wW} ${wH}`);
+
+    // Linha de zero
+    const zeroY = chartH * 0.5; // linha de zero no meio
+    const zeroLine = document.createElementNS(svgNS, 'line');
+    zeroLine.setAttribute('class', 'saldo-zero-line');
+    zeroLine.setAttribute('x1', 0); zeroLine.setAttribute('y1', zeroY);
+    zeroLine.setAttribute('x2', wW); zeroLine.setAttribute('y2', zeroY);
+    svg.appendChild(zeroLine);
+
+    // Pontos da linha — centrado em cada coluna
+    const pts = Array.from(cols).map((col, i) => {
+      const rect = col.getBoundingClientRect();
+      const wrapRect = wrap.getBoundingClientRect();
+      const x = rect.left - wrapRect.left + rect.width / 2;
+      // normalizar saldo: 0 = meio do gráfico, max = topo, min = fundo
+      const norm = saldos[i] / maxSaldo;
+      const y = zeroY - norm * (chartH * 0.45);
+      return { x, y, s: saldos[i] };
+    });
+
+    // Dividir em segmentos positivo/negativo para colorir
+    let pathPos = '', pathNeg = '', lastX = pts[0].x, lastY = pts[0].y;
+    pts.forEach((p, i) => {
+      if (i === 0) {
+        pathPos = `M${p.x},${p.y}`;
+        pathNeg = `M${p.x},${p.y}`;
+      } else {
+        pathPos += ` L${p.x},${p.y}`;
+        pathNeg += ` L${p.x},${p.y}`;
+      }
+    });
+
+    // Linha única com gradiente de cor
+    const pathEl = document.createElementNS(svgNS, 'path');
+    pathEl.setAttribute('class', 'saldo-path');
+    pathEl.setAttribute('d', `M${pts.map(p=>`${p.x},${p.y}`).join(' L')}`);
+    pathEl.setAttribute('stroke', 'var(--grn)');
+    svg.appendChild(pathEl);
+
+    // Pontos com cor por valor
+    pts.forEach(p => {
+      const dot = document.createElementNS(svgNS, 'circle');
+      dot.setAttribute('cx', p.x); dot.setAttribute('cy', p.y); dot.setAttribute('r', 3);
+      dot.setAttribute('fill', p.s >= 0 ? 'var(--grn)' : 'var(--red)');
+      dot.setAttribute('stroke', 'var(--bg)'); dot.setAttribute('stroke-width', '1.5');
+      const title = document.createElementNS(svgNS, 'title');
+      title.textContent = `Saldo acumulado ${p.s >= 0 ? '+' : ''}${(p.s).toLocaleString('pt-PT',{maximumFractionDigits:0})} €`;
+      dot.appendChild(title);
+      svg.appendChild(dot);
+    });
+
+    // Colorir segmentos negativos a vermelho
+    const negSegs = [];
+    let inNeg = false, negStart = null;
+    pts.forEach((p, i) => {
+      if (p.s < 0 && !inNeg) { inNeg = true; negStart = i > 0 ? i-1 : i; }
+      if (p.s >= 0 && inNeg) { negSegs.push([negStart, i]); inNeg = false; }
+    });
+    if (inNeg) negSegs.push([negStart, pts.length-1]);
+
+    negSegs.forEach(([s, e]) => {
+      const negPts = pts.slice(s, e+1);
+      const negPath = document.createElementNS(svgNS, 'path');
+      negPath.setAttribute('class', 'saldo-path');
+      negPath.setAttribute('d', `M${negPts.map(p=>`${p.x},${p.y}`).join(' L')}`);
+      negPath.setAttribute('stroke', 'var(--red)');
+      svg.appendChild(negPath);
+    });
+
+    wrap.appendChild(svg);
+  });
+
+  // MONTH GRID — com saldo acumulado
+  let saldoAcc = 0;
+  document.getElementById('month-grid').innerHTML = CF.map((m, i) => {
+    const totalOut = m.saida + m.saidaEst;
+    const saldoMes  = m.entrada - totalOut;
+    saldoAcc += saldoMes;
+    const risk     = totalOut > m.entrada && (m.entrada > 0 || totalOut > 0);
+    const caution  = !risk && m.entrada > 0 && (totalOut/m.entrada > 0.85);
+    const negAcum  = saldoAcc < 0;
+    const cls = m.atual?'current':m.real?'past':negAcum?'risk':risk?'risk':caution?'caution':'';
+    const saldoCol = saldoMes >= 0 ? 'var(--grn)' : 'var(--red)';
+    const acumCol  = saldoAcc >= 0 ? 'var(--grn)' : 'var(--red)';
+    const badge = negAcum  ? '<div class="mc-badge" style="color:var(--red)">⚠ saldo acumulado negativo</div>'
+                : risk     ? '<div class="mc-badge" style="color:var(--red)">⚠ saídas > entradas</div>'
+                : caution  ? '<div class="mc-badge" style="color:var(--amb)">↑ atenção</div>'
+                : m.real   ? '<div class="mc-badge" style="color:var(--tx3)">✓ real</div>'
+                : m.atual  ? '<div class="mc-badge" style="color:var(--blu)">→ actual</div>' : '';
     return `<div class="month-card ${cls}">
       <div class="mc-month">${m.label} ${m.y2}</div>
       <div class="mc-in">↑ ${eur(m.entrada)}</div>
-      <div class="mc-out">↓ ${eur(m.saida)}</div>
-      <div class="mc-saldo" style="color:${saldoCol}">${saldo>=0?'+':''}${eur(saldo)}</div>
+      <div class="mc-out">↓ ${eur(m.saida)}${m.saidaEst>0?` <span style="color:var(--amb);font-size:10px">(+${eur(m.saidaEst)} est.)</span>`:''}</div>
+      <div class="mc-saldo" style="color:${saldoCol}">${saldoMes>=0?'+':''}${eur(saldoMes)}</div>
+      <div style="font-family:var(--mono);font-size:10px;color:${acumCol};margin-top:2px" title="Saldo acumulado">∑ ${saldoAcc>=0?'+':''}${eur(saldoAcc)}</div>
       ${badge}
     </div>`;
   }).join('');
@@ -1391,18 +1550,35 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos) {
 
   // KPIs P2
   const totalEnt  = CF.reduce((s,m) => s+m.entrada, 0);
-  const totalSai  = CF.reduce((s,m) => s+m.saida,   0);
-  const mesesRisc = CF.filter(m => m.saida > m.entrada && (m.entrada > 0 || m.saida > 0)).length;
+  const totalSai  = CF.reduce((s,m) => s+m.saida+m.saidaEst, 0);
+  const totalSaiReal = CF.reduce((s,m) => s+m.saida, 0);
+  const mesesRisc = CF.filter(m => (m.saida+m.saidaEst) > m.entrada && (m.entrada > 0 || (m.saida+m.saidaEst) > 0)).length;
+
+  // Calcular saldo acumulado para encontrar o pior mês
+  let acum = 0;
+  let piorSaldo = 0, piorMes = null;
+  CF.forEach(m => {
+    acum += m.entrada - m.saida - m.saidaEst;
+    if (acum < piorSaldo) { piorSaldo = acum; piorMes = m; }
+  });
+
   const p2kpis = document.querySelectorAll('#p2 .kpi-val');
   if (p2kpis[0]) p2kpis[0].textContent = eur(totalEnt);
   if (p2kpis[1]) p2kpis[1].textContent = eur(totalSai);
-  if (p2kpis[2]) p2kpis[2].textContent = eur(totalEnt - totalSai);
-  if (p2kpis[3]) p2kpis[3].textContent = mesesRisc;
+  if (p2kpis[2]) { p2kpis[2].textContent = eur(totalEnt - totalSai); p2kpis[2].style.color = (totalEnt-totalSai)>=0?'var(--grn)':'var(--red)'; }
+  if (p2kpis[3]) {
+    p2kpis[3].textContent = piorMes ? eur(piorSaldo) : eur(0);
+    p2kpis[3].style.color = piorSaldo < 0 ? 'var(--red)' : 'var(--grn)';
+    const sub = document.getElementById('kpi-pior-mes-sub');
+    if (sub) sub.textContent = piorMes ? `${piorMes.label} ${piorMes.y} — saldo acumulado mínimo` : 'Sem meses negativos ✓';
+    const card = document.getElementById('kpi-pior-mes');
+    if (card) card.className = piorSaldo < 0 ? 'kpi rl' : 'kpi gl';
+  }
 
-  // Header P2 saldo
+  // Header P2
   const p2metas = document.querySelectorAll('#p2 .oh-item .val');
-  if (p2metas[2]) { p2metas[2].textContent = eur(totalEnt-totalSai); p2metas[2].style.color='var(--grn)'; }
-  if (p2metas[3]) { p2metas[3].innerHTML = `${mesesRisc} meses <span class="pill pill-red">!</span>`; p2metas[3].style.color='var(--red)'; }
+  if (p2metas[2]) { p2metas[2].textContent = eur(totalEnt-totalSai); p2metas[2].style.color=(totalEnt-totalSai)>=0?'var(--grn)':'var(--red)'; }
+  if (p2metas[3]) { p2metas[3].innerHTML = `${mesesRisc} meses${mesesRisc>0?` <span class="pill pill-red">!</span>`:''}`;  p2metas[3].style.color=mesesRisc>0?'var(--red)':'var(--grn)'; }
 
   document.getElementById('p2-time').textContent = 'Actualizado ' + now.toLocaleTimeString('pt-PT');
 }
