@@ -321,12 +321,12 @@ thead th {
   text-transform: uppercase; color: var(--tx2);
   padding: 10px 12px; text-align: left;
   background: var(--s2); border-bottom: 1px solid var(--bd2);
-  white-space: nowrap;
+  white-space: nowrap; min-width: 80px;
 }
 tbody tr { border-bottom: 1px solid var(--bd); transition: background 0.1s; }
 tbody tr:hover { background: var(--s2); }
-tbody td { padding: 9px 12px; vertical-align: middle; }
-tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color: var(--grn); background: var(--s2); border-top: 1px solid var(--bd2); }
+tbody td { padding: 9px 12px; vertical-align: middle; white-space: nowrap; }
+tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color: var(--grn); background: var(--s2); border-top: 1px solid var(--bd2); white-space: nowrap; }
 .td-mono { font-family: var(--mono); }
 .td-r { text-align: right; font-family: var(--mono); }
 .td-c { text-align: center; }
@@ -812,8 +812,8 @@ function showPage(id, btn) {
 const now = new Date();
 document.getElementById('nav-date').textContent = now.toLocaleDateString('pt-PT', {weekday:'short',day:'2-digit',month:'short',year:'numeric'});
 
-function eur(n)     { return (parseFloat(n)||0).toLocaleString('pt-PT',{minimumFractionDigits:0,maximumFractionDigits:0}) + ' €'; }
-function pct(n,d=1) { return (parseFloat(n)||0).toLocaleString('pt-PT',{minimumFractionDigits:d,maximumFractionDigits:d}) + '%'; }
+function eur(n)     { return (parseFloat(n)||0).toLocaleString('pt-PT',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' €'; }
+function pct(n,d=2) { return (parseFloat(n)||0).toLocaleString('pt-PT',{minimumFractionDigits:d,maximumFractionDigits:d}) + '%'; }
 function num(v) {
   if (v === null || v === undefined || v === '') return 0;
   const s = String(v).replace(/€/g,'').replace(/\s/g,'');
@@ -829,14 +829,15 @@ function num(v) {
   return parseFloat(s) || 0;
 }
 
-function fmtDate(v) {
-  if (!v) return '—';
-  if (v instanceof Date || (typeof v === 'string' && v.includes('T'))) {
-    const d = new Date(v);
-    if (isNaN(d)) return v;
-    return d.toLocaleDateString('pt-PT');
-  }
-  return v;
+function fmtDate(v, mesesOnly=false) {
+  if (!v || v === '') return '—';
+  let d;
+  if (v instanceof Date) { d = v; }
+  else if (typeof v === 'string' && (v.includes('T') || /^\d{4}-\d{2}/.test(v))) { d = new Date(v); }
+  else { return String(v); }
+  if (!d || isNaN(d.getTime())) return String(v);
+  if (mesesOnly) return d.toLocaleDateString('pt-PT', {month:'long', year:'numeric'});
+  return d.toLocaleDateString('pt-PT');
 }
 
 // Converte array de rows (cabeçalho + dados) em array de objectos
@@ -921,11 +922,11 @@ function renderP1(P, C, tees, subs) {
   metaVals[0].textContent = P['Dono de Obra']||'—';
   metaVals[1].innerHTML   = `${P['Diretor de Obra']||'—'} <span style="color:var(--tx2);font-weight:300">/ ${P['Adjunta DO']||'—'}</span>`;
   metaVals[2].textContent = fmtDate(P['Início da obra']);
-  metaVals[3].innerHTML   = `${P['Prazo contratual']||'—'} <span class="pill pill-amb">${P['Prorrogação activa']||''}</span>`;
+  metaVals[3].innerHTML   = `${fmtDate(P['Prazo contratual'], true)||'—'} <span class="pill pill-amb">${P['Prorrogação activa']||''}</span>`;
 
   // Status bar
   const sbVals = document.querySelectorAll('#p1 .sbar-val');
-  sbVals[0].textContent = P['Prazo c/ prorrogação']||'—';
+  sbVals[0].textContent = fmtDate(P['Prazo c/ prorrogação'], true)||'—';
   sbVals[1].textContent = (P['Duração contratual (M)']||'—') + ' meses';
   sbVals[2].textContent = pct(pctPrazo);
   sbVals[3].textContent = pctObra !== null ? pct(pctObra) : 'a preencher';
@@ -1303,17 +1304,18 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos) {
 function simular() {
   const fase  = document.getElementById('sim-fase').value;
   const meses = parseInt(document.getElementById('sim-meses').value) || 1;
-  const custoEstaleiro = 1450;
-  const fatMensal      = 45000;
-  const custoLucro     = 3500;
+  // Custo de estaleiro em meses de prorrogação = TEE-010 (Estaleiro Adicional) = 3265€/mês
+  const custoEstaleiro = 3265;
+  const fatMensal      = 553619.19 / 10; // venda contratual / duração
+  const custoLucro     = 3265 * 0.085;   // impacto nos custos fixos
   document.getElementById('sr-atraso').textContent    = `+${meses} ${meses===1?'mês':'meses'} na conclusão`;
   document.getElementById('sr-estaleiro').textContent = `−${eur(custoEstaleiro*meses)}`;
   document.getElementById('sr-fat').textContent       = `Atrasa ${eur(fatMensal*meses)} de faturação`;
   document.getElementById('sr-risco').textContent     = `+${Math.max(1,meses-1)} ${meses<=2?'mês':'meses'} adicionais em risco`;
   document.getElementById('sr-lucro').textContent     = `−${eur((custoEstaleiro+custoLucro)*meses)}`;
   document.getElementById('sr-recomend').textContent  = meses===1
-    ? `Com 1 mês de atraso na ${fase}, o impacto é gerível mas requer comunicação imediata ao DO sobre custos de prorrogação. Considerar negociar antecipação de um auto de medição.`
-    : `Com ${meses} meses de atraso na ${fase}, há risco significativo de desequilíbrio no cash flow. Renegociar calendário de pagamentos com subempreiteiros e antecipar faturação ao DO sempre que possível.`;
+    ? `Com 1 mês de atraso na ${fase}, o impacto é gerível mas requer comunicação imediata ao DO sobre custos de prorrogação (${eur(custoEstaleiro)}/mês). Considerar negociar antecipação de um auto de medição.`
+    : `Com ${meses} meses de atraso na ${fase}, o custo adicional de estaleiro será ${eur(custoEstaleiro*meses)}. Há risco significativo de desequilíbrio no cash flow. Renegociar calendário de pagamentos com subempreiteiros e antecipar faturação ao DO sempre que possível.`;
   document.getElementById('sim-result').classList.add('show');
 }
 
