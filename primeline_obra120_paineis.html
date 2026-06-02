@@ -814,7 +814,12 @@ document.getElementById('nav-date').textContent = now.toLocaleDateString('pt-PT'
 
 function eur(n)     { return (parseFloat(n)||0).toLocaleString('pt-PT',{minimumFractionDigits:0,maximumFractionDigits:0}) + ' €'; }
 function pct(n,d=1) { return (parseFloat(n)||0).toLocaleString('pt-PT',{minimumFractionDigits:d,maximumFractionDigits:d}) + '%'; }
-function num(v)     { return parseFloat(String(v).replace(',','.')) || 0; }
+function num(v) {
+  if (v === null || v === undefined || v === '') return 0;
+  // Handle "1 634,00 €" or "1.634,00" or "1634.00"
+  const s = String(v).replace(/€/g,'').replace(/\s/g,'').replace(/\./g,'').replace(',','.');
+  return parseFloat(s) || 0;
+}
 
 function fmtDate(v) {
   if (!v) return '—';
@@ -957,7 +962,9 @@ function renderP1(P, C, tees, subs) {
   if (drCustos[3]) drCustos[3].textContent = pct(desvio);
   if (drCustos[4]) drCustos[4].textContent = `${eur(margRealEur)} (${pct(margRealPct,3)})`;
 
-  // Cenários
+  // TEEs — actualizar KPIs contratual com totais aprovados reais
+  const teeVendaReal = teesAprovados.reduce((s,t) => s+num(t['Valor Apresentado (€)']),0);
+  const teeCustoReal = teesAprovados.reduce((s,t) => s+num(t['Preço Custo (€)']),0);
   const scMap = {
     'sc-cflow-c': eur(cflowC), 'sc-mb-c-pct': pct(margemBrutaPct,2),
     'sc-mb-c-eur': eur(margemBruta), 'sc-lr-c': eur(lucroBase),
@@ -970,25 +977,35 @@ function renderP1(P, C, tees, subs) {
   Object.entries(scMap).forEach(([id,val]) => {
     const el = document.getElementById(id); if (el) el.textContent = val;
   });
-  const teesFiltrados = tees.filter(t => t['Código'] && t['Descrição']);
-  const teesAprovados = teesFiltrados.filter(t => t['Estado']==='Aprovado DO');
+  // Cenários: Número, Descrição, Data Envio, Data Aprovação, Valor Apresentado (€), Aprovado (S/N), Revisão Actual, Preço Custo (€), Margem (€)
+  const estadoTEE = v => {
+    const s = String(v||'').trim().toUpperCase();
+    if (s==='SIM') return 'Aprovado DO';
+    if (s==='NÃO' || s==='NAO') return 'Recusado';
+    if (s==='AGUARDA RESPOSTA') return 'Em análise';
+    return 'Em curso';
+  };
+
+  const teesFiltrados = tees.filter(t => t['Número'] && t['Descrição']);
+  const teesAprovados = teesFiltrados.filter(t => estadoTEE(t['Aprovado (S/N)'])==='Aprovado DO');
   const totalVTee = teesAprovados.reduce((s,t) => s+num(t['Valor Apresentado (€)']),0);
-  const totalCTee = teesAprovados.reduce((s,t) => s+num(t['Custo (€)']),0);
+  const totalCTee = teesAprovados.reduce((s,t) => s+num(t['Preço Custo (€)']),0);
   const totalMTee = totalVTee - totalCTee;
 
   document.getElementById('tees-tbody').innerHTML = teesFiltrados.map(t => {
-    const v = num(t['Valor Apresentado (€)']), c = num(t['Custo (€)']), m = v-c;
-    const aprov = t['Estado']==='Aprovado DO';
+    const v = num(t['Valor Apresentado (€)']), c = num(t['Preço Custo (€)']), m = v-c;
+    const estado = estadoTEE(t['Aprovado (S/N)']);
+    const aprov = estado === 'Aprovado DO';
     return `<tr>
-      <td class="td-mono">${t['Código']}</td>
+      <td class="td-mono">${t['Número']||'—'}</td>
       <td>${t['Descrição']||'—'}</td>
-      <td>${estadoPill(t['Estado'])}</td>
-      <td>${fmtDate(t['Data Submissão'])}</td>
+      <td>${estadoPill(estado)}</td>
+      <td>${fmtDate(t['Data Envio'])}</td>
       <td>${fmtDate(t['Data Aprovação'])}</td>
       <td class="td-r">${v?eur(v):'—'}</td>
       <td class="td-r">${c?eur(c):'—'}</td>
-      <td class="td-r" style="color:${aprov?'var(--grn)':'var(--tx3)'}">${aprov&&v?eur(m):'—'}</td>
-      <td class="td-r" style="color:${aprov?'var(--grn)':'var(--tx3)'}">${aprov&&v?pct(m/v*100):'—'}</td>
+      <td class="td-r" style="color:${aprov?'var(--grn)':v<0?'var(--red)':'var(--tx3)'}">${v?eur(m):'—'}</td>
+      <td class="td-r" style="color:${aprov?'var(--grn)':v<0?'var(--red)':'var(--tx3)'}">${v?pct(m/v*100):'—'}</td>
     </tr>`;
   }).join('') || '<tr><td colspan="9" style="color:var(--tx3);text-align:center;padding:16px">Sem TEEs registados</td></tr>';
 
@@ -1093,14 +1110,49 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos) {
 
   const hojeY = now.getFullYear(), hojeM = now.getMonth();
 
-  // Mapear entradas por mês (da faturação)
+  // Mapear entradas por mês
+  // Reais: usa Data Recebimento quando existe
+  // Previsão: distribui saldo por faturar pelos meses futuros com base no planeamento
   const entradasMes = {};
-  faturacao.filter(f => f['Nº Auto'] && f['Valor (€)']).forEach(f => {
-    const d = toDate(f['Data Emissão Fatura']);
+
+  faturacao.filter(f => f['Nº Fatura'] && num(f['Valor (€)']) > 0).forEach(f => {
+    // Usar data recebimento se existir, senão data emissão
+    const d = toDate(f['Data Recebimento']) || toDate(f['Data Emissão']);
     if (!d) return;
     const k = `${d.getFullYear()}-${d.getMonth()}`;
     entradasMes[k] = (entradasMes[k]||0) + num(f['Valor (€)']);
   });
+
+  // Previsão de faturação futura baseada no planeamento
+  // Para cada fase activa/futura, distribui o valor de venda proporcional ao trabalho previsto por mês
+  const vendaTotalObra = 553619.19; // do contratual
+  const jaFaturado = Object.values(entradasMes).reduce((s,v) => s+v, 0);
+  const porFaturar = vendaTotalObra - jaFaturado;
+
+  // Calcular peso de cada fase futura por mês
+  const pesos = {}; // k -> peso
+  fasesData.filter(f => num(f['% Executado']) < 100).forEach(f => {
+    const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
+    if (!dI || !dF) return;
+    const duracaoMs = dF - dI;
+    if (duracaoMs <= 0) return;
+    let c = new Date(dI.getFullYear(), dI.getMonth(), 1);
+    while (c <= dF) {
+      const ky = c.getFullYear(), km = c.getMonth();
+      if (ky > hojeY || (ky === hojeY && km >= hojeM)) {
+        const k = `${ky}-${km}`;
+        pesos[k] = (pesos[k]||0) + 1;
+      }
+      c = new Date(ky, km+1, 1);
+    }
+  });
+
+  const totalPeso = Object.values(pesos).reduce((s,v) => s+v, 0);
+  if (totalPeso > 0) {
+    Object.entries(pesos).forEach(([k, p]) => {
+      entradasMes[k] = (entradasMes[k]||0) + (p / totalPeso) * porFaturar;
+    });
+  }
 
   // Mapear saídas por mês (custos fixos + internos + pagamentos subempreitadas)
   const saidasMes = {};
