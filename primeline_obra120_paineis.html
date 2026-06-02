@@ -1068,7 +1068,7 @@ function renderP1(P, C, tees, subs) {
 }
 
 // ── RENDER PAINEL 2 ───────────────────────────────────
-function renderP2(fases, faturacao, custosFixos, custosInternos) {
+function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos) {
   // Calcular datas extremas da obra
   const toDate = v => v ? new Date(v) : null;
   const fasesData = fases.filter(f => f['Código']);
@@ -1102,7 +1102,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos) {
     entradasMes[k] = (entradasMes[k]||0) + num(f['Valor (€)']);
   });
 
-  // Mapear saídas por mês (custos fixos + internos imputados)
+  // Mapear saídas por mês (custos fixos + internos + pagamentos subempreitadas)
   const saidasMes = {};
   [...custosFixos, ...custosInternos].forEach(r => {
     const d = toDate(r['Mês']);
@@ -1111,6 +1111,14 @@ function renderP2(fases, faturacao, custosFixos, custosInternos) {
     const val = num(r['Valor (€)']||r['Custo Total (€)']);
     const afect = num(r['% Afectação Obra']||100) / 100;
     saidasMes[k] = (saidasMes[k]||0) + val*afect;
+  });
+
+  // Pagamentos de subempreitadas — saídas reais
+  (pagamentos||[]).filter(p => p['Data Pagamento'] && p['Valor Pago (€)']).forEach(p => {
+    const d = toDate(p['Data Pagamento']);
+    if (!d) return;
+    const k = `${d.getFullYear()}-${d.getMonth()}`;
+    saidasMes[k] = (saidasMes[k]||0) + num(p['Valor Pago (€)']);
   });
 
   // Construir CF por mês
@@ -1268,13 +1276,14 @@ async function loadData() {
     const C    = toKV(raw['2_Contratual'] || []);
     const tees = toObjArray(raw['3_TEEs'] || []);
     const subs = toObjArray(raw['4_Subempreitadas'] || []);
+    const pags = toObjArray(raw['4b_Pagamentos_Subempreitadas'] || []);
     const fases= toObjArray(raw['5_Planeamento']    || []);
     const fat  = toObjArray(raw['6_Faturação']      || []);
     const cf   = toObjArray(raw['7_Custos_Fixos']   || []);
     const ci   = toObjArray(raw['8_Custos_Internos']|| []);
 
     renderP1(P, C, tees, subs);
-    renderP2(fases, fat, cf, ci);
+    renderP2(fases, fat, cf, ci, pags);
 
   } catch(err) {
     document.querySelectorAll('[id^="spin-"]').forEach(e => {
