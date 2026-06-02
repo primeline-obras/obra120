@@ -816,8 +816,16 @@ function eur(n)     { return (parseFloat(n)||0).toLocaleString('pt-PT',{minimumF
 function pct(n,d=1) { return (parseFloat(n)||0).toLocaleString('pt-PT',{minimumFractionDigits:d,maximumFractionDigits:d}) + '%'; }
 function num(v) {
   if (v === null || v === undefined || v === '') return 0;
-  // Handle "1 634,00 €" or "1.634,00" or "1634.00"
-  const s = String(v).replace(/€/g,'').replace(/\s/g,'').replace(/\./g,'').replace(',','.');
+  const s = String(v).replace(/€/g,'').replace(/\s/g,'');
+  // Formato português: "1.634,00" — vírgula é decimal, ponto é milhar
+  if (/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) {
+    return parseFloat(s.replace(/\./g,'').replace(',','.')) || 0;
+  }
+  // Formato "1 634,00" sem ponto — espaço era milhar, já removido
+  if (/^\d+(,\d+)?$/.test(s) && s.includes(',')) {
+    return parseFloat(s.replace(',','.')) || 0;
+  }
+  // Formato normal: 553619.19
   return parseFloat(s) || 0;
 }
 
@@ -962,9 +970,7 @@ function renderP1(P, C, tees, subs) {
   if (drCustos[3]) drCustos[3].textContent = pct(desvio);
   if (drCustos[4]) drCustos[4].textContent = `${eur(margRealEur)} (${pct(margRealPct,3)})`;
 
-  // TEEs — actualizar KPIs contratual com totais aprovados reais
-  const teeVendaReal = teesAprovados.reduce((s,t) => s+num(t['Valor Apresentado (€)']),0);
-  const teeCustoReal = teesAprovados.reduce((s,t) => s+num(t['Preço Custo (€)']),0);
+  // Cenários
   const scMap = {
     'sc-cflow-c': eur(cflowC), 'sc-mb-c-pct': pct(margemBrutaPct,2),
     'sc-mb-c-eur': eur(margemBruta), 'sc-lr-c': eur(lucroBase),
@@ -977,7 +983,8 @@ function renderP1(P, C, tees, subs) {
   Object.entries(scMap).forEach(([id,val]) => {
     const el = document.getElementById(id); if (el) el.textContent = val;
   });
-  // Cenários: Número, Descrição, Data Envio, Data Aprovação, Valor Apresentado (€), Aprovado (S/N), Revisão Actual, Preço Custo (€), Margem (€)
+
+  // TEEs — colunas: Número, Descrição, Data Envio, Data Aprovação, Valor Apresentado (€), Aprovado (S/N), Preço Custo (€), Margem (€)
   const estadoTEE = v => {
     const s = String(v||'').trim().toUpperCase();
     if (s==='SIM') return 'Aprovado DO';
@@ -1087,7 +1094,13 @@ function renderP1(P, C, tees, subs) {
 // ── RENDER PAINEL 2 ───────────────────────────────────
 function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos) {
   // Calcular datas extremas da obra
-  const toDate = v => v ? new Date(v) : null;
+  const toDate = v => {
+    if (!v || v === '' || v === 0) return null;
+    try {
+      const d = new Date(v);
+      return isNaN(d.getTime()) ? null : d;
+    } catch { return null; }
+  };
   const fasesData = fases.filter(f => f['Código']);
 
   const obraInicio = fasesData.reduce((min, f) => {
@@ -1116,8 +1129,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos) {
   const entradasMes = {};
 
   faturacao.filter(f => f['Nº Fatura'] && num(f['Valor (€)']) > 0).forEach(f => {
-    // Usar data recebimento se existir, senão data emissão
-    const d = toDate(f['Data Recebimento']) || toDate(f['Data Emissão']);
+    const d = toDate(f['Data Recebimento']) || toDate(f['Data Emissão']) || toDate(f['Data de aprovação']);
     if (!d) return;
     const k = `${d.getFullYear()}-${d.getMonth()}`;
     entradasMes[k] = (entradasMes[k]||0) + num(f['Valor (€)']);
