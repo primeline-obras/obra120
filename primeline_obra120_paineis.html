@@ -739,9 +739,12 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
         <th class="td-r">Adj. Efetivo</th>
         <th class="td-r">Valor Pago</th>
         <th class="td-r">Em Falta</th>
-        <th class="td-r">% Pago</th><th>Estado</th>
+        <th class="td-r">% Pago</th>
+        <th>Entrada Obra</th>
+        <th>Contrato</th>
+        <th>Estado</th>
       </tr></thead>
-      <tbody id="subs-tbody"><tr><td colspan="11" style="color:var(--tx3);text-align:center;padding:16px">A carregar…</td></tr></tbody>
+      <tbody id="subs-tbody"><tr><td colspan="13" style="color:var(--tx3);text-align:center;padding:16px">A carregar…</td></tr></tbody>
       <tfoot><tr id="subs-tfoot"></tr></tfoot>
     </table>
   </div>
@@ -792,6 +795,8 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
       <span><span class="leg-dot" style="background:var(--amb)"></span>Custos reais (saídas)</span>
       <span><span class="leg-dot" style="background:var(--amb);opacity:0.35;border:1px dashed var(--amb)"></span>Subempreitadas estimadas</span>
       <span><span style="display:inline-block;width:20px;height:2px;background:var(--grn);vertical-align:middle;margin-right:5px;border-radius:2px"></span>Saldo acumulado</span>
+      <span><span style="display:inline-block;width:20px;height:1px;background:var(--blu);vertical-align:middle;margin-right:5px;border-style:dashed"></span>Ref. orç. entradas</span>
+      <span><span style="display:inline-block;width:20px;height:1px;background:var(--amb);vertical-align:middle;margin-right:5px;border-style:dashed"></span>Ref. orç. saídas</span>
       <span><span class="leg-dot" style="background:var(--red);border-radius:50%"></span>Mês em risco</span>
     </div>
     <div class="chart-wrap" id="cf-chart-wrap">
@@ -1138,7 +1143,7 @@ function renderP1(P, C, tees, subs) {
     <td class="td-r">${eur(totalMTee)}</td>
     <td class="td-r">${totalVTee?pct(totalMTee/totalVTee*100):'—'}</td>`;
 
-  // Subempreitadas table — colunas: CD, PV, Margem Inicial, Adj Efetivo, Valor Pago, Valor em Falta, % Pago
+  // Subempreitadas table
   const subsCores = ['var(--blu)','var(--grn)','var(--amb)','var(--red)','var(--vio)'];
   const subsFilt = subs.filter(s => s['Empresa'] || s['Especialidade']);
   const totCD   = subsFilt.reduce((s,r) => s+num(r['C.D.']),0);
@@ -1152,8 +1157,26 @@ function renderP1(P, C, tees, subs) {
     const adj  = num(r['Valor Adjudicação Efetivo']);
     const pago = num(r['Valor Pago']);
     const falt = num(r['Valor em Falta']);
-    const pctPago = adj ? pago/adj*100 : 0;
+    const pctP = adj ? pago/adj*100 : 0;
     const empresa = r['Empresa'] || '—';
+
+    // Contrato — auto-calcular se necessário com base no adj efetivo ou CD
+    const valorRef = adj || num(r['C.D.']);
+    const contratoNecessario = String(r['Contrato Necessário']||'').toUpperCase() === 'SIM' || valorRef >= 5000;
+    const contratoFeito    = String(r['Contrato Feito (S/N)']||'').toUpperCase() === 'SIM';
+    const contratoAssinado = String(r['Contrato Assinado (S/N)']||'').toUpperCase() === 'SIM';
+
+    let contratoPill = '';
+    if (!contratoNecessario) {
+      contratoPill = `<span class="ep" style="background:var(--s3);color:var(--tx3)">N/A</span>`;
+    } else if (contratoAssinado) {
+      contratoPill = `<span class="ep" style="background:var(--grn-bg);color:var(--grn);border:1px solid var(--grn2)">✓ Assinado</span>`;
+    } else if (contratoFeito) {
+      contratoPill = `<span class="ep" style="background:var(--amb-bg);color:var(--amb);border:1px solid var(--amb2)">Feito</span>`;
+    } else {
+      contratoPill = `<span class="ep" style="background:var(--red-bg);color:var(--red);border:1px solid var(--red2)">⚠ Em falta</span>`;
+    }
+
     return `<tr>
       <td><span style="display:flex;align-items:center;gap:8px">
         <span style="width:8px;height:8px;border-radius:50%;background:${subsCores[i%subsCores.length]};flex-shrink:0"></span>
@@ -1166,10 +1189,12 @@ function renderP1(P, C, tees, subs) {
       <td class="td-r" style="color:var(--blu)">${adj?eur(adj):'—'}</td>
       <td class="td-r" style="color:var(--grn)">${pago?eur(pago):'—'}</td>
       <td class="td-r" style="color:var(--amb)">${falt?eur(falt):'—'}</td>
-      <td class="td-r" style="color:var(--tx2)">${adj?pct(pctPago):'—'}</td>
+      <td class="td-r" style="color:var(--tx2)">${adj?pct(pctP):'—'}</td>
+      <td>${fmtDate(r['Data Entrada em Obra'])||'—'}</td>
+      <td>${contratoPill}</td>
       <td>${estadoPill(r['Estado'])}</td>
     </tr>`;
-  }).join('') || '<tr><td colspan="11" style="color:var(--tx3);text-align:center;padding:16px">Sem subempreitadas registadas</td></tr>';
+  }).join('') || '<tr><td colspan="13" style="color:var(--tx3);text-align:center;padding:16px">Sem subempreitadas registadas</td></tr>';
 
   document.getElementById('subs-tfoot').innerHTML = `
     <td colspan="3">Total</td>
@@ -1180,7 +1205,7 @@ function renderP1(P, C, tees, subs) {
     <td class="td-r">${eur(totPago)}</td>
     <td class="td-r" style="color:var(--amb)">${eur(totFalt)}</td>
     <td class="td-r">${totAdj?pct(totPago/totAdj*100):'—'}</td>
-    <td></td>`;
+    <td colspan="3"></td>`;
 
   // Sub-empreiteiros activos (cards)
   document.getElementById('sub-cards').innerHTML = subsFilt
@@ -1330,16 +1355,30 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     }
   });
 
-  // Construir CF por mês
-  const CF = meses.map(m => {
+  // Construir CF por mês — com linhas de referência orçamental
+  // Previsão orçamental de entradas: venda total distribuída linearmente pelos meses da obra
+  const vendaTotal = 553619.19;
+  const cdTotal2   = 430569.03; // CD total com TEEs aprovados
+  const entradaOrcMensal = vendaTotal / meses.length;
+  const saidaOrcMensal   = cdTotal2   / meses.length;
+  let entradaOrcAcum = 0, saidaOrcAcum = 0;
+
+  const CF = meses.map((m, idx) => {
     const k = `${m.y}-${m.m}`;
     const isReal  = m.y < hojeY || (m.y===hojeY && m.m < hojeM);
     const isAtual = m.y===hojeY && m.m===hojeM;
+    entradaOrcAcum += entradaOrcMensal;
+    saidaOrcAcum   += saidaOrcMensal;
     return {
       ...m,
-      entrada:  entradasMes[k]||0,
-      saida:    saidasMes[k]||0,
-      saidaEst: saidasEstMes[k]||0,
+      entrada:       entradasMes[k]||0,
+      saida:         saidasMes[k]||0,
+      saidaEst:      saidasEstMes[k]||0,
+      entradaOrc:    entradaOrcMensal,   // referência orçamental mensal entradas
+      saidaOrc:      saidaOrcMensal,     // referência orçamental mensal saídas
+      real: isReal, atual: isAtual
+    };
+  });
       real: isReal, atual: isAtual
     };
   });
@@ -1366,21 +1405,31 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
   </div>`;
 
   fasesData.forEach(f => {
-    const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
+    const dI  = toDate(f['Data Início']),      dF  = toDate(f['Data Fim Prevista']);
+    const dIR = toDate(f['Data Fim Real']);     // data real se existir
     if (!dI || !dF) return;
     const left  = Math.max(0, (dI - obraInicio) / totalMs * 100).toFixed(1);
-    const width = Math.max(1, (dF - dI) / totalMs * 100).toFixed(1);
+    const width = Math.max(1, (dF - dI)         / totalMs * 100).toFixed(1);
     const p     = num(f['% Executado']);
     const cor   = FASE_CORES[f['Código']] || '#4A6090';
     const sub   = (f['Subempreiteiro']||'').split('/')[0].trim().slice(0,8);
+
+    // Barra real (se data fim real existir)
+    let barraReal = '';
+    if (dIR) {
+      const wR = Math.max(0.5, (dIR - dI) / totalMs * 100).toFixed(1);
+      barraReal = `<div style="position:absolute;left:${left}%;width:${wR}%;top:0;height:100%;background:${cor};opacity:0.9;border-radius:3px;border:2px solid white" title="Concluído em ${fmtDate(dIR)}"></div>`;
+    }
+
     ganttHTML += `<div class="gantt-row" style="${hdrCols}">
       <div class="gantt-fase">${f['Código']} — ${f['Fase']}</div>
       <div style="padding:0 8px;font-size:10px;color:var(--tx3)">${sub}</div>
       <div style="position:relative;padding:4px">
         <div class="gantt-bar-wrap">
           <div class="gantt-today" style="left:${(hojePos*100).toFixed(1)}%"></div>
-          <div class="gantt-bar" style="left:${left}%;width:${width}%;background:${cor}33;border:1px solid ${cor}66">
-            <div style="position:absolute;left:0;top:0;height:100%;width:${p}%;background:${cor};border-radius:3px 0 0 3px;opacity:0.85"></div>
+          <div class="gantt-bar" style="left:${left}%;width:${width}%;background:${cor}25;border:1px solid ${cor}55">
+            <div style="position:absolute;left:0;top:0;height:100%;width:${p}%;background:${cor};border-radius:3px 0 0 3px;opacity:0.75"></div>
+            ${barraReal}
             <span class="gantt-bar-label" style="position:relative;z-index:1">${f['Fase']}</span>
           </div>
         </div>
@@ -1415,8 +1464,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     </div>`;
   }).join('');
 
-  // LINHA DE SALDO ACUMULADO — SVG sobreposto
-  // Calcular saldo acumulado por mês
+  // LINHA DE SALDO ACUMULADO + LINHAS ORÇAMENTAIS — SVG sobreposto
   let saldoAcum = 0;
   const saldos = CF.map(m => {
     saldoAcum += m.entrada - m.saida - m.saidaEst;
@@ -1424,97 +1472,103 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
   });
   const maxSaldo = Math.max(...saldos.map(Math.abs), 1);
 
-  // Aguardar render das barras e desenhar SVG
-  requestAnimationFrame(() => {
+  // Usar setTimeout para garantir que o DOM está renderizado
+  setTimeout(() => {
     const wrap = document.getElementById('cf-chart-wrap');
     const chart = document.getElementById('cf-chart');
     if (!wrap || !chart) return;
     const cols = chart.querySelectorAll('.tl-col');
     if (!cols.length) return;
 
-    const wW = wrap.offsetWidth;
-    const wH = chartH + 28; // altura das barras + labels
+    const wW = wrap.offsetWidth || 800;
     const svgNS = 'http://www.w3.org/2000/svg';
 
-    // Remover SVG anterior se existir
     const old = wrap.querySelector('.saldo-svg');
     if (old) old.remove();
 
     const svg = document.createElementNS(svgNS, 'svg');
     svg.setAttribute('class', 'saldo-svg');
-    svg.setAttribute('height', wH);
-    svg.setAttribute('viewBox', `0 0 ${wW} ${wH}`);
+    svg.setAttribute('height', chartH + 28);
+    svg.setAttribute('viewBox', `0 0 ${wW} ${chartH + 28}`);
+    svg.style.position = 'absolute';
+    svg.style.top = '0'; svg.style.left = '0';
+    svg.style.width = '100%'; svg.style.pointerEvents = 'none';
+
+    // Posições X dos centros das colunas
+    const pts = Array.from(cols).map((col, i) => {
+      const rect = col.getBoundingClientRect();
+      const wrapRect = wrap.getBoundingClientRect();
+      const x = rect.left - wrapRect.left + rect.width / 2;
+      const norm = saldos[i] / maxSaldo;
+      const y = chartH * 0.5 - norm * (chartH * 0.42);
+      return { x, y, s: saldos[i] };
+    });
+
+    if (!pts.length) return;
 
     // Linha de zero
-    const zeroY = chartH * 0.5; // linha de zero no meio
+    const zeroY = chartH * 0.5;
     const zeroLine = document.createElementNS(svgNS, 'line');
     zeroLine.setAttribute('class', 'saldo-zero-line');
     zeroLine.setAttribute('x1', 0); zeroLine.setAttribute('y1', zeroY);
     zeroLine.setAttribute('x2', wW); zeroLine.setAttribute('y2', zeroY);
     svg.appendChild(zeroLine);
 
-    // Pontos da linha — centrado em cada coluna
-    const pts = Array.from(cols).map((col, i) => {
-      const rect = col.getBoundingClientRect();
-      const wrapRect = wrap.getBoundingClientRect();
-      const x = rect.left - wrapRect.left + rect.width / 2;
-      // normalizar saldo: 0 = meio do gráfico, max = topo, min = fundo
-      const norm = saldos[i] / maxSaldo;
-      const y = zeroY - norm * (chartH * 0.45);
-      return { x, y, s: saldos[i] };
+    // Linhas orçamentais — posição Y fixa (entradaOrc e saidaOrc são constantes)
+    const maxValChart = Math.max(...CF.flatMap(m => [m.entrada, m.saida + m.saidaEst]), 1);
+    const yEntOrc = chartH - Math.round(CF[0].entradaOrc / maxValChart * chartH);
+    const ySaiOrc = chartH - Math.round(CF[0].saidaOrc   / maxValChart * chartH);
+
+    [[yEntOrc,'var(--blu)','Referência orçamental entradas'],[ySaiOrc,'var(--amb)','Referência orçamental saídas']].forEach(([y,col,lbl]) => {
+      const l = document.createElementNS(svgNS, 'line');
+      l.setAttribute('x1', 0); l.setAttribute('y1', y);
+      l.setAttribute('x2', wW); l.setAttribute('y2', y);
+      l.setAttribute('stroke', col); l.setAttribute('stroke-width', '1');
+      l.setAttribute('stroke-dasharray', '6,4'); l.setAttribute('opacity', '0.5');
+      const t = document.createElementNS(svgNS, 'title');
+      t.textContent = lbl; l.appendChild(t);
+      svg.appendChild(l);
     });
 
-    // Dividir em segmentos positivo/negativo para colorir
-    let pathPos = '', pathNeg = '', lastX = pts[0].x, lastY = pts[0].y;
-    pts.forEach((p, i) => {
-      if (i === 0) {
-        pathPos = `M${p.x},${p.y}`;
-        pathNeg = `M${p.x},${p.y}`;
-      } else {
-        pathPos += ` L${p.x},${p.y}`;
-        pathNeg += ` L${p.x},${p.y}`;
-      }
-    });
-
-    // Linha única com gradiente de cor
+    // Linha de saldo acumulado
     const pathEl = document.createElementNS(svgNS, 'path');
     pathEl.setAttribute('class', 'saldo-path');
-    pathEl.setAttribute('d', `M${pts.map(p=>`${p.x},${p.y}`).join(' L')}`);
+    pathEl.setAttribute('d', `M${pts.map(p=>`${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L')}`);
     pathEl.setAttribute('stroke', 'var(--grn)');
     svg.appendChild(pathEl);
 
-    // Pontos com cor por valor
-    pts.forEach(p => {
-      const dot = document.createElementNS(svgNS, 'circle');
-      dot.setAttribute('cx', p.x); dot.setAttribute('cy', p.y); dot.setAttribute('r', 3);
-      dot.setAttribute('fill', p.s >= 0 ? 'var(--grn)' : 'var(--red)');
-      dot.setAttribute('stroke', 'var(--bg)'); dot.setAttribute('stroke-width', '1.5');
-      const title = document.createElementNS(svgNS, 'title');
-      title.textContent = `Saldo acumulado ${p.s >= 0 ? '+' : ''}${(p.s).toLocaleString('pt-PT',{maximumFractionDigits:0})} €`;
-      dot.appendChild(title);
-      svg.appendChild(dot);
-    });
-
-    // Colorir segmentos negativos a vermelho
+    // Segmentos negativos a vermelho
+    let inNeg = false, negStart = 0;
     const negSegs = [];
-    let inNeg = false, negStart = null;
     pts.forEach((p, i) => {
       if (p.s < 0 && !inNeg) { inNeg = true; negStart = i > 0 ? i-1 : i; }
       if (p.s >= 0 && inNeg) { negSegs.push([negStart, i]); inNeg = false; }
     });
     if (inNeg) negSegs.push([negStart, pts.length-1]);
+    negSegs.forEach(([s,e]) => {
+      const np = pts.slice(s, e+1);
+      const el = document.createElementNS(svgNS, 'path');
+      el.setAttribute('class', 'saldo-path');
+      el.setAttribute('d', `M${np.map(p=>`${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L')}`);
+      el.setAttribute('stroke', 'var(--red)');
+      svg.appendChild(el);
+    });
 
-    negSegs.forEach(([s, e]) => {
-      const negPts = pts.slice(s, e+1);
-      const negPath = document.createElementNS(svgNS, 'path');
-      negPath.setAttribute('class', 'saldo-path');
-      negPath.setAttribute('d', `M${negPts.map(p=>`${p.x},${p.y}`).join(' L')}`);
-      negPath.setAttribute('stroke', 'var(--red)');
-      svg.appendChild(negPath);
+    // Pontos
+    pts.forEach(p => {
+      const dot = document.createElementNS(svgNS, 'circle');
+      dot.setAttribute('cx', p.x.toFixed(1)); dot.setAttribute('cy', p.y.toFixed(1));
+      dot.setAttribute('r', 3);
+      dot.setAttribute('fill', p.s >= 0 ? 'var(--grn)' : 'var(--red)');
+      dot.setAttribute('stroke', 'var(--bg)'); dot.setAttribute('stroke-width', '1.5');
+      const t = document.createElementNS(svgNS, 'title');
+      t.textContent = `Saldo acumulado: ${p.s>=0?'+':''}${p.s.toLocaleString('pt-PT',{maximumFractionDigits:0})} €`;
+      dot.appendChild(t);
+      svg.appendChild(dot);
     });
 
     wrap.appendChild(svg);
-  });
+  }, 300);
 
   // MONTH GRID — com saldo acumulado
   let saldoAcc = 0;
@@ -1604,7 +1658,6 @@ function simular() {
 
 // ── LOADING ───────────────────────────────────────────
 async function loadData() {
-  // Mostrar spinner enquanto carrega
   document.querySelectorAll('.page').forEach(p => {
     const spin = document.createElement('div');
     spin.style.cssText = 'text-align:center;padding:60px;color:var(--tx3);font-family:var(--mono);font-size:12px';
@@ -1618,7 +1671,6 @@ async function loadData() {
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const raw = await resp.json();
 
-    // Remover spinners
     document.querySelectorAll('[id^="spin-"]').forEach(e => e.remove());
 
     const P    = toKV(raw['1_Painel']     || []);
@@ -1628,16 +1680,23 @@ async function loadData() {
     const pags = toObjArray(raw['4b_Pagamentos_Subempreitadas'] || []);
     const fases= toObjArray(raw['5_Planeamento']    || []);
     const fat  = toObjArray(raw['6_Faturação']      || []);
-    const cf   = toObjArray(raw['7_Custos_Fixos']   || []);
+    // Suporta tanto o nome antigo como o novo
+    const mat  = toObjArray(raw['7_Materiais']      || []);
+    const cf   = toObjArray(raw['8_Custos']         || raw['7_Custos_Fixos']   || []);
     const ci   = toObjArray(raw['8_Custos_Internos']|| []);
 
+    // Combinar custos fixos + internos + materiais para o cash flow
+    const todosOsCustos = [...cf, ...ci, ...mat.map(m => ({
+      'Mês': m['Mês'], 'Valor (€)': m['Valor (€)'], '% Afectação Obra': '100'
+    }))];
+
     try { renderP1(P, C, tees, subs); } catch(e) { console.error('renderP1:', e); }
-    try { renderP2(fases, fat, cf, ci, pags, subs); } catch(e) { console.error('renderP2:', e); }
+    try { renderP2(fases, fat, todosOsCustos, [], pags, subs); } catch(e) { console.error('renderP2:', e); }
 
   } catch(err) {
     document.querySelectorAll('[id^="spin-"]').forEach(e => {
       e.style.color = 'var(--red)';
-      e.textContent = `Erro ao carregar dados: ${err.message}`;
+      e.textContent = `Erro ao carregar dados: ${err.message}. Verifica se a sheet está publicada.`;
     });
   }
 }
