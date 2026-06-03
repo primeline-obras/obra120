@@ -737,8 +737,8 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
         <th class="td-r">C.D.</th><th class="td-r">P.V.</th>
         <th class="td-r">Margem Inicial</th>
         <th class="td-r">Adj. Efetivo</th>
-        <th class="td-r">Marg. Empreiteiro</th>
-        <th class="td-r">Pago</th>
+        <th class="td-r">Valor Pago</th>
+        <th class="td-r">Em Falta</th>
         <th class="td-r">% Pago</th><th>Estado</th>
       </tr></thead>
       <tbody id="subs-tbody"><tr><td colspan="11" style="color:var(--tx3);text-align:center;padding:16px">A carregar…</td></tr></tbody>
@@ -1019,7 +1019,8 @@ function renderP1(P, C, tees, subs) {
   const porFaturar      = num(C['Valor Por Faturar']);
   const pctFat          = vendaTotal ? faturado/vendaTotal*100 : 0;
   const pctPrazo        = num(P['% Prazo Consumido']);
-  const pctObra         = P['% Obra Executada'] ? num(P['% Obra Executada']) : null;
+  const pctObraRaw      = String(P['% Obra Executada']||'').replace('%','').trim();
+  const pctObra         = pctObraRaw ? parseFloat(pctObraRaw) : null;
   const margRealEur     = num(C['Margem Real YTD']);
   const margRealPct     = num(C['Margem Real YTD %']);
   const desvio          = num(C['Desvio Orç %']);
@@ -1137,20 +1138,20 @@ function renderP1(P, C, tees, subs) {
     <td class="td-r">${eur(totalMTee)}</td>
     <td class="td-r">${totalVTee?pct(totalMTee/totalVTee*100):'—'}</td>`;
 
-  // Subempreitadas table
+  // Subempreitadas table — colunas: CD, PV, Margem Inicial, Adj Efetivo, Valor Pago, Valor em Falta, % Pago
   const subsCores = ['var(--blu)','var(--grn)','var(--amb)','var(--red)','var(--vio)'];
   const subsFilt = subs.filter(s => s['Empresa'] || s['Especialidade']);
-  const totCD    = subsFilt.reduce((s,r) => s+num(r['C.D.']),0);
-  const totPV    = subsFilt.reduce((s,r) => s+num(r['P.V.']),0);
-  const totAdj   = subsFilt.reduce((s,r) => s+num(r['Valor Adjudicação Efetivo']),0);
-  const totMarg  = subsFilt.reduce((s,r) => s+num(r['Margem face ao custo do empreiteiro']),0);
-  const totPago  = subsFilt.reduce((s,r) => s+num(r['Valor Pago']),0);
+  const totCD   = subsFilt.reduce((s,r) => s+num(r['C.D.']),0);
+  const totPV   = subsFilt.reduce((s,r) => s+num(r['P.V.']),0);
+  const totAdj  = subsFilt.reduce((s,r) => s+num(r['Valor Adjudicação Efetivo']),0);
+  const totPago = subsFilt.reduce((s,r) => s+num(r['Valor Pago']),0);
+  const totFalt = subsFilt.reduce((s,r) => s+num(r['Valor em Falta']),0);
 
   document.getElementById('subs-tbody').innerHTML = subsFilt.map((r,i) => {
-    const cd   = num(r['C.D.']),   pv  = num(r['P.V.']);
+    const cd   = num(r['C.D.']), pv = num(r['P.V.']);
     const adj  = num(r['Valor Adjudicação Efetivo']);
-    const marg = num(r['Margem face ao custo do empreiteiro']);
     const pago = num(r['Valor Pago']);
+    const falt = num(r['Valor em Falta']);
     const pctPago = adj ? pago/adj*100 : 0;
     const empresa = r['Empresa'] || '—';
     return `<tr>
@@ -1163,9 +1164,9 @@ function renderP1(P, C, tees, subs) {
       <td class="td-r">${pv?eur(pv):'—'}</td>
       <td class="td-r" style="color:var(--tx2)">${cd&&pv?eur(pv-cd):'—'}</td>
       <td class="td-r" style="color:var(--blu)">${adj?eur(adj):'—'}</td>
-      <td class="td-r" style="color:var(--grn)">${marg?eur(marg):'—'}</td>
       <td class="td-r" style="color:var(--grn)">${pago?eur(pago):'—'}</td>
-      <td class="td-r" style="color:var(--amb)">${adj?pct(pctPago):'—'}</td>
+      <td class="td-r" style="color:var(--amb)">${falt?eur(falt):'—'}</td>
+      <td class="td-r" style="color:var(--tx2)">${adj?pct(pctPago):'—'}</td>
       <td>${estadoPill(r['Estado'])}</td>
     </tr>`;
   }).join('') || '<tr><td colspan="11" style="color:var(--tx3);text-align:center;padding:16px">Sem subempreitadas registadas</td></tr>';
@@ -1176,8 +1177,8 @@ function renderP1(P, C, tees, subs) {
     <td class="td-r">${eur(totPV)}</td>
     <td class="td-r">${eur(totPV-totCD)}</td>
     <td class="td-r">${eur(totAdj)}</td>
-    <td class="td-r">${eur(totMarg)}</td>
     <td class="td-r">${eur(totPago)}</td>
+    <td class="td-r" style="color:var(--amb)">${eur(totFalt)}</td>
     <td class="td-r">${totAdj?pct(totPago/totAdj*100):'—'}</td>
     <td></td>`;
 
@@ -1587,10 +1588,9 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
 function simular() {
   const fase  = document.getElementById('sim-fase').value;
   const meses = parseInt(document.getElementById('sim-meses').value) || 1;
-  // Custo de estaleiro em meses de prorrogação = TEE-010 (Estaleiro Adicional) = 3265€/mês
-  const custoEstaleiro = 3265;
-  const fatMensal      = 553619.19 / 10; // venda contratual / duração
-  const custoLucro     = 3265 * 0.085;   // impacto nos custos fixos
+  const custoEstaleiro = 3133.42; // Custo real estaleiro/mês (confirmado com Henrique)
+  const fatMensal      = 553619.19 / 10;
+  const custoLucro     = 3133.42 * 0.085;
   document.getElementById('sr-atraso').textContent    = `+${meses} ${meses===1?'mês':'meses'} na conclusão`;
   document.getElementById('sr-estaleiro').textContent = `−${eur(custoEstaleiro*meses)}`;
   document.getElementById('sr-fat').textContent       = `Atrasa ${eur(fatMensal*meses)} de faturação`;
