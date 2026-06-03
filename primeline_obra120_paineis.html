@@ -545,20 +545,6 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="login-screen">
-  <div class="login-box">
-    <div class="login-logo">Primeline Engenharia e Construção</div>
-    <div class="login-title">Obra 120 · QM-R-001</div>
-    <div class="login-sub">Painel de gestão financeira</div>
-    <input class="login-input" type="password" id="login-pwd"
-      placeholder="••••••••"
-      onkeydown="if(event.key==='Enter') checkLogin()">
-    <button class="login-btn" onclick="checkLogin()">Entrar</button>
-    <div class="login-error" id="login-error"></div>
-  </div>
-</div>
-
 <!-- NAV -->
 <nav class="nav">
   <div class="nav-brand">Primeline · <strong>Obra 120</strong></div>
@@ -878,28 +864,6 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
 <script>
 // ── CONFIGURAÇÃO ─────────────────────────────────────
 const API_URL = "https://script.google.com/macros/s/AKfycbwER0TXxOzhGtQwH5kmAjV4qeHUfA8fTYIq05UkUl9Suw6R4ql4nc4905CJ7d7lq24/exec";
-
-// ── PASSWORD ──────────────────────────────────────────
-// Para alterar a password, muda o valor abaixo
-const SENHA = "primeline120";
-
-function checkLogin() {
-  const val = document.getElementById('login-pwd').value;
-  if (val === SENHA) {
-    document.getElementById('login-screen').style.display = 'none';
-    sessionStorage.setItem('pl-auth', '1');
-    loadData();
-  } else {
-    document.getElementById('login-error').textContent = 'Password incorrecta.';
-    document.getElementById('login-pwd').value = '';
-    document.getElementById('login-pwd').focus();
-  }
-}
-
-// Se já autenticou nesta sessão, não pede de novo
-if (sessionStorage.getItem('pl-auth') === '1') {
-  document.getElementById('login-screen').style.display = 'none';
-}
 
 // ── THEME ─────────────────────────────────────────────
 function toggleTheme() {
@@ -1707,10 +1671,7 @@ async function loadData() {
     document.getElementById('theme-icon').textContent  = '☀️';
     document.getElementById('theme-label').textContent = 'Claro';
   }
-  // Só carrega dados se já autenticado
-  if (sessionStorage.getItem('pl-auth') === '1') {
-    loadData();
-  }
+  loadData();
 })();
 </script>
 </body>
