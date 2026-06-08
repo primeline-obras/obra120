@@ -3,45 +3,100 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Primeline — Índices de Obra 120</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>Primeline — Obra 120 QM-R-001</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
 <style>
-/* ============================================================
-   PRIMELINE — ÍNDICES DE OBRA
-   Alimentado pela Google Sheet via Apps Script
-   ============================================================ */
-
+/* ── DARK MODE (default) ── */
 :root {
-  --bg:       #0F1117;
-  --s1:       #151922;
-  --s2:       #1C2130;
-  --s3:       #232A3B;
-  --bd:       #2A3348;
-  --bd2:      #3D5080;
-  --tx:       #E2E8F4;
-  --tx2:      #8896B0;
-  --tx3:      #4A5570;
-  --grn:      #41D15A;
-  --grn-bg:   #071A10;
+  --bg:       #080B10;
+  --s0:       #0D1118;
+  --s1:       #111622;
+  --s2:       #171E2E;
+  --s3:       #1E2840;
+  --s4:       #263050;
+  --bd:       #1E2840;
+  --bd2:      #2E3D5C;
+  --bd3:      #3D5080;
+  --tx:       #D8E4F8;
+  --tx2:      #7B90B8;
+  --tx3:      #3D4F70;
+  --grn:      #3DD68C;
   --grn2:     #2AB870;
+  --grn-bg:   #071A10;
   --amb:      #F5A623;
+  --amb2:     #D08800;
   --amb-bg:   #1A1000;
   --red:      #F56060;
+  --red2:     #C83030;
   --red-bg:   #180808;
   --blu:      #4D9EF5;
+  --blu2:     #2878D8;
   --blu-bg:   #060E1C;
-  --mono: 'IBM Plex Mono', monospace;
-  --sans: 'IBM Plex Sans', sans-serif;
-  --pl-green: #1B3A2D;
-  --pl-green-mid: #2A5C42;
-  --pl-green-light: #3D8A60;
+  --vio:      #A78BFA;
+  --vio-bg:   #0D0818;
+  --nav-bg:   rgba(8,11,16,0.92);
+  --mono: 'DM Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
 }
 
+/* ── LIGHT MODE ── */
+html.light {
+  --bg:       #F4F6FB;
+  --s0:       #ECEEF5;
+  --s1:       #FFFFFF;
+  --s2:       #F0F2F8;
+  --s3:       #E4E8F2;
+  --s4:       #D8DEED;
+  --bd:       #D8DEED;
+  --bd2:      #B8C4DC;
+  --bd3:      #98AACC;
+  --tx:       #1A2340;
+  --tx2:      #4A5878;
+  --tx3:      #8898B8;
+  --grn:      #1A8A50;
+  --grn2:     #147840;
+  --grn-bg:   #E8F7EE;
+  --amb:      #A06000;
+  --amb2:     #805000;
+  --amb-bg:   #FFF4E0;
+  --red:      #C02020;
+  --red2:     #A01010;
+  --red-bg:   #FDEAEA;
+  --blu:      #1A60C8;
+  --blu2:     #1050A8;
+  --blu-bg:   #EAF0FC;
+  --vio:      #6040C0;
+  --vio-bg:   #F0ECFC;
+  --nav-bg:   rgba(244,246,251,0.95);
+}
+
+/* ── THEME TOGGLE BUTTON ── */
+.theme-toggle {
+  background: var(--s2);
+  border: 1px solid var(--bd2);
+  border-radius: 20px;
+  padding: 4px 12px 4px 8px;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 11px;
+  color: var(--tx2);
+  transition: all 0.2s;
+  margin-left: 12px;
+  white-space: nowrap;
+}
+.theme-toggle:hover { border-color: var(--blu); color: var(--blu); }
+.theme-icon { font-size: 14px; line-height: 1; transition: transform 0.3s; }
+.theme-toggle:hover .theme-icon { transform: rotate(20deg); }
 * { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
 body {
   font-family: var(--sans);
   background: var(--bg);
   color: var(--tx);
+  min-height: 100vh;
   font-size: 14px;
   line-height: 1.5;
 }
@@ -49,388 +104,785 @@ body {
 /* ── NAV ── */
 .nav {
   position: sticky; top: 0; z-index: 100;
-  background: rgba(15,17,23,0.95);
+  background: var(--nav-bg);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--bd);
   padding: 0 28px;
-  display: flex; align-items: center; gap: 4px;
+  display: flex;
+  align-items: center;
+  gap: 0;
   height: 52px;
 }
 .nav-brand {
-  font-family: var(--mono); font-size: 11px;
-  letter-spacing: 0.15em; text-transform: uppercase;
-  color: var(--tx3); margin-right: 24px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--tx3);
+  margin-right: 32px;
+  white-space: nowrap;
 }
 .nav-brand strong { color: var(--blu); font-weight: 500; }
+.nav-tabs { display: flex; gap: 2px; }
 .nav-tab {
-  font-family: var(--mono); font-size: 11px;
-  letter-spacing: 0.06em; padding: 6px 14px;
-  border-radius: 6px; cursor: pointer;
-  color: var(--tx2); border: none; background: none;
-  transition: all 0.15s; white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  padding: 6px 16px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  color: var(--tx2);
+  border: none; background: none;
+  transition: all 0.15s;
+  white-space: nowrap;
 }
 .nav-tab:hover { color: var(--tx); background: var(--s2); }
-.nav-tab.active { color: var(--blu); background: var(--blu-bg); border: 1px solid #1050A8; }
+.nav-tab.active { color: var(--blu); background: var(--blu-bg); border: 1px solid var(--blu2); }
 .nav-spacer { flex: 1; }
-.nav-print {
-  font-family: var(--mono); font-size: 11px;
-  padding: 5px 14px; border-radius: 6px;
-  background: var(--pl-green); color: #B8E6C8;
-  border: 1px solid var(--pl-green-mid);
-  cursor: pointer; transition: all 0.15s;
+.nav-date {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--tx3);
 }
-.nav-print:hover { background: var(--pl-green-mid); }
 
 /* ── PAGES ── */
-.page { display: none; padding: 28px 28px 60px; max-width: 1200px; margin: 0 auto; }
+.page { display: none; padding: 28px 28px 60px; max-width: 1160px; margin: 0 auto; }
 .page.active { display: block; }
 
-/* ── DOCUMENT HEADER ── */
-.doc-header {
+/* ── HEADER OBRA ── */
+.obra-header {
+  background: linear-gradient(135deg, var(--s2) 0%, var(--s1) 100%);
+  border: 1px solid var(--bd2);
+  border-radius: var(--r-lg);
+  padding: 24px 28px;
+  margin-bottom: 16px;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 1fr auto;
   gap: 24px;
-  align-items: center;
-  margin-bottom: 28px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid var(--pl-green-mid);
+  position: relative;
+  overflow: hidden;
 }
-.doc-logo {
-  font-family: var(--sans);
-  font-weight: 600;
-  font-size: 15px;
-  color: var(--tx);
-  line-height: 1.3;
+.obra-header::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 180px; height: 180px;
+  background: radial-gradient(circle, rgba(77,158,245,0.08) 0%, transparent 70%);
+  pointer-events: none;
 }
-.doc-logo span {
-  display: block;
-  font-weight: 300;
-  font-size: 11px;
-  letter-spacing: 0.1em;
+.oh-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--pl-green-light);
-  margin-bottom: 3px;
+  color: var(--tx3);
+  margin-bottom: 6px;
 }
-.doc-title {
-  text-align: center;
-}
-.doc-title h1 {
-  font-size: 16px;
+.oh-title {
+  font-size: 22px;
   font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--tx);
   margin-bottom: 4px;
+  letter-spacing: -0.02em;
 }
-.doc-title p {
-  font-size: 12px;
-  color: var(--tx2);
+.oh-ref {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--blu);
+  background: var(--blu-bg);
+  border: 1px solid var(--blu2);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-left: 8px;
 }
-.doc-meta {
-  text-align: right;
-  font-size: 12px;
-  color: var(--tx2);
-  line-height: 1.8;
+.oh-desc { font-size: 13px; color: var(--tx2); font-weight: 300; margin-top: 2px; }
+.oh-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 28px; text-align: right; }
+.oh-item .lbl {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--tx3); display: block; margin-bottom: 2px;
 }
-.doc-meta strong { color: var(--tx); font-weight: 500; }
+.oh-item .val { font-size: 13px; font-weight: 500; }
+.pill {
+  display: inline-block; font-family: var(--mono);
+  font-size: 10px; padding: 2px 8px; border-radius: 20px;
+}
+.pill-amb { background: var(--amb-bg); color: var(--amb); border: 1px solid var(--amb2); }
+.pill-grn { background: var(--grn-bg); color: var(--grn); border: 1px solid var(--grn2); }
+.pill-blu { background: var(--blu-bg); color: var(--blu); border: 1px solid var(--blu2); }
+.pill-red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red2); }
+.pill-vio { background: var(--vio-bg); color: var(--vio); }
+
+/* ── STATUS BAR ── */
+.sbar {
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  padding: 0 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+}
+.sbar-item {
+  display: flex; flex-direction: column; justify-content: center;
+  gap: 3px; padding: 12px 20px; flex: 1; min-width: 100px;
+}
+.sbar-item + .sbar-item { border-left: 1px solid var(--bd); }
+.sbar-lbl { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--tx3); }
+.sbar-val { font-size: 13px; font-weight: 500; }
+
+/* ── SECTION ── */
+.sec {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--tx3); margin: 24px 0 10px;
+  display: flex; align-items: center; gap: 10px;
+}
+.sec::after { content: ''; flex: 1; height: 1px; background: var(--bd); }
+
+/* ── GRID LAYOUTS ── */
+.g3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.g2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
+.g4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+.span2 { grid-column: span 2; }
+.span3 { grid-column: span 3; }
+
+/* ── CARD ── */
+.card {
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  padding: 16px 18px;
+  transition: border-color 0.15s;
+}
+.card:hover { border-color: var(--bd2); }
+.card-title {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--tx3); margin-bottom: 12px;
+}
+
+/* ── KPI ── */
+.kpi { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--r-md); padding: 16px 18px; }
+.kpi.gl { border-left: 3px solid var(--grn); }
+.kpi.bl { border-left: 3px solid var(--blu); }
+.kpi.al { border-left: 3px solid var(--amb); }
+.kpi.rl { border-left: 3px solid var(--red); }
+.kpi.vl { border-left: 3px solid var(--vio); }
+.kpi-tag { font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--tx3); margin-bottom: 8px; }
+.kpi-val { font-family: var(--mono); font-size: 22px; font-weight: 500; line-height: 1.1; margin-bottom: 4px; }
+.kpi-sub { font-size: 12px; color: var(--tx2); }
+.kpi-pct { font-family: var(--mono); font-weight: 500; font-size: 12px; }
+.kpi-real { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--bd); }
+.kpi-rl { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--tx3); margin-bottom: 3px; }
+.kpi-rv { font-family: var(--mono); font-size: 15px; font-weight: 600; color: var(--grn); }
+.kpi-rp { font-family: var(--mono); font-size: 11px; color: var(--grn); opacity: 0.75; }
+
+/* ── DIVIDER LABEL ── */
+.div-label {
+  grid-column: 1/-1;
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--tx3);
+  margin: 4px 0;
+}
+.div-label::before,.div-label::after { content:''; flex:1; height:1px; background:var(--bd); }
+
+/* ── SCENARIO ── */
+.sc { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--r-md); padding: 16px 18px; }
+.sc.active { border: 2px solid var(--blu); background: #060E1C; }
+.sc-tag { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--tx3); margin-bottom: 12px; display: flex; align-items: center; gap: 7px; }
+.sc.active .sc-tag { color: var(--blu); }
+.sc-row { display: flex; justify-content: space-between; align-items: baseline; padding: 5px 0; border-bottom: 1px solid var(--bd); font-size: 12px; }
+.sc-row:last-child { border-bottom: none; }
+.sc-row .l { color: var(--tx2); }
+.sc-row .v { font-family: var(--mono); font-weight: 600; font-size: 13px; }
+
+/* ── DATA ROWS ── */
+.dr { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--bd); font-size: 13px; }
+.dr:last-child { border-bottom: none; }
+.dr .l { color: var(--tx2); }
+.dr .v { font-family: var(--mono); font-weight: 600; }
+
+/* ── PROGRESS ── */
+.prog { margin-bottom: 14px; }
+.prog:last-child { margin-bottom: 0; }
+.prog-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 12px; }
+.prog-lbl { color: var(--tx2); }
+.prog-pct { font-family: var(--mono); font-weight: 600; font-size: 13px; }
+.prog-track { background: var(--s3); border-radius: 6px; height: 7px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 6px; }
 
 /* ── TABLE ── */
 .tbl-wrap { overflow-x: auto; }
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-}
-thead tr { background: var(--pl-green); }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
 thead th {
-  font-family: var(--mono); font-size: 10px;
-  letter-spacing: 0.08em; text-transform: uppercase;
-  color: #B8E6C8; padding: 10px 12px;
-  text-align: left; border: 1px solid var(--pl-green-mid);
-  white-space: nowrap;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--tx2);
+  padding: 10px 12px; text-align: left;
+  background: var(--s2); border-bottom: 1px solid var(--bd2);
+  white-space: nowrap; min-width: 80px;
 }
-tbody tr { border-bottom: 1px solid var(--bd); }
-tbody tr:nth-child(even) { background: var(--s1); }
+tbody tr { border-bottom: 1px solid var(--bd); transition: background 0.1s; }
 tbody tr:hover { background: var(--s2); }
-tbody td { padding: 9px 12px; vertical-align: middle; border: 1px solid var(--bd); }
-tfoot td {
-  padding: 9px 12px; font-family: var(--mono);
-  font-weight: 600; color: var(--grn);
-  background: var(--s3); border: 1px solid var(--bd2);
-  font-size: 12px;
-}
-.td-mono { font-family: var(--mono); font-size: 11px; }
+tbody td { padding: 9px 12px; vertical-align: middle; white-space: nowrap; }
+tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color: var(--grn); background: var(--s2); border-top: 1px solid var(--bd2); white-space: nowrap; }
+.td-mono { font-family: var(--mono); }
 .td-r { text-align: right; font-family: var(--mono); }
 .td-c { text-align: center; }
 
-/* ── STATUS PILLS ── */
+/* ── ESTADO PILL ── */
 .ep {
   display: inline-block; font-family: var(--mono);
-  font-size: 10px; padding: 2px 8px; border-radius: 20px;
-  white-space: nowrap; font-weight: 500;
+  font-size: 10px; padding: 2px 8px; border-radius: 20px; white-space: nowrap;
 }
-.ep-sim     { background: var(--grn-bg); color: var(--grn); border: 1px solid var(--grn2); }
-.ep-nao     { background: var(--red-bg); color: var(--red); border: 1px solid #C83030; }
-.ep-aguarda { background: var(--amb-bg); color: var(--amb); border: 1px solid #D08800; }
-.ep-elab    { background: var(--blu-bg); color: var(--blu); border: 1px solid #1050A8; }
-.ep-emitido { background: var(--grn-bg); color: var(--grn); border: 1px solid var(--grn2); }
-.ep-aprovado{ background: var(--grn-bg); color: var(--grn); border: 1px solid var(--grn2); }
 
-/* ── FILTROS ── */
-.filters {
-  display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
+/* ── ALERTS ── */
+.alerts { display: flex; flex-direction: column; gap: 8px; }
+.alert { border-radius: var(--r-sm); padding: 12px 16px; font-size: 13px; line-height: 1.55; border-left: 3px solid transparent; }
+.alert-red    { background: var(--red-bg); color: #F4A0A0; border-left-color: var(--red); }
+.alert-orange { background: var(--amb-bg); color: #F5C878; border-left-color: var(--amb); }
+.alert-blue   { background: var(--blu-bg); color: #90C0F8; border-left-color: var(--blu); }
+.alert-green  { background: var(--grn-bg); color: #80E8B0; border-left-color: var(--grn); }
+.alert-tag { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; display: block; margin-bottom: 3px; opacity: 0.7; }
+
+/* ══════════════════════════════════════
+   PAINEL 2 — CASH FLOW
+══════════════════════════════════════ */
+
+/* ── TIMELINE ── */
+.timeline {
+  display: flex; gap: 6px; align-items: flex-end;
+  height: 200px; margin-bottom: 8px; padding: 0 4px;
+}
+.tl-col { flex: 1; display: flex; flex-direction: column; gap: 3px; align-items: center; }
+.tl-bars { display: flex; gap: 2px; align-items: flex-end; width: 100%; }
+.bar-in { flex: 1; border-radius: 3px 3px 0 0; background: var(--blu); min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); position: relative; }
+.bar-out { flex: 1; border-radius: 0 0 3px 3px; background: var(--amb); min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); }
+.bar-est { flex: 1; border-radius: 3px 3px 0 0; background: var(--amb); opacity: 0.35; min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); border-top: 1px dashed var(--amb); }
+.bar-in.neg { background: var(--red); }
+.tl-month { font-family: var(--mono); font-size: 9px; color: var(--tx3); margin-top: 5px; text-align: center; }
+.tl-month.current { color: var(--blu); }
+.tl-month.future { color: var(--tx3); opacity: 0.6; }
+
+/* saldo line overlay */
+.chart-wrap { position: relative; }
+.saldo-line { position: absolute; bottom: 28px; left: 0; right: 0; pointer-events: none; }
+.saldo-svg { position:absolute; top:0; left:0; width:100%; pointer-events:none; overflow:visible; }
+.saldo-path { fill:none; stroke-width:2.5px; stroke-linejoin:round; stroke-linecap:round; }
+.saldo-zero-line { stroke:var(--tx3); stroke-width:1px; stroke-dasharray:4,4; opacity:0.5; }
+
+.cf-legend { display: flex; gap: 20px; font-size: 11px; color: var(--tx2); margin-bottom: 14px; flex-wrap: wrap; }
+.leg-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 5px; vertical-align: middle; }
+
+/* ── MONTH DETAIL ── */
+.month-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 8px; }
+.month-card {
+  background: var(--s1); border: 1px solid var(--bd);
+  border-radius: var(--r-sm); padding: 12px;
+  cursor: pointer; transition: all 0.15s;
+}
+.month-card:hover { border-color: var(--bd2); background: var(--s2); }
+.month-card.past { opacity: 0.6; }
+.month-card.current { border-color: var(--blu); background: var(--blu-bg); }
+.month-card.risk { border-color: var(--red); background: var(--red-bg); }
+.month-card.caution { border-color: var(--amb); background: var(--amb-bg); }
+.mc-month { font-family: var(--mono); font-size: 10px; color: var(--tx3); margin-bottom: 6px; }
+.month-card.current .mc-month { color: var(--blu); }
+.month-card.risk .mc-month { color: var(--red); }
+.month-card.caution .mc-month { color: var(--amb); }
+.mc-in  { font-family: var(--mono); font-size: 12px; color: var(--blu); }
+.mc-out { font-family: var(--mono); font-size: 12px; color: var(--amb); }
+.mc-saldo { font-family: var(--mono); font-size: 11px; font-weight: 600; margin-top: 4px; }
+.mc-badge { font-family: var(--mono); font-size: 9px; margin-top: 4px; }
+
+/* ── SIMULATOR ── */
+.sim-card {
+  background: var(--s1); border: 1px solid var(--bd2);
+  border-radius: var(--r-md); padding: 18px;
+}
+.sim-title { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blu); margin-bottom: 14px; }
+.sim-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+.sim-label { font-size: 13px; color: var(--tx2); min-width: 160px; }
+.sim-select, .sim-input {
+  background: var(--s2); border: 1px solid var(--bd2);
+  color: var(--tx); font-family: var(--mono); font-size: 12px;
+  padding: 6px 10px; border-radius: var(--r-sm);
+  outline: none; transition: border-color 0.15s;
+}
+.sim-select:focus, .sim-input:focus { border-color: var(--blu); }
+.sim-select { min-width: 180px; }
+.sim-input { width: 80px; }
+.sim-btn {
+  background: var(--blu); color: #fff;
+  border: none; font-family: var(--mono); font-size: 12px;
+  padding: 7px 18px; border-radius: var(--r-sm);
+  cursor: pointer; transition: background 0.15s;
+}
+.sim-btn:hover { background: var(--blu2); }
+.sim-result {
+  margin-top: 14px; padding: 14px;
+  background: var(--s2); border-radius: var(--r-sm);
+  border: 1px solid var(--bd2); display: none;
+}
+.sim-result.show { display: block; }
+.sim-res-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; }
+.sim-res-row .l { color: var(--tx2); }
+.sim-res-row .v { font-family: var(--mono); font-weight: 600; }
+
+/* ── PLANEAMENTO GANTT MINI ── */
+.gantt-wrap { overflow-x: auto; }
+.gantt { min-width: 700px; }
+.gantt-row { display: grid; align-items: center; border-bottom: 1px solid var(--bd); padding: 6px 0; }
+.gantt-row.header { font-family: var(--mono); font-size: 10px; color: var(--tx3); text-transform: uppercase; letter-spacing: 0.07em; }
+.gantt-fase { font-size: 12px; font-weight: 500; padding: 0 8px; }
+.gantt-bar-wrap { position: relative; height: 20px; background: var(--s2); border-radius: 3px; overflow: hidden; }
+.gantt-bar { position: absolute; top: 0; height: 100%; border-radius: 3px; display: flex; align-items: center; padding: 0 6px; }
+.gantt-bar-label { font-family: var(--mono); font-size: 9px; color: rgba(255,255,255,0.8); white-space: nowrap; overflow: hidden; }
+.gantt-today { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--blu); z-index: 2; }
+.gantt-pct { font-family: var(--mono); font-size: 11px; text-align: right; padding: 0 8px; }
+
+/* ── FOOTER ── */
+.footer {
+  margin-top: 40px; padding-top: 16px;
+  border-top: 1px solid var(--bd);
+  display: flex; justify-content: space-between;
+  font-family: var(--mono); font-size: 11px; color: var(--tx3);
   align-items: center;
 }
-.filter-btn {
-  font-family: var(--mono); font-size: 11px;
-  padding: 4px 12px; border-radius: 20px;
+.refresh-btn {
+  background: var(--s2); border: 1px solid var(--bd);
+  color: var(--tx2); font-family: var(--mono); font-size: 11px;
+  padding: 5px 14px; border-radius: var(--r-sm);
   cursor: pointer; transition: all 0.15s;
-  background: var(--s2); color: var(--tx2);
-  border: 1px solid var(--bd);
 }
-.filter-btn:hover, .filter-btn.active {
-  background: var(--blu-bg); color: var(--blu);
-  border-color: #1050A8;
-}
-.filter-lbl {
-  font-family: var(--mono); font-size: 10px;
-  color: var(--tx3); text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
+.refresh-btn:hover { border-color: var(--blu); color: var(--blu); }
 
-/* ── LOADING ── */
-.loading {
-  text-align: center; padding: 60px;
-  color: var(--tx3); font-family: var(--mono); font-size: 12px;
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .g3,.g4 { grid-template-columns: repeat(2,1fr); }
+  .obra-header { grid-template-columns: 1fr; }
+  .oh-meta { text-align: left; }
+  .month-grid { grid-template-columns: repeat(3,1fr); }
+  .sbar { flex-wrap: wrap; }
 }
-.spinner {
-  width: 28px; height: 28px;
-  border: 2px solid var(--bd);
-  border-top-color: var(--blu);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 12px;
+@media (max-width: 600px) {
+  .g3,.g4,.g2 { grid-template-columns: 1fr; }
+  .month-grid { grid-template-columns: repeat(2,1fr); }
 }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ── TOTAIS BOX ── */
-.totais-box {
-  display: flex; gap: 16px; margin-top: 16px; flex-wrap: wrap;
+</style>
+<style>
+/* ── LOGIN ── */
+#login-screen {
+  position: fixed; inset: 0; z-index: 999;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
 }
-.totais-item {
-  background: var(--s1); border: 1px solid var(--bd);
-  border-radius: 8px; padding: 12px 16px; min-width: 160px;
+.login-box {
+  background: var(--s1);
+  border: 1px solid var(--bd2);
+  border-radius: var(--r-lg);
+  padding: 40px 48px;
+  width: 340px;
+  text-align: center;
 }
-.totais-item .lbl {
-  font-family: var(--mono); font-size: 10px;
-  text-transform: uppercase; letter-spacing: 0.08em;
-  color: var(--tx3); margin-bottom: 4px;
+.login-logo {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--tx3);
+  margin-bottom: 6px;
 }
-.totais-item .val {
-  font-family: var(--mono); font-size: 16px; font-weight: 600;
+.login-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--tx);
+  margin-bottom: 4px;
 }
-
-/* ══════════════════════════════
-   PRINT STYLES
-══════════════════════════════ */
-@media print {
-  body { background: #fff !important; color: #000 !important; font-size: 10pt; }
-  .nav, .filters, .totais-box, .nav-print { display: none !important; }
-  .page { display: block !important; padding: 0; max-width: 100%; }
-  .doc-header {
-    border-bottom: 2pt solid #1B3A2D !important;
-    margin-bottom: 16pt;
-  }
-  .doc-logo, .doc-title h1, .doc-meta strong { color: #000 !important; }
-  .doc-title p, .doc-meta { color: #444 !important; }
-  .doc-logo span { color: #1B3A2D !important; }
-
-  table { font-size: 9pt; }
-  thead tr { background: #1B3A2D !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  thead th { color: #fff !important; border-color: #2A5C42 !important; }
-  tbody tr:nth-child(even) { background: #F5F5F5 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  tbody tr { border-bottom: 0.5pt solid #CCC !important; }
-  tbody td { border-color: #DDD !important; color: #000 !important; }
-
-  /* Ocultar colunas internas na impressão (Preço Custo, Margem, %) */
-  .col-interno { display: none !important; }
-
-  .ep-sim     { background: #E8F5E9 !important; color: #1B5E20 !important; border: 0.5pt solid #4CAF50 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .ep-nao     { background: #FFEBEE !important; color: #B71C1C !important; border: 0.5pt solid #F44336 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .ep-aguarda { background: #FFF8E1 !important; color: #E65100 !important; border: 0.5pt solid #FF9800 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-
-  @page { size: A4 landscape; margin: 15mm 12mm; }
+.login-sub {
+  font-size: 13px;
+  color: var(--tx2);
+  margin-bottom: 28px;
+}
+.login-input {
+  width: 100%;
+  background: var(--s2);
+  border: 1px solid var(--bd2);
+  border-radius: var(--r-sm);
+  color: var(--tx);
+  font-family: var(--mono);
+  font-size: 14px;
+  padding: 10px 14px;
+  outline: none;
+  text-align: center;
+  letter-spacing: 0.1em;
+  transition: border-color 0.15s;
+  margin-bottom: 12px;
+}
+.login-input:focus { border-color: var(--blu); }
+.login-btn {
+  width: 100%;
+  background: var(--blu);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.login-btn:hover { background: var(--blu2); }
+.login-error {
+  font-size: 12px;
+  color: var(--red);
+  margin-top: 10px;
+  min-height: 18px;
+  font-family: var(--mono);
 }
 </style>
 </head>
 <body>
 
+<!-- NAV -->
 <nav class="nav">
   <div class="nav-brand">Primeline · <strong>Obra 120</strong></div>
-  <button class="nav-tab active" onclick="showPage('tee',this)">TEEs</button>
-  <button class="nav-tab" onclick="showPage('des',this)">Desenhos Preparação</button>
-  <button class="nav-tab" onclick="showPage('pde',this)">PDEs</button>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('p1',this)">Painel Financeiro</button>
+    <button class="nav-tab" onclick="showPage('p2',this)">Cash Flow &amp; Planeamento</button>
+  </div>
   <div class="nav-spacer"></div>
-  <button class="nav-print" onclick="window.print()">⎙ Imprimir índice</button>
+  <div class="nav-date" id="nav-date"></div>
+  <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">
+    <span class="theme-icon" id="theme-icon">🌙</span>
+    <span id="theme-label">Escuro</span>
+  </button>
 </nav>
 
-<!-- ═══════════════════════════════════════
-     ÍNDICE DE TEEs
-═══════════════════════════════════════ -->
-<div class="page active" id="tee">
-  <div class="doc-header">
-    <div class="doc-logo">
-      <span>Primeline</span>
-      Engenharia e Construção
+<!-- ════════════════════════════════════════════════════════
+     PAINEL 1 — FINANCEIRO SEMANAL
+════════════════════════════════════════════════════════ -->
+<div class="page active" id="p1">
+
+  <div class="obra-header">
+    <div>
+      <div class="oh-eyebrow">Primeline Engenharia e Construção</div>
+      <div class="oh-title">Quinta da Marinha — Casa R <span class="oh-ref">QM-R-001</span></div>
+      <div class="oh-desc">Reparação piscina e pinturas interiores · Obra 120</div>
     </div>
-    <div class="doc-title">
-      <h1>Índice de Trabalhos Extra Empreitada</h1>
-      <p id="tee-obra-info">Obra 120 · QM-R-001 · Quinta da Marinha — Casa R</p>
-    </div>
-    <div class="doc-meta">
-      <strong id="tee-do">Marlana di Vincenti</strong><br>
-      Data: <span id="tee-data"></span>
+    <div class="oh-meta">
+      <div class="oh-item"><span class="lbl">Dono de Obra</span><span class="val">Marlana di Vincenti</span></div>
+      <div class="oh-item"><span class="lbl">Dir. / Adjunta</span><span class="val">HBG <span style="color:var(--tx2);font-weight:300">/ JS</span></span></div>
+      <div class="oh-item"><span class="lbl">Início</span><span class="val">11/02/2026</span></div>
+      <div class="oh-item"><span class="lbl">Prazo</span><span class="val">Dez 2026 <span class="pill pill-amb">+1 mês</span></span></div>
     </div>
   </div>
 
-  <div class="filters">
-    <span class="filter-lbl">Filtrar:</span>
-    <button class="filter-btn active" onclick="filtrarTEE('todos',this)">Todos</button>
-    <button class="filter-btn" onclick="filtrarTEE('SIM',this)">Aprovados</button>
-    <button class="filter-btn" onclick="filtrarTEE('NÃO',this)">Recusados</button>
-    <button class="filter-btn" onclick="filtrarTEE('Aguarda resposta',this)">Aguarda resposta</button>
+  <div class="sbar">
+    <div class="sbar-item"><span class="sbar-lbl">Prazo final</span><span class="sbar-val">Janeiro 2027</span></div>
+    <div class="sbar-item"><span class="sbar-lbl">Duração</span><span class="sbar-val">10 meses</span></div>
+    <div class="sbar-item"><span class="sbar-lbl">% Prazo consumido</span><span class="sbar-val" style="color:var(--blu)">23,8%</span></div>
+    <div class="sbar-item"><span class="sbar-lbl">% Obra executada</span><span class="sbar-val" style="color:var(--grn)">18,5%</span></div>
+    <div class="sbar-item"><span class="sbar-lbl">Custos fixos est.</span><span class="sbar-val" style="color:var(--amb)">36 598 €</span></div>
+    <div class="sbar-item"><span class="sbar-lbl">Semana</span><span class="sbar-val">Sem. 15 · Mai 2026</span></div>
   </div>
 
-  <div id="tee-loading" class="loading">
-    <div class="spinner"></div>A carregar TEEs…
-  </div>
-
-  <div id="tee-content" style="display:none">
-    <div class="tbl-wrap">
-      <table id="tee-table">
-        <thead>
-          <tr>
-            <th>Número</th>
-            <th>Descrição</th>
-            <th>Especialidade</th>
-            <th>Data Envio</th>
-            <th>Data Aprovação</th>
-            <th class="td-r">Valor Apresentado (€)</th>
-            <th class="td-c">Aprovado</th>
-            <th>Revisão</th>
-            <th class="td-r col-interno">Preço Custo (€)</th>
-            <th class="td-r col-interno">Margem (€)</th>
-            <th class="td-c col-interno">Prorrogação</th>
-          </tr>
-        </thead>
-        <tbody id="tee-tbody"></tbody>
-        <tfoot><tr id="tee-tfoot"></tr></tfoot>
-      </table>
+  <!-- KPIs -->
+  <div class="sec">KPIs — Base contratual</div>
+  <div class="g3">
+    <div class="kpi">
+      <div class="kpi-tag">Venda contratual</div>
+      <div class="kpi-val" id="kpi-venda-c">—</div>
+      <div class="kpi-sub">C.D. <span class="kpi-pct" id="kpi-cd-c">—</span></div>
     </div>
-    <div class="totais-box" id="tee-totais"></div>
+    <div class="kpi gl">
+      <div class="kpi-tag">Margem bruta contratual</div>
+      <div class="kpi-val" style="color:var(--grn)" id="kpi-margem-c">—</div>
+      <div class="kpi-sub">sobre venda <span class="kpi-pct" style="color:var(--grn)" id="kpi-margem-c-pct">—</span></div>
+      <div class="kpi-real">
+        <div class="kpi-rl">Lucro real (após custos fixos)</div>
+        <div class="kpi-rv" id="kpi-lucro-c">—</div>
+        <div class="kpi-rp" id="kpi-lucro-c-pct">—</div>
+      </div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-tag">CFlow mensal contratual</div>
+      <div class="kpi-val" id="kpi-cflow-c">—</div>
+      <div class="kpi-sub">por mês — base contrato</div>
+    </div>
+
+    <div class="div-label">TEEs aprovados</div>
+
+    <div class="kpi bl">
+      <div class="kpi-tag">TEE — Venda / Custo</div>
+      <div class="kpi-val" style="color:var(--blu)" id="kpi-tee-v">—</div>
+      <div class="kpi-sub">custo <span class="kpi-pct" style="color:var(--blu)" id="kpi-tee-c">—</span></div>
+    </div>
+    <div class="kpi gl">
+      <div class="kpi-tag">Margem total c/ TEEs</div>
+      <div class="kpi-val" style="color:var(--grn)" id="kpi-margem-t">—</div>
+      <div class="kpi-sub">sobre venda total <span class="kpi-pct" style="color:var(--grn)" id="kpi-margem-t-pct">—</span></div>
+      <div class="kpi-real">
+        <div class="kpi-rl">Lucro real c/ TEEs</div>
+        <div class="kpi-rv" id="kpi-lucro-t">—</div>
+        <div class="kpi-rp" id="kpi-lucro-t-pct">—</div>
+      </div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-tag">CFlow mensal c/ TEEs</div>
+      <div class="kpi-val" id="kpi-cflow-t">—</div>
+      <div class="kpi-sub">por mês — total</div>
+    </div>
+  </div>
+
+  <!-- CENÁRIOS -->
+  <div class="sec">Cenários de prazo</div>
+  <div class="g3">
+    <div class="sc">
+      <div class="sc-tag">Contratual</div>
+      <div class="sc-row"><span class="l">CFlow/mês</span><span class="v" id="sc-cflow-c">—</span></div>
+      <div class="sc-row"><span class="l">Margem bruta</span><span class="v" style="color:var(--grn)" id="sc-mb-c-pct">—</span></div>
+      <div class="sc-row"><span class="l">Margem bruta €</span><span class="v" style="color:var(--grn)" id="sc-mb-c-eur">—</span></div>
+      <div class="sc-row"><span class="l">Lucro real</span><span class="v" style="color:var(--grn)" id="sc-lr-c">—</span></div>
+    </div>
+    <div class="sc active">
+      <div class="sc-tag">+1 mês (actual) <span class="pill pill-blu">activo</span></div>
+      <div class="sc-row"><span class="l">CFlow/mês</span><span class="v" id="sc-cflow-t">—</span></div>
+      <div class="sc-row"><span class="l">Margem total</span><span class="v" style="color:var(--grn)" id="sc-mt-pct">—</span></div>
+      <div class="sc-row"><span class="l">Margem total €</span><span class="v" style="color:var(--grn)" id="sc-mt-eur">—</span></div>
+      <div class="sc-row"><span class="l">Lucro real</span><span class="v" style="color:var(--grn)" id="sc-lr-t">—</span></div>
+    </div>
+    <div class="sc">
+      <div class="sc-tag">Real acumulado YTD</div>
+      <div class="sc-row"><span class="l">CFlow/mês</span><span class="v" id="sc-cflow-r">—</span></div>
+      <div class="sc-row"><span class="l">Margem real %</span><span class="v" style="color:var(--grn)" id="sc-mr-pct">—</span></div>
+      <div class="sc-row"><span class="l">Margem real €</span><span class="v" style="color:var(--grn)" id="sc-mr-eur">—</span></div>
+      <div class="sc-row"><span class="l">Desvio orç.</span><span class="v" style="color:var(--amb)" id="sc-desvio">—</span></div>
+    </div>
+  </div>
+
+  <!-- FATURAÇÃO + CUSTOS -->
+  <div class="sec">Faturação e custos</div>
+  <div class="g2">
+    <div class="card" id="p1-fat">
+      <div class="card-title">Faturação ao DO</div>
+      <div class="dr"><span class="l">Valor faturado</span><span class="v" style="color:var(--grn)">—</span></div>
+      <div class="dr"><span class="l">Valor por faturar</span><span class="v" style="color:var(--amb)">—</span></div>
+      <div class="dr" style="border-top:1px solid var(--bd2);margin-top:4px;padding-top:8px"><span class="l">Total contrato</span><span class="v">—</span></div>
+      <div class="dr"><span class="l">% faturado</span><span class="v" style="color:var(--blu)">—</span></div>
+    </div>
+    <div class="card" id="p1-custos">
+      <div class="card-title">Custos YTD</div>
+      <div class="dr"><span class="l">Custos estimados</span><span class="v">—</span></div>
+      <div class="dr"><span class="l">Pessoal + Viatura</span><span class="v">—</span></div>
+      <div class="dr"><span class="l">Total despesas YTD</span><span class="v">—</span></div>
+      <div class="dr"><span class="l">Desvio Orç. vs Desp.</span><span class="v" style="color:var(--red)">—</span></div>
+      <div class="dr"><span class="l">Margem real estimada</span><span class="v" style="color:var(--grn)">—</span></div>
+    </div>
+  </div>
+
+  <!-- PROGRESSO -->
+  <div class="sec">Progresso</div>
+  <div class="card">
+    <div class="prog">
+      <div class="prog-hd"><span class="prog-lbl">% obra executada</span><span class="prog-pct" style="color:var(--grn)">18,5%</span></div>
+      <div class="prog-track"><div class="prog-fill" style="width:18.5%;background:var(--grn)"></div></div>
+    </div>
+    <div class="prog">
+      <div class="prog-hd"><span class="prog-lbl">% prazo consumido</span><span class="prog-pct" style="color:var(--blu)">23,8%</span></div>
+      <div class="prog-track"><div class="prog-fill" style="width:23.8%;background:var(--blu)"></div></div>
+    </div>
+    <div class="prog">
+      <div class="prog-hd"><span class="prog-lbl">% faturado</span><span class="prog-pct" style="color:var(--amb)">27,4%</span></div>
+      <div class="prog-track"><div class="prog-fill" style="width:27.4%;background:var(--amb)"></div></div>
+    </div>
+  </div>
+
+  <!-- TEEs -->
+  <div class="sec">TEEs</div>
+  <div class="card tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Código</th><th>Descrição</th><th>Estado</th>
+        <th>Envio</th><th>Resposta</th>
+        <th class="td-r">Venda</th><th class="td-r">Custo</th>
+        <th class="td-r">Margem €</th><th class="td-r">Margem %</th>
+      </tr></thead>
+      <tbody id="tees-tbody"><tr><td colspan="9" style="color:var(--tx3);text-align:center;padding:16px">A carregar…</td></tr></tbody>
+      <tfoot><tr id="tees-tfoot"></tr></tfoot>
+    </table>
+  </div>
+
+  <!-- SUBEMPREITADAS -->
+  <div class="sec">Subempreitadas</div>
+  <div class="card tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Empresa</th><th>Especialidade</th><th>Fase</th>
+        <th class="td-r">C.D.</th><th class="td-r">P.V.</th>
+        <th class="td-r">Margem Inicial</th>
+        <th class="td-r">Adj. Efetivo</th>
+        <th class="td-r">Valor Pago</th>
+        <th class="td-r">Em Falta</th>
+        <th class="td-r">% Pago</th>
+        <th>Entrada Obra</th>
+        <th>Contrato</th>
+        <th>Estado</th>
+      </tr></thead>
+      <tbody id="subs-tbody"><tr><td colspan="13" style="color:var(--tx3);text-align:center;padding:16px">A carregar…</td></tr></tbody>
+      <tfoot><tr id="subs-tfoot"></tr></tfoot>
+    </table>
+  </div>
+
+  <!-- ALERTAS -->
+  <div class="sec">Pontos de atenção</div>
+  <div class="alerts" id="alertas">
+    <div style="color:var(--tx3);font-size:13px;padding:8px 0">A carregar…</div>
+  </div>
+
+  <div class="sec">Sub-empreiteiros activos</div>
+  <div class="sub-grid" id="sub-cards">
+    <div style="color:var(--tx3);font-size:13px">A carregar…</div>
+  </div>
+
+  <div class="footer">
+    <span>Primeline · Obra 120 · QM-R-001</span>
+    <button class="refresh-btn" onclick="loadData()">↻ Actualizar</button>
+    <span id="p1-time"></span>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════
-     ÍNDICE DE DESENHOS DE PREPARAÇÃO
-═══════════════════════════════════════ -->
-<div class="page" id="des">
-  <div class="doc-header">
-    <div class="doc-logo">
-      <span>Primeline</span>
-      Engenharia e Construção
+
+<!-- ════════════════════════════════════════════════════════
+     PAINEL 2 — CASH FLOW & PLANEAMENTO
+════════════════════════════════════════════════════════ -->
+<div class="page" id="p2">
+
+  <div class="obra-header">
+    <div>
+      <div class="oh-eyebrow">Primeline Engenharia e Construção</div>
+      <div class="oh-title">Cash Flow &amp; Planeamento <span class="oh-ref">QM-R-001</span></div>
+      <div class="oh-desc">Previsão até ao fim da obra · Entradas vs Saídas · Impacto de atrasos</div>
     </div>
-    <div class="doc-title">
-      <h1>Índice de Desenhos de Preparação</h1>
-      <p id="des-obra-info">Obra 120 · QM-R-001 · Quinta da Marinha — Casa R</p>
-    </div>
-    <div class="doc-meta">
-      <strong id="des-do">Marlana di Vincenti</strong><br>
-      Data: <span id="des-data"></span>
+    <div class="oh-meta">
+      <div class="oh-item"><span class="lbl">Início</span><span class="val">Fev 2026</span></div>
+      <div class="oh-item"><span class="lbl">Fim previsto</span><span class="val">Jan 2027 <span class="pill pill-amb">+1M</span></span></div>
+      <div class="oh-item"><span class="lbl">Saldo actual</span><span class="val" style="color:var(--grn)">+32 540 €</span></div>
+      <div class="oh-item"><span class="lbl">Meses em risco</span><span class="val" style="color:var(--red)">2 meses <span class="pill pill-red">!</span></span></div>
     </div>
   </div>
 
-  <div class="filters">
-    <span class="filter-lbl">Disciplina:</span>
-    <button class="filter-btn active" onclick="filtrarDES('todos',this)">Todos</button>
-    <button class="filter-btn" onclick="filtrarDES('Arquitectura',this)">Arquitectura</button>
-    <button class="filter-btn" onclick="filtrarDES('Estrutura',this)">Estrutura</button>
-    <button class="filter-btn" onclick="filtrarDES('MEP',this)">MEP</button>
+  <!-- GRÁFICO CASH FLOW -->
+  <div class="sec">Previsão mensal — Entradas vs Saídas</div>
+  <div class="card">
+    <div class="cf-legend">
+      <span><span class="leg-dot" style="background:var(--blu)"></span>Faturação ao DO (entradas)</span>
+      <span><span class="leg-dot" style="background:var(--amb)"></span>Custos reais (saídas)</span>
+      <span><span class="leg-dot" style="background:var(--amb);opacity:0.35;border:1px dashed var(--amb)"></span>Subempreitadas estimadas</span>
+      <span><span style="display:inline-block;width:20px;height:2px;background:var(--grn);vertical-align:middle;margin-right:5px;border-radius:2px"></span>Saldo acumulado</span>
+      <span><span style="display:inline-block;width:20px;height:1px;background:var(--blu);vertical-align:middle;margin-right:5px;border-style:dashed"></span>Ref. orç. entradas</span>
+      <span><span style="display:inline-block;width:20px;height:1px;background:var(--amb);vertical-align:middle;margin-right:5px;border-style:dashed"></span>Ref. orç. saídas</span>
+      <span><span class="leg-dot" style="background:var(--red);border-radius:50%"></span>Mês em risco</span>
+    </div>
+    <div class="chart-wrap" id="cf-chart-wrap">
+      <div class="timeline" id="cf-chart"></div>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap" id="cf-summary"></div>
   </div>
 
-  <div id="des-loading" class="loading">
-    <div class="spinner"></div>A carregar Desenhos…
+  <!-- CALENDÁRIO MENSAL -->
+  <div class="sec">Detalhe por mês</div>
+  <div class="month-grid" id="month-grid"></div>
+
+  <!-- PLANEAMENTO GANTT -->
+  <div class="sec">Planeamento de fases</div>
+  <div class="card gantt-wrap">
+    <div class="gantt" id="gantt"></div>
   </div>
 
-  <div id="des-content" style="display:none">
-    <div class="tbl-wrap">
-      <table id="des-table">
-        <thead>
-          <tr>
-            <th>Número</th>
-            <th>Descrição</th>
-            <th>Disciplina</th>
-            <th>Revisão</th>
-            <th>Data Emissão</th>
-            <th>Data Envio DO</th>
-            <th>Data Resposta DO</th>
-            <th>Estado</th>
-            <th>Notas</th>
-          </tr>
-        </thead>
-        <tbody id="des-tbody"></tbody>
-      </table>
+  <!-- SIMULADOR DE ATRASOS -->
+  <div class="sec">Simulador de atrasos</div>
+  <div class="sim-card">
+    <div class="sim-title">↯ Simular impacto de atraso no cash flow</div>
+    <div class="sim-row">
+      <span class="sim-label">Fase afectada</span>
+      <select class="sim-select" id="sim-fase">
+        <option value="F05">F05 — Instalações (FLUXION + SERGIO)</option>
+        <option value="F06">F06 — Revestimentos</option>
+        <option value="F07">F07 — Carpintarias</option>
+        <option value="F08">F08 — Pinturas</option>
+        <option value="F09">F09 — Acabamentos</option>
+      </select>
+      <span class="sim-label" style="min-width:auto">Atraso</span>
+      <input class="sim-input" id="sim-meses" type="number" value="1" min="1" max="4">
+      <span style="font-size:13px;color:var(--tx2)">meses</span>
+      <button class="sim-btn" onclick="simular()">Calcular impacto</button>
     </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════
-     ÍNDICE DE PDEs
-═══════════════════════════════════════ -->
-<div class="page" id="pde">
-  <div class="doc-header">
-    <div class="doc-logo">
-      <span>Primeline</span>
-      Engenharia e Construção
-    </div>
-    <div class="doc-title">
-      <h1>Índice de PDEs</h1>
-      <p id="pde-obra-info">Obra 120 · QM-R-001 · Quinta da Marinha — Casa R</p>
-    </div>
-    <div class="doc-meta">
-      <strong id="pde-do">Marlana di Vincenti</strong><br>
-      Data: <span id="pde-data"></span>
+    <div class="sim-result" id="sim-result">
+      <div class="sim-res-row"><span class="l">Atraso na conclusão da obra</span><span class="v" id="sr-atraso" style="color:var(--red)"></span></div>
+      <div class="sim-res-row"><span class="l">Custo adicional de estaleiro</span><span class="v" id="sr-estaleiro" style="color:var(--red)"></span></div>
+      <div class="sim-res-row"><span class="l">Impacto na faturação ao DO</span><span class="v" id="sr-fat" style="color:var(--amb)"></span></div>
+      <div class="sim-res-row"><span class="l">Meses adicionais em risco</span><span class="v" id="sr-risco" style="color:var(--red)"></span></div>
+      <div class="sim-res-row"><span class="l">Impacto no lucro real</span><span class="v" id="sr-lucro" style="color:var(--red)"></span></div>
+      <div style="margin-top:10px;padding:10px;background:var(--red-bg);border-radius:var(--r-sm);font-size:12px;color:#F4A0A0;line-height:1.6" id="sr-recomend"></div>
     </div>
   </div>
 
-  <div id="pde-loading" class="loading">
-    <div class="spinner"></div>A carregar PDEs…
+  <!-- KPIs CASH FLOW -->
+  <div class="sec">Resumo financeiro previsional</div>
+  <div class="g4">
+    <div class="kpi gl">
+      <div class="kpi-tag">Total entradas previstas</div>
+      <div class="kpi-val" style="color:var(--grn)">—</div>
+      <div class="kpi-sub">até fim da obra</div>
+    </div>
+    <div class="kpi al">
+      <div class="kpi-tag">Total saídas previstas</div>
+      <div class="kpi-val" style="color:var(--amb)">—</div>
+      <div class="kpi-sub">subempreit. + custos</div>
+    </div>
+    <div class="kpi bl">
+      <div class="kpi-tag">Saldo previsional</div>
+      <div class="kpi-val" style="color:var(--blu)">—</div>
+      <div class="kpi-sub">margem bruta total</div>
+    </div>
+    <div class="kpi rl" id="kpi-pior-mes">
+      <div class="kpi-tag">Pior mês (saldo acumulado)</div>
+      <div class="kpi-val" style="color:var(--red)">—</div>
+      <div class="kpi-sub" id="kpi-pior-mes-sub">—</div>
+    </div>
   </div>
 
-  <div id="pde-content" style="display:none">
-    <div class="tbl-wrap">
-      <table id="pde-table">
-        <thead>
-          <tr>
-            <th>Número</th>
-            <th>Descrição</th>
-            <th>Data Emissão</th>
-            <th>Data Envio DO</th>
-            <th>Data Resposta DO</th>
-            <th>Estado</th>
-            <th>Notas</th>
-          </tr>
-        </thead>
-        <tbody id="pde-tbody"></tbody>
-      </table>
-    </div>
+  <div class="footer">
+    <span>Primeline · Obra 120 · QM-R-001 · Dados fictícios para validação</span>
+    <button class="refresh-btn">↻ Actualizar</button>
+    <span id="p2-time"></span>
   </div>
 </div>
 
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbwER0TXxOzhGtQwH5kmAjV4qeHUfA8fTYIq05UkUl9Suw6R4ql4nc4905CJ7d7lq24/exec';
+// ── CONFIGURAÇÃO ─────────────────────────────────────
+const API_URL = "https://script.google.com/macros/s/AKfycbwER0TXxOzhGtQwH5kmAjV4qeHUfA8fTYIq05UkUl9Suw6R4ql4nc4905CJ7d7lq24/exec";
 
-// ── HELPERS ──────────────────────────────────────────
+// ── THEME ─────────────────────────────────────────────
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  document.getElementById('theme-icon').textContent  = isLight ? '☀️' : '🌙';
+  document.getElementById('theme-label').textContent = isLight ? 'Claro' : 'Escuro';
+  localStorage.setItem('primeline-theme', isLight ? 'light' : 'dark');
+}
+
+// restore saved preference
+(function() {
+  const saved = localStorage.getItem('primeline-theme');
+  if (saved === 'light') {
+    document.documentElement.classList.add('light');
+    // icons will be set after DOM ready — handled below
+  }
+})();
+
+// ── NAV ──────────────────────────────────────────────
 function showPage(id, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
@@ -438,27 +890,39 @@ function showPage(id, btn) {
   btn.classList.add('active');
 }
 
-function fmtDate(v) {
-  if (!v || v === '') return '—';
-  if (typeof v === 'string' && v.includes('T')) {
-    const d = new Date(v);
-    if (!isNaN(d)) return d.toLocaleDateString('pt-PT');
-  }
-  return String(v) || '—';
-}
+// ── HELPERS ──────────────────────────────────────────
+const now = new Date();
+document.getElementById('nav-date').textContent = now.toLocaleDateString('pt-PT', {weekday:'short',day:'2-digit',month:'short',year:'numeric'});
 
+function eur(n)     { return (parseFloat(n)||0).toLocaleString('pt-PT',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' €'; }
+function pct(n,d=2) { return (parseFloat(n)||0).toLocaleString('pt-PT',{minimumFractionDigits:d,maximumFractionDigits:d}) + '%'; }
 function num(v) {
-  if (!v || v === '') return 0;
+  if (v === null || v === undefined || v === '') return 0;
   const s = String(v).replace(/€/g,'').replace(/\s/g,'');
-  if (/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) return parseFloat(s.replace(/\./g,'').replace(',','.')) || 0;
-  if (/^\d+(,\d+)?$/.test(s) && s.includes(',')) return parseFloat(s.replace(',','.')) || 0;
+  // Formato português: "1.634,00" — vírgula é decimal, ponto é milhar
+  if (/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) {
+    return parseFloat(s.replace(/\./g,'').replace(',','.')) || 0;
+  }
+  // Formato "1 634,00" sem ponto — espaço era milhar, já removido
+  if (/^\d+(,\d+)?$/.test(s) && s.includes(',')) {
+    return parseFloat(s.replace(',','.')) || 0;
+  }
+  // Formato normal: 553619.19
   return parseFloat(s) || 0;
 }
 
-function eur(n) {
-  return (parseFloat(n)||0).toLocaleString('pt-PT',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' €';
+function fmtDate(v, mesesOnly=false) {
+  if (!v || v === '') return '—';
+  let d;
+  if (v instanceof Date) { d = v; }
+  else if (typeof v === 'string' && (v.includes('T') || /^\d{4}-\d{2}/.test(v))) { d = new Date(v); }
+  else { return String(v); }
+  if (!d || isNaN(d.getTime())) return String(v);
+  if (mesesOnly) return d.toLocaleDateString('pt-PT', {month:'long', year:'numeric'});
+  return d.toLocaleDateString('pt-PT');
 }
 
+// Converte array de rows (cabeçalho + dados) em array de objectos
 function toObjArray(rows) {
   if (!rows || rows.length < 2) return [];
   const hdrs = rows[0];
@@ -469,205 +933,757 @@ function toObjArray(rows) {
   });
 }
 
+// Converte aba chave/valor em objecto simples
 function toKV(rows) {
   const o = {};
   rows.slice(1).forEach(r => { if (r[0]) o[r[0]] = r[1]; });
   return o;
 }
 
-function aprovadoPill(v) {
-  const s = String(v||'').trim().toUpperCase();
-  if (s === 'SIM') return `<span class="ep ep-sim">SIM</span>`;
-  if (s === 'NÃO' || s === 'NAO') return `<span class="ep ep-nao">NÃO</span>`;
-  if (s.includes('AGUARDA')) return `<span class="ep ep-aguarda">Aguarda</span>`;
-  return `<span class="ep ep-elab">—</span>`;
+function estadoPill(e) {
+  const map = {
+    'Aprovado DO': ['var(--grn-bg)','var(--grn)','var(--grn2)'],
+    'Em curso':    ['var(--amb-bg)','var(--amb)','var(--amb2)'],
+    'Em análise':  ['var(--blu-bg)','var(--blu)','var(--blu2)'],
+    'Recusado':    ['var(--red-bg)','var(--red)','var(--red2)'],
+    'Pago':        ['var(--grn-bg)','var(--grn)','var(--grn2)'],
+    'Emitida':     ['var(--amb-bg)','var(--amb)','var(--amb2)'],
+    'Em atraso':   ['var(--red-bg)','var(--red)','var(--red2)'],
+    'Activo':      ['var(--blu-bg)','var(--blu)','var(--blu2)'],
+    'Em execução': ['var(--amb-bg)','var(--amb)','var(--amb2)'],
+    'Por iniciar': ['var(--s3)','var(--tx3)','var(--bd2)'],
+    'Concluído':   ['var(--grn-bg)','var(--grn)','var(--grn2)'],
+  };
+  const [bg,fg,bd] = map[e] || ['var(--s3)','var(--tx2)','var(--bd2)'];
+  return `<span class="ep" style="background:${bg};color:${fg};border:1px solid ${bd}">${e||'—'}</span>`;
 }
 
-function estadoPill(v) {
-  const s = String(v||'').trim().toLowerCase();
-  if (s.includes('emitido') || s.includes('aprovado') || s.includes('concluído'))
-    return `<span class="ep ep-aprovado">${v}</span>`;
-  if (s.includes('aguarda') || s.includes('análise') || s.includes('revisão'))
-    return `<span class="ep ep-aguarda">${v}</span>`;
-  if (s.includes('elaboração'))
-    return `<span class="ep ep-elab">${v}</span>`;
-  return `<span style="color:var(--tx2)">${v||'—'}</span>`;
-}
+const FASE_CORES = {
+  'F01':'#3D5080','F02':'#5B4A9E','F03':'#3D7A8A','F04':'#2878D8',
+  'F05':'#1D9E75','F06':'#9B6B2F','F07':'#7B4A9E','F08':'#4A8A6B',
+  'F09':'#5A7B9E','F10':'#3DD68C'
+};
 
-// ── DATA LOAD ─────────────────────────────────────────
-let allTEEs = [], allDES = [], allPDE = [], painel = {};
+// ── RENDER PAINEL 1 ───────────────────────────────────
+function renderP1(P, C, tees, subs) {
+  const vendaContratual = num(C['Venda Contratual']);
+  const cdContratual    = num(C['Custo Directo Contratual']);
+  const teeVenda        = num(C['TEE Venda']);
+  const teeCusto        = num(C['TEE Custo']);
+  const vendaTotal      = vendaContratual + teeVenda;
+  const cdTotal         = cdContratual + teeCusto;
+  const margemBruta     = vendaContratual - cdContratual;
+  const margemBrutaPct  = vendaContratual ? margemBruta/vendaContratual*100 : 0;
+  const margemTotal     = vendaTotal - cdTotal;
+  const margemTotalPct  = vendaTotal ? margemTotal/vendaTotal*100 : 0;
+  const teeMargem       = teeVenda - teeCusto;
+  const custosFixos     = cdTotal * 0.085;
+  const lucroReal       = margemTotal - custosFixos;
+  const lucroRealPct    = vendaTotal ? lucroReal/vendaTotal*100 : 0;
+  const lucroBase       = margemBruta - cdContratual*0.085;
+  const lucroBasePct    = vendaContratual ? lucroBase/vendaContratual*100 : 0;
+  const cflowC          = num(C['CFlow Mensal Contratual']);
+  const cflowT          = num(C['CFlow Mensal Total']);
+  const faturado        = num(C['Valor Faturado']);
+  const porFaturar      = num(C['Valor Por Faturar']);
+  const pctFat          = vendaTotal ? faturado/vendaTotal*100 : 0;
+  const pctPrazo        = num(P['% Prazo Consumido']);
+  const pctObraRaw      = String(P['% Obra Executada']||'').replace('%','').trim();
+  const pctObra         = pctObraRaw ? parseFloat(pctObraRaw) : null;
+  const margRealEur     = num(C['Margem Real YTD']);
+  const margRealPct     = num(C['Margem Real YTD %']);
+  const desvio          = num(C['Desvio Orç %']);
 
-async function loadData() {
-  const data = await new Promise((resolve, reject) => {
-    const cb = 'cb_' + Date.now();
-    const script = document.createElement('script');
-    const timeout = setTimeout(() => {
-      delete window[cb]; document.head.removeChild(script);
-      reject(new Error('Timeout'));
-    }, 15000);
-    window[cb] = (d) => {
-      clearTimeout(timeout); delete window[cb];
-      document.head.removeChild(script); resolve(d);
-    };
-    script.src = API_URL + '?callback=' + cb;
-    script.onerror = () => reject(new Error('Erro script'));
-    document.head.appendChild(script);
+  // Header
+  document.querySelector('#p1 .oh-title').innerHTML =
+    `${P['Nome']||'—'} <span class="oh-ref">${P['Referência']||''}</span>`;
+  document.querySelector('#p1 .oh-desc').textContent =
+    `${P['Descrição']||''} · ${P['Obra']||''}`;
+
+  // Preenche os oh-item values
+  const metaVals = document.querySelectorAll('#p1 .oh-item .val');
+  metaVals[0].textContent = P['Dono de Obra']||'—';
+  metaVals[1].innerHTML   = `${P['Diretor de Obra']||'—'} <span style="color:var(--tx2);font-weight:300">/ ${P['Adjunta DO']||'—'}</span>`;
+  metaVals[2].textContent = fmtDate(P['Início da obra']);
+  metaVals[3].innerHTML   = `${fmtDate(P['Prazo contratual'], true)||'—'} <span class="pill pill-amb">${P['Prorrogação activa']||''}</span>`;
+
+  // Status bar
+  const sbVals = document.querySelectorAll('#p1 .sbar-val');
+  sbVals[0].textContent = fmtDate(P['Prazo c/ prorrogação'], true)||'—';
+  sbVals[1].textContent = (P['Duração contratual (M)']||'—') + ' meses';
+  sbVals[2].textContent = pct(pctPrazo);
+  sbVals[3].textContent = pctObra !== null ? pct(pctObra) : 'a preencher';
+  sbVals[4].textContent = eur(custosFixos);
+  sbVals[5].textContent = 'Sem. ' + now.toLocaleDateString('pt-PT',{month:'short',year:'numeric'});
+
+  // KPIs — substitui os valores no HTML existente por IDs dinâmicos
+  // Usamos getElementById nos spans que vamos adicionar
+  const kpiMap = {
+    'kpi-venda-c': eur(vendaContratual), 'kpi-cd-c': eur(cdContratual),
+    'kpi-margem-c': eur(margemBruta), 'kpi-margem-c-pct': pct(margemBrutaPct,2),
+    'kpi-lucro-c': eur(lucroBase), 'kpi-lucro-c-pct': pct(lucroBasePct,2)+' sobre venda',
+    'kpi-cflow-c': eur(cflowC),
+    'kpi-tee-v': eur(teeVenda), 'kpi-tee-c': eur(teeCusto),
+    'kpi-margem-t': eur(margemTotal), 'kpi-margem-t-pct': pct(margemTotalPct,2),
+    'kpi-lucro-t': eur(lucroReal), 'kpi-lucro-t-pct': pct(lucroRealPct,2)+' sobre venda total',
+    'kpi-cflow-t': eur(cflowT),
+  };
+  Object.entries(kpiMap).forEach(([id,val]) => {
+    const el = document.getElementById(id); if (el) el.textContent = val;
   });
 
-  painel = toKV(data['1_Painel'] || []);
-  allTEEs = toObjArray(data['3_TEEs'] || []);
-  allDES  = toObjArray(data['10_Indice_Desenhos'] || []);
-  allPDE  = toObjArray(data['11_Indice_PDEs'] || []);
+  // Progresso
+  const pBars = document.querySelectorAll('#p1 .prog-fill');
+  const pPcts = document.querySelectorAll('#p1 .prog-pct');
+  if (pBars[0]) { pBars[0].style.width = (pctObra||0)+'%'; pPcts[0].textContent = pctObra!==null?pct(pctObra):'a preencher'; }
+  if (pBars[1]) { pBars[1].style.width = pctPrazo+'%';     pPcts[1].textContent = pct(pctPrazo); }
+  if (pBars[2]) { pBars[2].style.width = pctFat+'%';       pPcts[2].textContent = pct(pctFat); }
 
-  const now = new Date().toLocaleDateString('pt-PT');
-  const obraInfo = `${painel['Obra']||'Obra 120'} · ${painel['Referência']||'QM-R-001'} · ${painel['Nome']||'Quinta da Marinha — Casa R'}`;
-  const doNome = painel['Dono de Obra'] || 'Marlana di Vincenti';
+  // Faturação
+  const drVals = document.querySelectorAll('#p1-fat .v');
+  if (drVals[0]) drVals[0].textContent = eur(faturado);
+  if (drVals[1]) drVals[1].textContent = eur(porFaturar);
+  if (drVals[2]) drVals[2].textContent = eur(vendaTotal);
+  if (drVals[3]) drVals[3].textContent = pct(pctFat);
 
-  ['tee','des','pde'].forEach(id => {
-    const el = document.getElementById(id+'-obra-info');
-    if (el) el.textContent = obraInfo;
-    const doEl = document.getElementById(id+'-do');
-    if (doEl) doEl.textContent = doNome;
-    const dtEl = document.getElementById(id+'-data');
-    if (dtEl) dtEl.textContent = now;
+  // Custos
+  const drCustos = document.querySelectorAll('#p1-custos .v');
+  if (drCustos[0]) drCustos[0].textContent = eur(num(C['Custos Estimados']));
+  if (drCustos[1]) drCustos[1].textContent = eur(num(C['Pessoal Viatura']));
+  if (drCustos[2]) drCustos[2].textContent = eur(num(C['Total Despesas YTD']));
+  if (drCustos[3]) drCustos[3].textContent = pct(desvio);
+  if (drCustos[4]) drCustos[4].textContent = `${eur(margRealEur)} (${pct(margRealPct,3)})`;
+
+  // Cenários
+  const scMap = {
+    'sc-cflow-c': eur(cflowC), 'sc-mb-c-pct': pct(margemBrutaPct,2),
+    'sc-mb-c-eur': eur(margemBruta), 'sc-lr-c': eur(lucroBase),
+    'sc-cflow-t': eur(cflowT), 'sc-mt-pct': pct(margemTotalPct,2),
+    'sc-mt-eur': eur(margemTotal), 'sc-lr-t': eur(lucroReal),
+    'sc-cflow-r': eur(num(C['CFlow Real YTD'])||cflowT),
+    'sc-mr-pct': pct(margRealPct,3), 'sc-mr-eur': eur(margRealEur),
+    'sc-desvio': pct(desvio),
+  };
+  Object.entries(scMap).forEach(([id,val]) => {
+    const el = document.getElementById(id); if (el) el.textContent = val;
   });
 
-  renderTEEs(allTEEs);
-  renderDES(allDES);
-  renderPDE(allPDE);
-}
+  // TEEs — colunas: Número, Descrição, Data Envio, Data Aprovação, Valor Apresentado (€), Aprovado (S/N), Preço Custo (€), Margem (€)
+  const estadoTEE = v => {
+    const s = String(v||'').trim().toUpperCase();
+    if (s==='SIM') return 'Aprovado DO';
+    if (s==='NÃO' || s==='NAO') return 'Recusado';
+    if (s==='AGUARDA RESPOSTA') return 'Em análise';
+    return 'Em curso';
+  };
 
-// ── RENDER TEEs ───────────────────────────────────────
-function renderTEEs(tees) {
-  const dados = tees.filter(t => t['Número'] && t['Descrição']);
+  const teesFiltrados = tees.filter(t => t['Número'] && t['Descrição']);
+  const teesAprovados = teesFiltrados.filter(t => estadoTEE(t['Aprovado (S/N)'])==='Aprovado DO');
+  const totalVTee = teesAprovados.reduce((s,t) => s+num(t['Valor Apresentado (€)']),0);
+  const totalCTee = teesAprovados.reduce((s,t) => s+num(t['Preço Custo (€)']),0);
+  const totalMTee = totalVTee - totalCTee;
 
-  const totalVenda = dados
-    .filter(t => String(t['Aprovado (S/N)']).toUpperCase() === 'SIM')
-    .reduce((s,t) => s + num(t['Valor Apresentado (€)']), 0);
-  const totalCusto = dados
-    .filter(t => String(t['Aprovado (S/N)']).toUpperCase() === 'SIM')
-    .reduce((s,t) => s + num(t['Preço Custo (€)']), 0);
-  const totalMargem = totalVenda - totalCusto;
-
-  document.getElementById('tee-tbody').innerHTML = dados.map((t, i) => {
-    const v = num(t['Valor Apresentado (€)']);
-    const c = num(t['Preço Custo (€)']);
-    const m = v - c;
-    const prorr = t['Prorrogação (dias)'];
-    const valColor = v < 0 ? 'color:var(--red)' : v > 0 ? '' : 'color:var(--tx3)';
-    return `<tr data-aprovado="${t['Aprovado (S/N)']}">
-      <td class="td-mono">${t['Número']}</td>
-      <td>${t['Descrição']}</td>
-      <td><span style="color:var(--tx2);font-size:11px">${t['Especialidade']||'—'}</span></td>
+  document.getElementById('tees-tbody').innerHTML = teesFiltrados.map(t => {
+    const v = num(t['Valor Apresentado (€)']), c = num(t['Preço Custo (€)']), m = v-c;
+    const estado = estadoTEE(t['Aprovado (S/N)']);
+    const aprov = estado === 'Aprovado DO';
+    return `<tr>
+      <td class="td-mono">${t['Número']||'—'}</td>
+      <td>${t['Descrição']||'—'}</td>
+      <td>${estadoPill(estado)}</td>
       <td>${fmtDate(t['Data Envio'])}</td>
       <td>${fmtDate(t['Data Aprovação'])}</td>
-      <td class="td-r" style="${valColor}">${v?eur(v):'—'}</td>
-      <td class="td-c">${aprovadoPill(t['Aprovado (S/N)'])}</td>
-      <td class="td-mono td-c" style="font-size:11px;color:var(--tx2)">${t['Revisão Actual']||'—'}</td>
-      <td class="td-r col-interno" style="color:var(--tx2)">${c?eur(c):'—'}</td>
-      <td class="td-r col-interno" style="color:${m>=0?'var(--grn)':'var(--red)'}">${v?eur(m):'—'}</td>
-      <td class="td-c col-interno">${prorr?`<span class="ep ep-aguarda">+${prorr}d</span>`:'—'}</td>
+      <td class="td-r">${v?eur(v):'—'}</td>
+      <td class="td-r">${c?eur(c):'—'}</td>
+      <td class="td-r" style="color:${aprov?'var(--grn)':v<0?'var(--red)':'var(--tx3)'}">${v?eur(m):'—'}</td>
+      <td class="td-r" style="color:${aprov?'var(--grn)':v<0?'var(--red)':'var(--tx3)'}">${v?pct(m/v*100):'—'}</td>
     </tr>`;
-  }).join('') || '<tr><td colspan="11" style="text-align:center;color:var(--tx3);padding:20px">Sem TEEs registados</td></tr>';
+  }).join('') || '<tr><td colspan="9" style="color:var(--tx3);text-align:center;padding:16px">Sem TEEs registados</td></tr>';
 
-  document.getElementById('tee-tfoot').innerHTML = `
-    <td colspan="5">Totais aprovados</td>
-    <td class="td-r">${eur(totalVenda)}</td>
-    <td></td><td></td>
-    <td class="td-r col-interno">${eur(totalCusto)}</td>
-    <td class="td-r col-interno" style="color:var(--grn)">${eur(totalMargem)}</td>
-    <td class="col-interno"></td>`;
+  document.getElementById('tees-tfoot').innerHTML = `
+    <td colspan="5">Total aprovados</td>
+    <td class="td-r">${eur(totalVTee)}</td>
+    <td class="td-r">${eur(totalCTee)}</td>
+    <td class="td-r">${eur(totalMTee)}</td>
+    <td class="td-r">${totalVTee?pct(totalMTee/totalVTee*100):'—'}</td>`;
 
-  document.getElementById('tee-totais').innerHTML = `
-    <div class="totais-item">
-      <div class="lbl">Total TEEs aprovados</div>
-      <div class="val" style="color:var(--blu)">${eur(totalVenda)}</div>
+  // Subempreitadas table
+  const subsCores = ['var(--blu)','var(--grn)','var(--amb)','var(--red)','var(--vio)'];
+  const subsFilt = subs.filter(s => s['Empresa'] || s['Especialidade']);
+  const totCD   = subsFilt.reduce((s,r) => s+num(r['C.D.']),0);
+  const totPV   = subsFilt.reduce((s,r) => s+num(r['P.V.']),0);
+  const totAdj  = subsFilt.reduce((s,r) => s+num(r['Valor Adjudicação Efetivo']),0);
+  const totPago = subsFilt.reduce((s,r) => s+num(r['Valor Pago']),0);
+  const totFalt = subsFilt.reduce((s,r) => s+num(r['Valor em Falta']),0);
+
+  document.getElementById('subs-tbody').innerHTML = subsFilt.map((r,i) => {
+    const cd   = num(r['C.D.']), pv = num(r['P.V.']);
+    const adj  = num(r['Valor Adjudicação Efetivo']);
+    const pago = num(r['Valor Pago']);
+    const falt = num(r['Valor em Falta']);
+    const pctP = adj ? pago/adj*100 : 0;
+    const empresa = r['Empresa'] || '—';
+
+    // Contrato — auto-calcular se necessário com base no adj efetivo ou CD
+    const valorRef = adj || num(r['C.D.']);
+    const contratoNecessario = String(r['Contrato Necessário']||'').toUpperCase() === 'SIM' || valorRef >= 5000;
+    const contratoFeito    = String(r['Contrato Feito (S/N)']||'').toUpperCase() === 'SIM';
+    const contratoAssinado = String(r['Contrato Assinado (S/N)']||'').toUpperCase() === 'SIM';
+
+    let contratoPill = '';
+    if (!contratoNecessario) {
+      contratoPill = `<span class="ep" style="background:var(--s3);color:var(--tx3)">N/A</span>`;
+    } else if (contratoAssinado) {
+      contratoPill = `<span class="ep" style="background:var(--grn-bg);color:var(--grn);border:1px solid var(--grn2)">✓ Assinado</span>`;
+    } else if (contratoFeito) {
+      contratoPill = `<span class="ep" style="background:var(--amb-bg);color:var(--amb);border:1px solid var(--amb2)">Feito</span>`;
+    } else {
+      contratoPill = `<span class="ep" style="background:var(--red-bg);color:var(--red);border:1px solid var(--red2)">⚠ Em falta</span>`;
+    }
+
+    return `<tr>
+      <td><span style="display:flex;align-items:center;gap:8px">
+        <span style="width:8px;height:8px;border-radius:50%;background:${subsCores[i%subsCores.length]};flex-shrink:0"></span>
+        <strong>${empresa}</strong></span></td>
+      <td>${r['Especialidade']||'—'}</td>
+      <td class="td-mono" style="color:var(--tx3)">${r['Fase']||'—'}</td>
+      <td class="td-r">${cd?eur(cd):'—'}</td>
+      <td class="td-r">${pv?eur(pv):'—'}</td>
+      <td class="td-r" style="color:var(--tx2)">${cd&&pv?eur(pv-cd):'—'}</td>
+      <td class="td-r" style="color:var(--blu)">${adj?eur(adj):'—'}</td>
+      <td class="td-r" style="color:var(--grn)">${pago?eur(pago):'—'}</td>
+      <td class="td-r" style="color:var(--amb)">${falt?eur(falt):'—'}</td>
+      <td class="td-r" style="color:var(--tx2)">${adj?pct(pctP):'—'}</td>
+      <td>${fmtDate(r['Data Entrada em Obra'])||'—'}</td>
+      <td>${contratoPill}</td>
+      <td>${estadoPill(r['Estado'])}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="13" style="color:var(--tx3);text-align:center;padding:16px">Sem subempreitadas registadas</td></tr>';
+
+  document.getElementById('subs-tfoot').innerHTML = `
+    <td colspan="3">Total</td>
+    <td class="td-r">${eur(totCD)}</td>
+    <td class="td-r">${eur(totPV)}</td>
+    <td class="td-r">${eur(totPV-totCD)}</td>
+    <td class="td-r">${eur(totAdj)}</td>
+    <td class="td-r">${eur(totPago)}</td>
+    <td class="td-r" style="color:var(--amb)">${eur(totFalt)}</td>
+    <td class="td-r">${totAdj?pct(totPago/totAdj*100):'—'}</td>
+    <td colspan="3"></td>`;
+
+  // Sub-empreiteiros activos (cards)
+  document.getElementById('sub-cards').innerHTML = subsFilt
+    .filter(r => r['Empresa'] && ['Adjudicado','Fase consultas','Em execução','Activo'].includes(r['Estado']))
+    .map((r,i) => `
+      <div class="sub-card">
+        <span class="sub-dot" style="background:${subsCores[i%subsCores.length]}"></span>
+        <div><div class="sub-name">${r['Empresa']}</div><div class="sub-scope">${r['Especialidade']||''}</div></div>
+      </div>`).join('') || '<div style="color:var(--tx3);font-size:13px">Sem subempreiteiros activos</div>';
+
+  // Alertas
+  const alertas = [];
+  for (let i=1; i<=8; i++) {
+    const prio = String(P[`Nota ${i} Prioridade`]||'').trim().toLowerCase();
+    const txt  = String(P[`Nota ${i} Texto`]||'').trim();
+    if (txt) alertas.push({prio, txt});
+  }
+  const clsMap = {urgente:'alert-red', atenção:'alert-orange', atenco:'alert-orange', pendente:'alert-blue'};
+  document.getElementById('alertas').innerHTML = alertas.length
+    ? alertas.map(a => `<div class="alert ${clsMap[a.prio]||'alert-blue'}"><span class="alert-tag">${a.prio}</span>${a.txt}</div>`).join('')
+    : '<div style="color:var(--tx3);font-size:13px;padding:8px 0">Sem notas para esta semana.</div>';
+
+  document.getElementById('p1-time').textContent = 'Actualizado ' + now.toLocaleTimeString('pt-PT');
+}
+
+// ── RENDER PAINEL 2 ───────────────────────────────────
+function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, subs) {
+  // Calcular datas extremas da obra
+  const toDate = v => {
+    if (!v || v === '' || v === 0) return null;
+    try {
+      const d = new Date(v);
+      return isNaN(d.getTime()) ? null : d;
+    } catch { return null; }
+  };
+  const fasesData = fases.filter(f => f['Código']);
+
+  const obraInicio = fasesData.reduce((min, f) => {
+    const d = toDate(f['Data Início']); return d && (!min || d < min) ? d : min;
+  }, null) || new Date('2026-02-01');
+
+  const obraFim = fasesData.reduce((max, f) => {
+    const d = toDate(f['Data Fim Prevista']); return d && (!max || d > max) ? d : max;
+  }, null) || new Date('2027-01-31');
+
+  // Gerar array de meses entre início e fim
+  const meses = [];
+  let cur = new Date(obraInicio.getFullYear(), obraInicio.getMonth(), 1);
+  const fim = new Date(obraFim.getFullYear(), obraFim.getMonth(), 1);
+  const mNomes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  while (cur <= fim) {
+    meses.push({ y: cur.getFullYear(), m: cur.getMonth(), label: mNomes[cur.getMonth()], y2: String(cur.getFullYear()).slice(2) });
+    cur = new Date(cur.getFullYear(), cur.getMonth()+1, 1);
+  }
+
+  const hojeY = now.getFullYear(), hojeM = now.getMonth();
+
+  // Mapear entradas por mês
+  // Reais: usa Data Recebimento quando existe
+  // Previsão: distribui saldo por faturar pelos meses futuros com base no planeamento
+  const entradasMes = {};
+
+  faturacao.filter(f => f['Nº Fatura'] && num(f['Valor (€)']) > 0).forEach(f => {
+    const d = toDate(f['Data Recebimento']) || toDate(f['Data Emissão']) || toDate(f['Data de aprovação']);
+    if (!d) return;
+    const k = `${d.getFullYear()}-${d.getMonth()}`;
+    entradasMes[k] = (entradasMes[k]||0) + num(f['Valor (€)']);
+  });
+
+  // Previsão de faturação futura baseada no planeamento
+  // Para cada fase activa/futura, distribui o valor de venda proporcional ao trabalho previsto por mês
+  const vendaTotalObra = 553619.19; // do contratual
+  const jaFaturado = Object.values(entradasMes).reduce((s,v) => s+v, 0);
+  const porFaturar = vendaTotalObra - jaFaturado;
+
+  // Calcular peso de cada fase futura por mês
+  const pesos = {}; // k -> peso
+  fasesData.filter(f => num(f['% Executado']) < 100).forEach(f => {
+    const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
+    if (!dI || !dF) return;
+    const duracaoMs = dF - dI;
+    if (duracaoMs <= 0) return;
+    let c = new Date(dI.getFullYear(), dI.getMonth(), 1);
+    while (c <= dF) {
+      const ky = c.getFullYear(), km = c.getMonth();
+      if (ky > hojeY || (ky === hojeY && km >= hojeM)) {
+        const k = `${ky}-${km}`;
+        pesos[k] = (pesos[k]||0) + 1;
+      }
+      c = new Date(ky, km+1, 1);
+    }
+  });
+
+  const totalPeso = Object.values(pesos).reduce((s,v) => s+v, 0);
+  if (totalPeso > 0) {
+    Object.entries(pesos).forEach(([k, p]) => {
+      entradasMes[k] = (entradasMes[k]||0) + (p / totalPeso) * porFaturar;
+    });
+  }
+
+  // Mapear saídas por mês (custos fixos + internos + pagamentos reais)
+  const saidasMes = {};      // saídas reais
+  const saidasEstMes = {};   // saídas estimadas (subempreitadas não adjudicadas)
+
+  [...custosFixos, ...custosInternos].forEach(r => {
+    const d = toDate(r['Mês']);
+    if (!d) return;
+    const k = `${d.getFullYear()}-${d.getMonth()}`;
+    const val = num(r['Valor (€)']||r['Custo Total (€)']);
+    const afect = num(r['% Afectação Obra']||100) / 100;
+    saidasMes[k] = (saidasMes[k]||0) + val*afect;
+  });
+
+  // Pagamentos reais de subempreitadas
+  (pagamentos||[]).filter(p => p['Data Pagamento'] && p['Valor Pago (€)']).forEach(p => {
+    const d = toDate(p['Data Pagamento']);
+    if (!d) return;
+    const k = `${d.getFullYear()}-${d.getMonth()}`;
+    saidasMes[k] = (saidasMes[k]||0) + num(p['Valor Pago (€)']);
+  });
+
+  // Saídas estimadas — subempreitadas não adjudicadas distribuídas pela fase
+  // Cria índice de fases por código para acesso rápido
+  const faseIndex = {};
+  fasesData.forEach(f => { if (f['Código']) faseIndex[f['Código']] = f; });
+
+  (subs||[]).filter(s => {
+    const est = (s['Estado']||'').trim();
+    return ['Ainda não','Fase consultas'].includes(est) && num(s['C.D.']) > 0 && s['Fase'];
+  }).forEach(s => {
+    const fase = faseIndex[s['Fase']];
+    if (!fase) return;
+    const dI = toDate(fase['Data Início']), dF = toDate(fase['Data Fim Prevista']);
+    if (!dI || !dF) return;
+    // Calcular quantos meses tem a fase
+    let nMeses = 0;
+    let c = new Date(dI.getFullYear(), dI.getMonth(), 1);
+    while (c <= dF) { nMeses++; c = new Date(c.getFullYear(), c.getMonth()+1, 1); }
+    if (nMeses === 0) return;
+    const cdMensal = num(s['C.D.']) / nMeses;
+    // Distribuir por cada mês da fase
+    c = new Date(dI.getFullYear(), dI.getMonth(), 1);
+    while (c <= dF) {
+      const k = `${c.getFullYear()}-${c.getMonth()}`;
+      saidasEstMes[k] = (saidasEstMes[k]||0) + cdMensal;
+      c = new Date(c.getFullYear(), c.getMonth()+1, 1);
+    }
+  });
+
+  // Construir CF por mês — com linhas de referência orçamental
+  // Previsão orçamental de entradas: venda total distribuída linearmente pelos meses da obra
+  const vendaTotal = 553619.19;
+  const cdTotal2   = 430569.03; // CD total com TEEs aprovados
+  const entradaOrcMensal = vendaTotal / meses.length;
+  const saidaOrcMensal   = cdTotal2   / meses.length;
+  let entradaOrcAcum = 0, saidaOrcAcum = 0;
+
+  const CF = meses.map((m, idx) => {
+    const k = `${m.y}-${m.m}`;
+    const isReal  = m.y < hojeY || (m.y===hojeY && m.m < hojeM);
+    const isAtual = m.y===hojeY && m.m===hojeM;
+    entradaOrcAcum += entradaOrcMensal;
+    saidaOrcAcum   += saidaOrcMensal;
+    return {
+      ...m,
+      entrada:       entradasMes[k]||0,
+      saida:         saidasMes[k]||0,
+      saidaEst:      saidasEstMes[k]||0,
+      entradaOrc:    entradaOrcMensal,   // referência orçamental mensal entradas
+      saidaOrc:      saidaOrcMensal,     // referência orçamental mensal saídas
+      real: isReal, atual: isAtual
+    };
+  });
+
+  // GANTT — calcular posições relativas
+  const totalMs  = obraFim - obraInicio;
+  const hojePos  = Math.max(0, Math.min(1, (now - obraInicio) / totalMs));
+  const mesesHdr = meses.map(m => m.label);
+
+  const ganttEl = document.getElementById('gantt');
+  const hdrCols = 'grid-template-columns: 160px 80px 1fr 50px';
+  let ganttHTML = `<div class="gantt-row header" style="${hdrCols}">
+    <div style="padding:0 8px">Fase</div>
+    <div style="padding:0 8px;font-size:9px">Sub.</div>
+    <div style="padding:0 4px">
+      <div style="display:flex">
+        ${mesesHdr.map((ml,i) => {
+          const isHoje = meses[i].y===hojeY && meses[i].m===hojeM;
+          return `<div style="flex:1;text-align:center;font-size:9px;${isHoje?'color:var(--blu)':''}">${ml}</div>`;
+        }).join('')}
+      </div>
     </div>
-    <div class="totais-item">
-      <div class="lbl">Custo total aprovados</div>
-      <div class="val" style="color:var(--tx2)">${eur(totalCusto)}</div>
-    </div>
-    <div class="totais-item">
-      <div class="lbl">Margem total aprovados</div>
-      <div class="val" style="color:var(--grn)">${eur(totalMargem)}</div>
-    </div>
-    <div class="totais-item">
-      <div class="lbl">Nº TEEs registados</div>
-      <div class="val" style="color:var(--tx)">${dados.length}</div>
+    <div style="padding:0 8px">%</div>
+  </div>`;
+
+  fasesData.forEach(f => {
+    const dI  = toDate(f['Data Início']),      dF  = toDate(f['Data Fim Prevista']);
+    const dIR = toDate(f['Data Fim Real']);     // data real se existir
+    if (!dI || !dF) return;
+    const left  = Math.max(0, (dI - obraInicio) / totalMs * 100).toFixed(1);
+    const width = Math.max(1, (dF - dI)         / totalMs * 100).toFixed(1);
+    const p     = num(f['% Executado']);
+    const cor   = FASE_CORES[f['Código']] || '#4A6090';
+    const sub   = (f['Subempreiteiro']||'').split('/')[0].trim().slice(0,8);
+
+    // Barra real (se data fim real existir)
+    let barraReal = '';
+    if (dIR) {
+      const wR = Math.max(0.5, (dIR - dI) / totalMs * 100).toFixed(1);
+      barraReal = `<div style="position:absolute;left:${left}%;width:${wR}%;top:0;height:100%;background:${cor};opacity:0.9;border-radius:3px;border:2px solid white" title="Concluído em ${fmtDate(dIR)}"></div>`;
+    }
+
+    ganttHTML += `<div class="gantt-row" style="${hdrCols}">
+      <div class="gantt-fase">${f['Código']} — ${f['Fase']}</div>
+      <div style="padding:0 8px;font-size:10px;color:var(--tx3)">${sub}</div>
+      <div style="position:relative;padding:4px">
+        <div class="gantt-bar-wrap">
+          <div class="gantt-today" style="left:${(hojePos*100).toFixed(1)}%"></div>
+          <div class="gantt-bar" style="left:${left}%;width:${width}%;background:${cor}25;border:1px solid ${cor}55">
+            <div style="position:absolute;left:0;top:0;height:100%;width:${p}%;background:${cor};border-radius:3px 0 0 3px;opacity:0.75"></div>
+            ${barraReal}
+            <span class="gantt-bar-label" style="position:relative;z-index:1">${f['Fase']}</span>
+          </div>
+        </div>
+      </div>
+      <div class="gantt-pct" style="color:${p===100?'var(--grn)':p>0?'var(--amb)':'var(--tx3)'}">${p}%</div>
     </div>`;
-
-  document.getElementById('tee-loading').style.display = 'none';
-  document.getElementById('tee-content').style.display = 'block';
-}
-
-function filtrarTEE(filtro, btn) {
-  document.querySelectorAll('#tee .filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  const rows = document.querySelectorAll('#tee-tbody tr');
-  rows.forEach(row => {
-    if (filtro === 'todos') { row.style.display = ''; return; }
-    const aprov = row.getAttribute('data-aprovado') || '';
-    row.style.display = aprov === filtro ? '' : 'none';
   });
-}
+  ganttEl.innerHTML = ganttHTML;
 
-// ── RENDER DESENHOS ───────────────────────────────────
-function renderDES(des) {
-  const dados = des.filter(d => d['Número'] && d['Descrição']);
+  // CHART
+  const maxVal = Math.max(...CF.flatMap(m => [m.entrada, m.saida + m.saidaEst]), 1);
+  const chartH = 180;
+  document.getElementById('cf-chart').innerHTML = CF.map(m => {
+    const hIn  = Math.round(m.entrada   / maxVal * chartH);
+    const hOut = Math.round(m.saida     / maxVal * chartH);
+    const hEst = Math.round(m.saidaEst  / maxVal * chartH);
+    const totalOut = m.saida + m.saidaEst;
+    const risk = totalOut > m.entrada && (m.entrada > 0 || totalOut > 0);
+    return `<div class="tl-col">
+      <div class="tl-bars">
+        <div class="bar-in ${risk?'neg':''}" style="height:${Math.max(hIn,2)}px"
+          title="${m.label} ${m.y}: Entradas ${eur(m.entrada)}"></div>
+        <div style="display:flex;flex-direction:column;flex:1;align-items:stretch;gap:1px">
+          ${hEst>0?`<div class="bar-est" style="height:${Math.max(hEst,2)}px"
+            title="${m.label} ${m.y}: Estimado ${eur(m.saidaEst)}"></div>`:''}
+          ${hOut>0?`<div class="bar-out" style="height:${Math.max(hOut,2)}px"
+            title="${m.label} ${m.y}: Real ${eur(m.saida)}"></div>`:''}
+          ${!hOut&&!hEst?`<div class="bar-out" style="height:2px;opacity:0.2"></div>`:''}
+        </div>
+      </div>
+      <div class="tl-month ${m.atual?'current':m.real?'':'future'}">${m.label}<br><span style="font-size:8px;opacity:0.6">${m.y2}</span></div>
+    </div>`;
+  }).join('');
 
-  document.getElementById('des-tbody').innerHTML = dados.map(d => `
-    <tr data-disciplina="${d['Disciplina']||''}">
-      <td class="td-mono">${d['Número']}</td>
-      <td>${d['Descrição']}</td>
-      <td><span style="color:var(--tx2);font-size:11px">${d['Disciplina']||'—'}</span></td>
-      <td class="td-mono td-c" style="color:var(--tx2);font-size:11px">${d['Revisão Actual']||'—'}</td>
-      <td>${fmtDate(d['Data Emissão'])}</td>
-      <td>${fmtDate(d['Data Envio DO'])}</td>
-      <td>${fmtDate(d['Data Resposta DO'])}</td>
-      <td>${estadoPill(d['Estado'])}</td>
-      <td style="color:var(--tx3);font-size:11px">${d['Notas']||''}</td>
-    </tr>`).join('') || '<tr><td colspan="9" style="text-align:center;color:var(--tx3);padding:20px">Sem desenhos registados</td></tr>';
-
-  document.getElementById('des-loading').style.display = 'none';
-  document.getElementById('des-content').style.display = 'block';
-}
-
-function filtrarDES(filtro, btn) {
-  document.querySelectorAll('#des .filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  const rows = document.querySelectorAll('#des-tbody tr');
-  rows.forEach(row => {
-    if (filtro === 'todos') { row.style.display = ''; return; }
-    row.style.display = row.getAttribute('data-disciplina') === filtro ? '' : 'none';
+  // LINHA DE SALDO ACUMULADO + LINHAS ORÇAMENTAIS — SVG sobreposto
+  let saldoAcum = 0;
+  const saldos = CF.map(m => {
+    saldoAcum += m.entrada - m.saida - m.saidaEst;
+    return saldoAcum;
   });
+  const maxSaldo = Math.max(...saldos.map(Math.abs), 1);
+
+  // Usar setTimeout para garantir que o DOM está renderizado
+  setTimeout(() => {
+    const wrap = document.getElementById('cf-chart-wrap');
+    const chart = document.getElementById('cf-chart');
+    if (!wrap || !chart) return;
+    const cols = chart.querySelectorAll('.tl-col');
+    if (!cols.length) return;
+
+    const wW = wrap.offsetWidth || 800;
+    const svgNS = 'http://www.w3.org/2000/svg';
+
+    const old = wrap.querySelector('.saldo-svg');
+    if (old) old.remove();
+
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('class', 'saldo-svg');
+    svg.setAttribute('height', chartH + 28);
+    svg.setAttribute('viewBox', `0 0 ${wW} ${chartH + 28}`);
+    svg.style.position = 'absolute';
+    svg.style.top = '0'; svg.style.left = '0';
+    svg.style.width = '100%'; svg.style.pointerEvents = 'none';
+
+    // Posições X dos centros das colunas
+    const pts = Array.from(cols).map((col, i) => {
+      const rect = col.getBoundingClientRect();
+      const wrapRect = wrap.getBoundingClientRect();
+      const x = rect.left - wrapRect.left + rect.width / 2;
+      const norm = saldos[i] / maxSaldo;
+      const y = chartH * 0.5 - norm * (chartH * 0.42);
+      return { x, y, s: saldos[i] };
+    });
+
+    if (!pts.length) return;
+
+    // Linha de zero
+    const zeroY = chartH * 0.5;
+    const zeroLine = document.createElementNS(svgNS, 'line');
+    zeroLine.setAttribute('class', 'saldo-zero-line');
+    zeroLine.setAttribute('x1', 0); zeroLine.setAttribute('y1', zeroY);
+    zeroLine.setAttribute('x2', wW); zeroLine.setAttribute('y2', zeroY);
+    svg.appendChild(zeroLine);
+
+    // Linhas orçamentais — posição Y fixa (entradaOrc e saidaOrc são constantes)
+    const maxValChart = Math.max(...CF.flatMap(m => [m.entrada, m.saida + m.saidaEst]), 1);
+    const yEntOrc = chartH - Math.round(CF[0].entradaOrc / maxValChart * chartH);
+    const ySaiOrc = chartH - Math.round(CF[0].saidaOrc   / maxValChart * chartH);
+
+    [[yEntOrc,'var(--blu)','Referência orçamental entradas'],[ySaiOrc,'var(--amb)','Referência orçamental saídas']].forEach(([y,col,lbl]) => {
+      const l = document.createElementNS(svgNS, 'line');
+      l.setAttribute('x1', 0); l.setAttribute('y1', y);
+      l.setAttribute('x2', wW); l.setAttribute('y2', y);
+      l.setAttribute('stroke', col); l.setAttribute('stroke-width', '1');
+      l.setAttribute('stroke-dasharray', '6,4'); l.setAttribute('opacity', '0.5');
+      const t = document.createElementNS(svgNS, 'title');
+      t.textContent = lbl; l.appendChild(t);
+      svg.appendChild(l);
+    });
+
+    // Linha de saldo acumulado
+    const pathEl = document.createElementNS(svgNS, 'path');
+    pathEl.setAttribute('class', 'saldo-path');
+    pathEl.setAttribute('d', `M${pts.map(p=>`${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L')}`);
+    pathEl.setAttribute('stroke', 'var(--grn)');
+    svg.appendChild(pathEl);
+
+    // Segmentos negativos a vermelho
+    let inNeg = false, negStart = 0;
+    const negSegs = [];
+    pts.forEach((p, i) => {
+      if (p.s < 0 && !inNeg) { inNeg = true; negStart = i > 0 ? i-1 : i; }
+      if (p.s >= 0 && inNeg) { negSegs.push([negStart, i]); inNeg = false; }
+    });
+    if (inNeg) negSegs.push([negStart, pts.length-1]);
+    negSegs.forEach(([s,e]) => {
+      const np = pts.slice(s, e+1);
+      const el = document.createElementNS(svgNS, 'path');
+      el.setAttribute('class', 'saldo-path');
+      el.setAttribute('d', `M${np.map(p=>`${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L')}`);
+      el.setAttribute('stroke', 'var(--red)');
+      svg.appendChild(el);
+    });
+
+    // Pontos
+    pts.forEach(p => {
+      const dot = document.createElementNS(svgNS, 'circle');
+      dot.setAttribute('cx', p.x.toFixed(1)); dot.setAttribute('cy', p.y.toFixed(1));
+      dot.setAttribute('r', 3);
+      dot.setAttribute('fill', p.s >= 0 ? 'var(--grn)' : 'var(--red)');
+      dot.setAttribute('stroke', 'var(--bg)'); dot.setAttribute('stroke-width', '1.5');
+      const t = document.createElementNS(svgNS, 'title');
+      t.textContent = `Saldo acumulado: ${p.s>=0?'+':''}${p.s.toLocaleString('pt-PT',{maximumFractionDigits:0})} €`;
+      dot.appendChild(t);
+      svg.appendChild(dot);
+    });
+
+    wrap.appendChild(svg);
+  }, 300);
+
+  // MONTH GRID — com saldo acumulado
+  let saldoAcc = 0;
+  document.getElementById('month-grid').innerHTML = CF.map((m, i) => {
+    const totalOut = m.saida + m.saidaEst;
+    const saldoMes  = m.entrada - totalOut;
+    saldoAcc += saldoMes;
+    const risk     = totalOut > m.entrada && (m.entrada > 0 || totalOut > 0);
+    const caution  = !risk && m.entrada > 0 && (totalOut/m.entrada > 0.85);
+    const negAcum  = saldoAcc < 0;
+    const cls = m.atual?'current':m.real?'past':negAcum?'risk':risk?'risk':caution?'caution':'';
+    const saldoCol = saldoMes >= 0 ? 'var(--grn)' : 'var(--red)';
+    const acumCol  = saldoAcc >= 0 ? 'var(--grn)' : 'var(--red)';
+    const badge = negAcum  ? '<div class="mc-badge" style="color:var(--red)">⚠ saldo acumulado negativo</div>'
+                : risk     ? '<div class="mc-badge" style="color:var(--red)">⚠ saídas > entradas</div>'
+                : caution  ? '<div class="mc-badge" style="color:var(--amb)">↑ atenção</div>'
+                : m.real   ? '<div class="mc-badge" style="color:var(--tx3)">✓ real</div>'
+                : m.atual  ? '<div class="mc-badge" style="color:var(--blu)">→ actual</div>' : '';
+    return `<div class="month-card ${cls}">
+      <div class="mc-month">${m.label} ${m.y2}</div>
+      <div class="mc-in">↑ ${eur(m.entrada)}</div>
+      <div class="mc-out">↓ ${eur(m.saida)}${m.saidaEst>0?` <span style="color:var(--amb);font-size:10px">(+${eur(m.saidaEst)} est.)</span>`:''}</div>
+      <div class="mc-saldo" style="color:${saldoCol}">${saldoMes>=0?'+':''}${eur(saldoMes)}</div>
+      <div style="font-family:var(--mono);font-size:10px;color:${acumCol};margin-top:2px" title="Saldo acumulado">∑ ${saldoAcc>=0?'+':''}${eur(saldoAcc)}</div>
+      ${badge}
+    </div>`;
+  }).join('');
+
+  // Simulador — actualiza fases disponíveis
+  const simFase = document.getElementById('sim-fase');
+  simFase.innerHTML = fasesData.filter(f=>num(f['% Executado'])<100).map(f =>
+    `<option value="${f['Código']}">${f['Código']} — ${f['Fase']} (${f['Subempreiteiro']||'Primeline'})</option>`
+  ).join('');
+
+  // KPIs P2
+  const totalEnt  = CF.reduce((s,m) => s+m.entrada, 0);
+  const totalSai  = CF.reduce((s,m) => s+m.saida+m.saidaEst, 0);
+  const totalSaiReal = CF.reduce((s,m) => s+m.saida, 0);
+  const mesesRisc = CF.filter(m => (m.saida+m.saidaEst) > m.entrada && (m.entrada > 0 || (m.saida+m.saidaEst) > 0)).length;
+
+  // Calcular saldo acumulado para encontrar o pior mês
+  let acum = 0;
+  let piorSaldo = 0, piorMes = null;
+  CF.forEach(m => {
+    acum += m.entrada - m.saida - m.saidaEst;
+    if (acum < piorSaldo) { piorSaldo = acum; piorMes = m; }
+  });
+
+  const p2kpis = document.querySelectorAll('#p2 .kpi-val');
+  if (p2kpis[0]) p2kpis[0].textContent = eur(totalEnt);
+  if (p2kpis[1]) p2kpis[1].textContent = eur(totalSai);
+  if (p2kpis[2]) { p2kpis[2].textContent = eur(totalEnt - totalSai); p2kpis[2].style.color = (totalEnt-totalSai)>=0?'var(--grn)':'var(--red)'; }
+  if (p2kpis[3]) {
+    p2kpis[3].textContent = piorMes ? eur(piorSaldo) : eur(0);
+    p2kpis[3].style.color = piorSaldo < 0 ? 'var(--red)' : 'var(--grn)';
+    const sub = document.getElementById('kpi-pior-mes-sub');
+    if (sub) sub.textContent = piorMes ? `${piorMes.label} ${piorMes.y} — saldo acumulado mínimo` : 'Sem meses negativos ✓';
+    const card = document.getElementById('kpi-pior-mes');
+    if (card) card.className = piorSaldo < 0 ? 'kpi rl' : 'kpi gl';
+  }
+
+  // Header P2
+  const p2metas = document.querySelectorAll('#p2 .oh-item .val');
+  if (p2metas[2]) { p2metas[2].textContent = eur(totalEnt-totalSai); p2metas[2].style.color=(totalEnt-totalSai)>=0?'var(--grn)':'var(--red)'; }
+  if (p2metas[3]) { p2metas[3].innerHTML = `${mesesRisc} meses${mesesRisc>0?` <span class="pill pill-red">!</span>`:''}`;  p2metas[3].style.color=mesesRisc>0?'var(--red)':'var(--grn)'; }
+
+  document.getElementById('p2-time').textContent = 'Actualizado ' + now.toLocaleTimeString('pt-PT');
 }
 
-// ── RENDER PDEs ───────────────────────────────────────
-function renderPDE(pdes) {
-  const dados = pdes.filter(p => p['Número'] && p['Descrição']);
+// ── SIMULADOR ────────────────────────────────────────
+function simular() {
+  const fase  = document.getElementById('sim-fase').value;
+  const meses = parseInt(document.getElementById('sim-meses').value) || 1;
+  const custoEstaleiro = 3133.42; // Custo real estaleiro/mês (confirmado com Henrique)
+  const fatMensal      = 553619.19 / 10;
+  const custoLucro     = 3133.42 * 0.085;
+  document.getElementById('sr-atraso').textContent    = `+${meses} ${meses===1?'mês':'meses'} na conclusão`;
+  document.getElementById('sr-estaleiro').textContent = `−${eur(custoEstaleiro*meses)}`;
+  document.getElementById('sr-fat').textContent       = `Atrasa ${eur(fatMensal*meses)} de faturação`;
+  document.getElementById('sr-risco').textContent     = `+${Math.max(1,meses-1)} ${meses<=2?'mês':'meses'} adicionais em risco`;
+  document.getElementById('sr-lucro').textContent     = `−${eur((custoEstaleiro+custoLucro)*meses)}`;
+  document.getElementById('sr-recomend').textContent  = meses===1
+    ? `Com 1 mês de atraso na ${fase}, o impacto é gerível mas requer comunicação imediata ao DO sobre custos de prorrogação (${eur(custoEstaleiro)}/mês). Considerar negociar antecipação de um auto de medição.`
+    : `Com ${meses} meses de atraso na ${fase}, o custo adicional de estaleiro será ${eur(custoEstaleiro*meses)}. Há risco significativo de desequilíbrio no cash flow. Renegociar calendário de pagamentos com subempreiteiros e antecipar faturação ao DO sempre que possível.`;
+  document.getElementById('sim-result').classList.add('show');
+}
 
-  document.getElementById('pde-tbody').innerHTML = dados.map(p => `
-    <tr>
-      <td class="td-mono">${p['Número']}</td>
-      <td>${p['Descrição']}</td>
-      <td>${fmtDate(p['Data Emissão'])}</td>
-      <td>${fmtDate(p['Data Envio DO'])}</td>
-      <td>${fmtDate(p['Data Resposta DO'])}</td>
-      <td>${estadoPill(p['Estado'])}</td>
-      <td style="color:var(--tx3);font-size:11px">${p['Notas']||''}</td>
-    </tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--tx3);padding:20px">Sem PDEs registados</td></tr>';
+// ── LOADING ───────────────────────────────────────────
+async function loadData() {
+  document.querySelectorAll('.page').forEach(p => {
+    const spin = document.createElement('div');
+    spin.style.cssText = 'text-align:center;padding:60px;color:var(--tx3);font-family:var(--mono);font-size:12px';
+    spin.textContent = 'A carregar dados…';
+    spin.id = 'spin-'+p.id;
+    p.prepend(spin);
+  });
 
-  document.getElementById('pde-loading').style.display = 'none';
-  document.getElementById('pde-content').style.display = 'block';
+  try {
+    // Usar JSONP para contornar CORS
+    const data = await new Promise((resolve, reject) => {
+      const cb = 'cb_' + Date.now();
+      const script = document.createElement('script');
+      const timeout = setTimeout(() => {
+        delete window[cb];
+        document.head.removeChild(script);
+        reject(new Error('Timeout — verifica o Apps Script'));
+      }, 15000);
+      window[cb] = (data) => {
+        clearTimeout(timeout);
+        delete window[cb];
+        document.head.removeChild(script);
+        resolve(data);
+      };
+      script.src = API_URL + '?callback=' + cb;
+      script.onerror = () => reject(new Error('Erro ao carregar script'));
+      document.head.appendChild(script);
+    });
+
+    document.querySelectorAll('[id^="spin-"]').forEach(e => e.remove());
+
+    const P    = toKV(data['1_Painel']     || []);
+    const C    = toKV(data['2_Contratual'] || []);
+    const tees = toObjArray(data['3_TEEs'] || []);
+    const subs = toObjArray(data['4_Subempreitadas'] || []);
+    const pags = toObjArray(data['4b_Pagamentos_Subempreitadas'] || []);
+    const fases= toObjArray(data['5_Planeamento']    || []);
+    const fat  = toObjArray(data['6_Faturação']      || []);
+    const mat  = toObjArray(data['7_Materiais']      || []);
+    const cf   = toObjArray(data['8_Custos']         || data['7_Custos_Fixos'] || []);
+    const ci   = toObjArray(data['8_Custos_Internos']|| []);
+
+    const todosOsCustos = [...cf, ...ci, ...mat.map(m => ({
+      'Mês': m['Mês'], 'Valor (€)': m['Valor (€)'], '% Afectação Obra': '100'
+    }))];
+
+    try { renderP1(P, C, tees, subs); } catch(e) { console.error('renderP1:', e); }
+    try { renderP2(fases, fat, todosOsCustos, [], pags, subs); } catch(e) { console.error('renderP2:', e); }
+
+  } catch(err) {
+    document.querySelectorAll('[id^="spin-"]').forEach(e => {
+      e.style.color = 'var(--red)';
+      e.textContent = `Erro: ${err.message}`;
+    });
+  }
 }
 
 // ── INIT ─────────────────────────────────────────────
-loadData().catch(err => {
-  ['tee','des','pde'].forEach(id => {
-    const el = document.getElementById(id+'-loading');
-    if (el) { el.innerHTML = `<span style="color:var(--red)">${err.message}</span>`; }
-  });
-});
+(function() {
+  if (document.documentElement.classList.contains('light')) {
+    document.getElementById('theme-icon').textContent  = '☀️';
+    document.getElementById('theme-label').textContent = 'Claro';
+  }
+  loadData();
+})();
 </script>
 </body>
 </html>
