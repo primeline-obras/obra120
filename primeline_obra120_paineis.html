@@ -6,6 +6,38 @@
 <title>Primeline — Obra 120 QM-R-001</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
 <style>
+
+/* ── ALERT BOXES ── */
+.alert-box { border-radius: var(--r-md); padding: 16px 20px; border: 1px solid; }
+.alert-box-red { background: var(--red-bg); border-color: var(--red2); }
+.alert-box-amb { background: var(--amb-bg); border-color: var(--amb2); }
+.alert-box-blu { background: var(--blu-bg); border-color: var(--blu2); }
+.alert-box-title { font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+.alert-box-red .alert-box-title { color: var(--red); }
+.alert-box-amb .alert-box-title { color: var(--amb); }
+.alert-box-blu .alert-box-title { color: var(--blu); }
+.alert-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.alert-list li { font-size: 14px; line-height: 1.4; padding-left: 12px; position: relative; }
+.alert-list li::before { content: '–'; position: absolute; left: 0; color: var(--tx3); }
+.alert-box-red .alert-list li { color: var(--tx); }
+.alert-box-amb .alert-list li { color: var(--tx); }
+.alert-box-blu .alert-list li { color: var(--tx2); }
+
+/* ── TABLE IMPROVEMENTS ── */
+thead th { font-size: 12px !important; white-space: normal; word-break: break-word; max-width: 120px; }
+tbody td { font-size: 14px; white-space: normal; }
+.td-r { text-align: right !important; }
+.td-c { text-align: center !important; }
+.td-l { text-align: left !important; }
+tfoot td { font-size: 13px; }
+
+/* ── KPI larger ── */
+.kpi-val { font-size: 28px !important; }
+.kpi-tag { font-size: 13px !important; }
+.sec { font-size: 14px !important; }
+.sbar-val { font-size: 16px !important; }
+.sbar-lbl { font-size: 12px !important; }
+
 /* ── DARK MODE (default) ── */
 :root {
   --bg:       #080B10;
@@ -97,7 +129,7 @@ body {
   background: var(--bg);
   color: var(--tx);
   min-height: 100vh;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.5;
 }
 
@@ -146,7 +178,7 @@ body {
 }
 
 /* ── PAGES ── */
-.page { display: none; padding: 28px 28px 60px; max-width: 1160px; margin: 0 auto; }
+.page { display: none; padding: 28px 40px 60px; max-width: 1600px; margin: 0 auto; }
 .page.active { display: block; }
 
 /* ── HEADER OBRA ── */
@@ -704,12 +736,11 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   <div class="card tbl-wrap">
     <table>
       <thead><tr>
-        <th>Código</th><th>Descrição</th><th>Estado</th>
-        <th>Envio</th><th>Resposta</th>
-        <th class="td-r">Venda</th><th class="td-r">Custo</th>
+        <th>Número</th><th>Descrição</th><th>Especialidade</th><th>Estado</th>
+        <th class="td-r">Valor (€)</th><th class="td-r">Custo (€)</th>
         <th class="td-r">Margem €</th><th class="td-r">Margem %</th>
       </tr></thead>
-      <tbody id="tees-tbody"><tr><td colspan="9" style="color:var(--tx3);text-align:center;padding:16px">A carregar…</td></tr></tbody>
+      <tbody id="tees-tbody"><tr><td colspan="8" style="color:var(--tx3);text-align:center;padding:16px">A carregar…</td></tr></tbody>
       <tfoot><tr id="tees-tfoot"></tr></tfoot>
     </table>
   </div>
@@ -719,16 +750,19 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   <div class="card tbl-wrap">
     <table>
       <thead><tr>
-        <th>Empresa</th><th>Especialidade</th><th>Fase</th>
-        <th class="td-r">C.D.</th><th class="td-r">P.V.</th>
+        <th>Subempreiteiro / Fornecedor</th>
+        <th>Especialidade</th>
+        <th class="td-r">C.D.</th>
+        <th class="td-r">P.V.</th>
         <th class="td-r">Margem Inicial</th>
         <th class="td-r">Adj. Efetivo</th>
+        <th class="td-r">Dif. face C.D.</th>
+        <th class="td-r">Marg. Empreiteiro</th>
+        <th>Estado</th>
         <th class="td-r">Valor Pago</th>
         <th class="td-r">Em Falta</th>
         <th class="td-r">% Pago</th>
-        <th>Entrada Obra</th>
         <th>Contrato</th>
-        <th>Estado</th>
       </tr></thead>
       <tbody id="subs-tbody"><tr><td colspan="13" style="color:var(--tx3);text-align:center;padding:16px">A carregar…</td></tr></tbody>
       <tfoot><tr id="subs-tfoot"></tr></tfoot>
@@ -737,13 +771,19 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
 
   <!-- ALERTAS -->
   <div class="sec">Pontos de atenção</div>
-  <div class="alerts" id="alertas">
-    <div style="color:var(--tx3);font-size:13px;padding:8px 0">A carregar…</div>
-  </div>
-
-  <div class="sec">Sub-empreiteiros activos</div>
-  <div class="sub-grid" id="sub-cards">
-    <div style="color:var(--tx3);font-size:13px">A carregar…</div>
+  <div class="g3" id="alertas-grid">
+    <div class="alert-box alert-box-red">
+      <div class="alert-box-title">🔴 Urgente</div>
+      <ul class="alert-list" id="alert-urgente"><li style="color:var(--tx3)">A carregar…</li></ul>
+    </div>
+    <div class="alert-box alert-box-amb">
+      <div class="alert-box-title">🟡 Atenção</div>
+      <ul class="alert-list" id="alert-atencao"><li style="color:var(--tx3)">A carregar…</li></ul>
+    </div>
+    <div class="alert-box alert-box-blu">
+      <div class="alert-box-title">🔵 Pendente</div>
+      <ul class="alert-list" id="alert-pendente"><li style="color:var(--tx3)">A carregar…</li></ul>
+    </div>
   </div>
 
   <div class="footer">
@@ -780,10 +820,14 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
       <span><span class="leg-dot" style="background:var(--blu)"></span>Faturação ao DO (entradas)</span>
       <span><span class="leg-dot" style="background:var(--amb)"></span>Custos reais (saídas)</span>
       <span><span class="leg-dot" style="background:var(--amb);opacity:0.35;border:1px dashed var(--amb)"></span>Subempreitadas estimadas</span>
-      <span><span style="display:inline-block;width:20px;height:2px;background:var(--grn);vertical-align:middle;margin-right:5px;border-radius:2px"></span>Saldo acumulado</span>
-      <span><span style="display:inline-block;width:20px;height:1px;background:var(--blu);vertical-align:middle;margin-right:5px;border-style:dashed"></span>Ref. orç. entradas</span>
-      <span><span style="display:inline-block;width:20px;height:1px;background:var(--amb);vertical-align:middle;margin-right:5px;border-style:dashed"></span>Ref. orç. saídas</span>
+      <span><span style="display:inline-block;width:20px;height:1px;border-top:2px dashed var(--blu);vertical-align:middle;margin-right:5px"></span>Faturação expectável</span>
+      <span><span style="display:inline-block;width:20px;height:1px;border-top:2px dashed var(--amb);vertical-align:middle;margin-right:5px"></span>Custos orçamentais</span>
       <span><span class="leg-dot" style="background:var(--red);border-radius:50%"></span>Mês em risco</span>
+    </div>
+    <div style="font-size:11px;color:var(--tx3);margin-top:8px;font-family:var(--mono);line-height:1.6">
+      <strong style="color:var(--tx2)">Saldo acumulado (∑)</strong> — soma de entradas menos saídas desde o início da obra até ao mês. Indica se a obra está a gerar ou consumir caixa.
+      &nbsp;·&nbsp;
+      <strong style="color:var(--tx2)">Saldo previsional</strong> — mesmo cálculo projectado até ao fim da obra, incluindo estimativas futuras.
     </div>
     <div class="chart-wrap" id="cf-chart-wrap">
       <div class="timeline" id="cf-chart"></div>
@@ -1090,18 +1134,18 @@ function renderP1(P, C, tees, subs) {
     return `<tr>
       <td class="td-mono">${t['Número']||'—'}</td>
       <td>${t['Descrição']||'—'}</td>
+      <td style="color:var(--tx2);font-size:13px">${t['Especialidade']||'—'}</td>
       <td>${estadoPill(estado)}</td>
-      <td>${fmtDate(t['Data Envio'])}</td>
-      <td>${fmtDate(t['Data Aprovação'])}</td>
       <td class="td-r">${v?eur(v):'—'}</td>
       <td class="td-r">${c?eur(c):'—'}</td>
       <td class="td-r" style="color:${aprov?'var(--grn)':v<0?'var(--red)':'var(--tx3)'}">${v?eur(m):'—'}</td>
       <td class="td-r" style="color:${aprov?'var(--grn)':v<0?'var(--red)':'var(--tx3)'}">${v?pct(m/v*100):'—'}</td>
     </tr>`;
-  }).join('') || '<tr><td colspan="9" style="color:var(--tx3);text-align:center;padding:16px">Sem TEEs registados</td></tr>';
+  }).join('') || '<tr><td colspan="8" style="color:var(--tx3);text-align:center;padding:16px">Sem TEEs registados</td></tr>';
 
   document.getElementById('tees-tfoot').innerHTML = `
-    <td colspan="5">Total aprovados</td>
+    <td colspan="3">Total aprovados</td>
+    <td></td>
     <td class="td-r">${eur(totalVTee)}</td>
     <td class="td-r">${eur(totalCTee)}</td>
     <td class="td-r">${eur(totalMTee)}</td>
@@ -1122,10 +1166,11 @@ function renderP1(P, C, tees, subs) {
     const pago = num(r['Valor Pago']);
     const falt = num(r['Valor em Falta']);
     const pctP = adj ? pago/adj*100 : 0;
+    const difCD  = adj && cd ? adj - cd : 0;
+    const margEmp = adj && pv ? pv - adj : 0;
     const empresa = r['Empresa'] || '—';
 
-    // Contrato — auto-calcular se necessário com base no adj efetivo ou CD
-    const valorRef = adj || num(r['C.D.']);
+    const valorRef = adj || cd;
     const contratoNecessario = String(r['Contrato Necessário']||'').toUpperCase() === 'SIM' || valorRef >= 5000;
     const contratoFeito    = String(r['Contrato Feito (S/N)']||'').toUpperCase() === 'SIM';
     const contratoAssinado = String(r['Contrato Assinado (S/N)']||'').toUpperCase() === 'SIM';
@@ -1146,30 +1191,31 @@ function renderP1(P, C, tees, subs) {
         <span style="width:8px;height:8px;border-radius:50%;background:${subsCores[i%subsCores.length]};flex-shrink:0"></span>
         <strong>${empresa}</strong></span></td>
       <td>${r['Especialidade']||'—'}</td>
-      <td class="td-mono" style="color:var(--tx3)">${r['Fase']||'—'}</td>
       <td class="td-r">${cd?eur(cd):'—'}</td>
       <td class="td-r">${pv?eur(pv):'—'}</td>
       <td class="td-r" style="color:var(--tx2)">${cd&&pv?eur(pv-cd):'—'}</td>
       <td class="td-r" style="color:var(--blu)">${adj?eur(adj):'—'}</td>
+      <td class="td-r" style="color:${difCD>=0?'var(--grn)':'var(--red)'}">${adj&&cd?eur(difCD):'—'}</td>
+      <td class="td-r" style="color:${margEmp>=0?'var(--grn)':'var(--red)'}">${adj&&pv?eur(margEmp):'—'}</td>
+      <td>${estadoPill(r['Estado'])}</td>
       <td class="td-r" style="color:var(--grn)">${pago?eur(pago):'—'}</td>
       <td class="td-r" style="color:var(--amb)">${falt?eur(falt):'—'}</td>
       <td class="td-r" style="color:var(--tx2)">${adj?pct(pctP):'—'}</td>
-      <td>${fmtDate(r['Data Entrada em Obra'])||'—'}</td>
       <td>${contratoPill}</td>
-      <td>${estadoPill(r['Estado'])}</td>
     </tr>`;
-  }).join('') || '<tr><td colspan="13" style="color:var(--tx3);text-align:center;padding:16px">Sem subempreitadas registadas</td></tr>';
+  }).join('') || '<tr><td colspan="13" style="color:var(--tx3);text-align:center;padding:16px">Sem subempreitadas</td></tr>';
 
   document.getElementById('subs-tfoot').innerHTML = `
-    <td colspan="3">Total</td>
+    <td colspan="2">Total</td>
     <td class="td-r">${eur(totCD)}</td>
     <td class="td-r">${eur(totPV)}</td>
     <td class="td-r">${eur(totPV-totCD)}</td>
     <td class="td-r">${eur(totAdj)}</td>
+    <td></td><td></td><td></td>
     <td class="td-r">${eur(totPago)}</td>
     <td class="td-r" style="color:var(--amb)">${eur(totFalt)}</td>
     <td class="td-r">${totAdj?pct(totPago/totAdj*100):'—'}</td>
-    <td colspan="3"></td>`;
+    <td></td>`;
 
   // Sub-empreiteiros activos (cards)
   document.getElementById('sub-cards').innerHTML = subsFilt
@@ -1187,10 +1233,25 @@ function renderP1(P, C, tees, subs) {
     const txt  = String(P[`Nota ${i} Texto`]||'').trim();
     if (txt) alertas.push({prio, txt});
   }
-  const clsMap = {urgente:'alert-red', atenção:'alert-orange', atenco:'alert-orange', pendente:'alert-blue'};
-  document.getElementById('alertas').innerHTML = alertas.length
-    ? alertas.map(a => `<div class="alert ${clsMap[a.prio]||'alert-blue'}"><span class="alert-tag">${a.prio}</span>${a.txt}</div>`).join('')
-    : '<div style="color:var(--tx3);font-size:13px;padding:8px 0">Sem notas para esta semana.</div>';
+  const alertas = [];
+  for (let i=1; i<=8; i++) {
+    const prio = String(P[`Nota ${i} Prioridade`]||'').trim().toLowerCase();
+    const txt  = String(P[`Nota ${i} Texto`]||'').trim();
+    if (txt) alertas.push({prio, txt});
+  }
+  const urgentes  = alertas.filter(a => a.prio === 'urgente');
+  const atencoes  = alertas.filter(a => a.prio === 'atenção' || a.prio === 'atencao' || a.prio === 'atenção');
+  const pendentes = alertas.filter(a => a.prio === 'pendente');
+  const listaHTML = (items, fallback) => items.length
+    ? items.map(a => `<li>${a.txt}</li>`).join('')
+    : `<li style="color:var(--tx3);font-style:italic">${fallback}</li>`;
+  document.getElementById('alert-urgente').innerHTML  = listaHTML(urgentes,  'Sem itens urgentes');
+  document.getElementById('alert-atencao').innerHTML  = listaHTML(atencoes,  'Sem itens de atenção');
+  document.getElementById('alert-pendente').innerHTML = listaHTML(pendentes, 'Sem itens pendentes');
+
+  // sub-cards — remover visualmente se existir
+  const sc = document.getElementById('sub-cards');
+  if (sc) sc.closest('.sec')?.remove() || (sc.style.display = 'none');
 
   document.getElementById('p1-time').textContent = 'Actualizado ' + now.toLocaleTimeString('pt-PT');
 }
@@ -1400,17 +1461,22 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
   });
   ganttEl.innerHTML = ganttHTML;
 
-  // CHART
-  const maxVal = Math.max(...CF.flatMap(m => [m.entrada, m.saida + m.saidaEst]), 1);
-  const chartH = 180;
+  // CHART — barras com valores acima + linhas de faturação/custos expectáveis
+  const maxVal = Math.max(...CF.flatMap(m => [m.entrada, m.saida + m.saidaEst, m.entradaOrc, m.saidaOrc]), 1);
+  const chartH = 200;
+
   document.getElementById('cf-chart').innerHTML = CF.map(m => {
     const hIn  = Math.round(m.entrada   / maxVal * chartH);
     const hOut = Math.round(m.saida     / maxVal * chartH);
     const hEst = Math.round(m.saidaEst  / maxVal * chartH);
     const totalOut = m.saida + m.saidaEst;
     const risk = totalOut > m.entrada && (m.entrada > 0 || totalOut > 0);
+    const lblIn  = m.entrada > 0 ? `<div style="position:absolute;bottom:${hIn+4}px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--blu);white-space:nowrap;font-family:var(--mono)">${(m.entrada/1000).toFixed(0)}k</div>` : '';
+    const lblOut = totalOut  > 0 ? `<div style="position:absolute;bottom:${Math.max(hOut,hOut+hEst)+4}px;right:0;font-size:9px;color:var(--amb);white-space:nowrap;font-family:var(--mono)">${(totalOut/1000).toFixed(0)}k</div>` : '';
     return `<div class="tl-col">
-      <div class="tl-bars">
+      <div class="tl-bars" style="position:relative">
+        ${lblIn}
+        ${lblOut}
         <div class="bar-in ${risk?'neg':''}" style="height:${Math.max(hIn,2)}px"
           title="${m.label} ${m.y}: Entradas ${eur(m.entrada)}"></div>
         <div style="display:flex;flex-direction:column;flex:1;align-items:stretch;gap:1px">
@@ -1425,111 +1491,44 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     </div>`;
   }).join('');
 
-  // LINHA DE SALDO ACUMULADO + LINHAS ORÇAMENTAIS — SVG sobreposto
-  let saldoAcum = 0;
-  const saldos = CF.map(m => {
-    saldoAcum += m.entrada - m.saida - m.saidaEst;
-    return saldoAcum;
-  });
-  const maxSaldo = Math.max(...saldos.map(Math.abs), 1);
-
-  // Usar setTimeout para garantir que o DOM está renderizado
+  // LINHAS SVG — faturação expectável (azul) e custos orçamentais (âmbar)
   setTimeout(() => {
-    const wrap = document.getElementById('cf-chart-wrap');
+    const wrap  = document.getElementById('cf-chart-wrap');
     const chart = document.getElementById('cf-chart');
     if (!wrap || !chart) return;
     const cols = chart.querySelectorAll('.tl-col');
     if (!cols.length) return;
-
     const wW = wrap.offsetWidth || 800;
     const svgNS = 'http://www.w3.org/2000/svg';
-
     const old = wrap.querySelector('.saldo-svg');
     if (old) old.remove();
-
     const svg = document.createElementNS(svgNS, 'svg');
     svg.setAttribute('class', 'saldo-svg');
     svg.setAttribute('height', chartH + 28);
-    svg.setAttribute('viewBox', `0 0 ${wW} ${chartH + 28}`);
-    svg.style.position = 'absolute';
-    svg.style.top = '0'; svg.style.left = '0';
-    svg.style.width = '100%'; svg.style.pointerEvents = 'none';
-
-    // Posições X dos centros das colunas
-    const pts = Array.from(cols).map((col, i) => {
-      const rect = col.getBoundingClientRect();
-      const wrapRect = wrap.getBoundingClientRect();
-      const x = rect.left - wrapRect.left + rect.width / 2;
-      const norm = saldos[i] / maxSaldo;
-      const y = chartH * 0.5 - norm * (chartH * 0.42);
-      return { x, y, s: saldos[i] };
+    svg.setAttribute('viewBox', `0 0 ${wW} ${chartH+28}`);
+    svg.style.cssText = 'position:absolute;top:0;left:0;width:100%;pointer-events:none;overflow:visible';
+    const xs = Array.from(cols).map(col => {
+      const r = col.getBoundingClientRect();
+      const wr = wrap.getBoundingClientRect();
+      return r.left - wr.left + r.width / 2;
     });
-
-    if (!pts.length) return;
-
-    // Linha de zero
-    const zeroY = chartH * 0.5;
-    const zeroLine = document.createElementNS(svgNS, 'line');
-    zeroLine.setAttribute('class', 'saldo-zero-line');
-    zeroLine.setAttribute('x1', 0); zeroLine.setAttribute('y1', zeroY);
-    zeroLine.setAttribute('x2', wW); zeroLine.setAttribute('y2', zeroY);
-    svg.appendChild(zeroLine);
-
-    // Linhas orçamentais — posição Y fixa (entradaOrc e saidaOrc são constantes)
-    const maxValChart = Math.max(...CF.flatMap(m => [m.entrada, m.saida + m.saidaEst]), 1);
-    const yEntOrc = chartH - Math.round(CF[0].entradaOrc / maxValChart * chartH);
-    const ySaiOrc = chartH - Math.round(CF[0].saidaOrc   / maxValChart * chartH);
-
-    [[yEntOrc,'var(--blu)','Referência orçamental entradas'],[ySaiOrc,'var(--amb)','Referência orçamental saídas']].forEach(([y,col,lbl]) => {
-      const l = document.createElementNS(svgNS, 'line');
-      l.setAttribute('x1', 0); l.setAttribute('y1', y);
-      l.setAttribute('x2', wW); l.setAttribute('y2', y);
-      l.setAttribute('stroke', col); l.setAttribute('stroke-width', '1');
-      l.setAttribute('stroke-dasharray', '6,4'); l.setAttribute('opacity', '0.5');
-      const t = document.createElementNS(svgNS, 'title');
-      t.textContent = lbl; l.appendChild(t);
-      svg.appendChild(l);
-    });
-
-    // Linha de saldo acumulado
-    const pathEl = document.createElementNS(svgNS, 'path');
-    pathEl.setAttribute('class', 'saldo-path');
-    pathEl.setAttribute('d', `M${pts.map(p=>`${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L')}`);
-    pathEl.setAttribute('stroke', 'var(--grn)');
-    svg.appendChild(pathEl);
-
-    // Segmentos negativos a vermelho
-    let inNeg = false, negStart = 0;
-    const negSegs = [];
-    pts.forEach((p, i) => {
-      if (p.s < 0 && !inNeg) { inNeg = true; negStart = i > 0 ? i-1 : i; }
-      if (p.s >= 0 && inNeg) { negSegs.push([negStart, i]); inNeg = false; }
-    });
-    if (inNeg) negSegs.push([negStart, pts.length-1]);
-    negSegs.forEach(([s,e]) => {
-      const np = pts.slice(s, e+1);
+    const drawLine = (pts, color, dash) => {
       const el = document.createElementNS(svgNS, 'path');
-      el.setAttribute('class', 'saldo-path');
-      el.setAttribute('d', `M${np.map(p=>`${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L')}`);
-      el.setAttribute('stroke', 'var(--red)');
+      el.setAttribute('d', `M${pts.map(p=>`${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L')}`);
+      el.setAttribute('fill', 'none');
+      el.setAttribute('stroke', color);
+      el.setAttribute('stroke-width', '1.5');
+      el.setAttribute('stroke-dasharray', dash || '6,4');
+      el.setAttribute('opacity', '0.65');
       svg.appendChild(el);
-    });
-
-    // Pontos
-    pts.forEach(p => {
-      const dot = document.createElementNS(svgNS, 'circle');
-      dot.setAttribute('cx', p.x.toFixed(1)); dot.setAttribute('cy', p.y.toFixed(1));
-      dot.setAttribute('r', 3);
-      dot.setAttribute('fill', p.s >= 0 ? 'var(--grn)' : 'var(--red)');
-      dot.setAttribute('stroke', 'var(--bg)'); dot.setAttribute('stroke-width', '1.5');
-      const t = document.createElementNS(svgNS, 'title');
-      t.textContent = `Saldo acumulado: ${p.s>=0?'+':''}${p.s.toLocaleString('pt-PT',{maximumFractionDigits:0})} €`;
-      dot.appendChild(t);
-      svg.appendChild(dot);
-    });
-
+    };
+    // Linha faturação expectável por mês (entradaOrc)
+    drawLine(CF.map((m,i) => ({ x: xs[i], y: chartH - Math.round(m.entradaOrc / maxVal * chartH) })), 'var(--blu)', '6,4');
+    // Linha custos orçamentais por mês (saidaOrc)
+    drawLine(CF.map((m,i) => ({ x: xs[i], y: chartH - Math.round(m.saidaOrc / maxVal * chartH) })), 'var(--amb)', '4,4');
     wrap.appendChild(svg);
   }, 300);
+
 
   // MONTH GRID — com saldo acumulado
   let saldoAcc = 0;
@@ -1650,16 +1649,16 @@ async function loadData() {
 
     document.querySelectorAll('[id^="spin-"]').forEach(e => e.remove());
 
-    const P    = toKV(data['1_Painel']     || []);
-    const C    = toKV(data['2_Contratual'] || []);
+    const P    = toKV(data['1_Painel_dados'] || data['1_Painel']     || []);
+    const C    = toKV(data['2_Contratual_dados'] || data['2_Contratual'] || []);
     const tees = toObjArray(data['3_TEEs'] || []);
     const subs = toObjArray(data['4_Subempreitadas'] || []);
     const pags = toObjArray(data['4b_Pagamentos_Subempreitadas'] || []);
     const fases= toObjArray(data['5_Planeamento']    || []);
     const fat  = toObjArray(data['6_Faturação']      || []);
     const mat  = toObjArray(data['7_Materiais']      || []);
-    const cf   = toObjArray(data['8_Custos']         || data['7_Custos_Fixos'] || []);
-    const ci   = toObjArray(data['8_Custos_Internos']|| []);
+    const cf   = toObjArray(data['8_Custos'] || data['7_Custos_Fixos'] || []);
+    const ci   = [];
 
     const todosOsCustos = [...cf, ...ci, ...mat.map(m => ({
       'Mês': m['Mês'], 'Valor (€)': m['Valor (€)'], '% Afectação Obra': '100'
