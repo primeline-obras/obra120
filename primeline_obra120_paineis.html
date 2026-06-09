@@ -25,16 +25,19 @@
 
 /* ── TABLE IMPROVEMENTS ── */
 thead th { font-size: 12px !important; white-space: normal; word-break: break-word; max-width: 120px; }
+.tl-month { font-size: 12px; }
+.oh-title { font-size: 24px !important; }
 tbody td { font-size: 14px; white-space: normal; }
+table { font-size: 14px; }
 .td-r { text-align: right !important; }
 .td-c { text-align: center !important; }
 .td-l { text-align: left !important; }
 tfoot td { font-size: 13px; }
 
 /* ── KPI larger ── */
-.kpi-val { font-size: 28px !important; }
-.kpi-tag { font-size: 13px !important; }
-.sec { font-size: 14px !important; }
+.kpi-val { font-size: 32px !important; }
+.kpi-tag { font-size: 14px !important; }
+.sec { font-size: 15px !important; letter-spacing: 0.08em; }
 .sbar-val { font-size: 16px !important; }
 .sbar-lbl { font-size: 12px !important; }
 
@@ -129,7 +132,7 @@ body {
   background: var(--bg);
   color: var(--tx);
   min-height: 100vh;
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1.5;
 }
 
@@ -347,7 +350,7 @@ body {
 
 /* ── TABLE ── */
 .tbl-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
 thead th {
   font-family: var(--mono); font-size: 10px; letter-spacing: 0.07em;
   text-transform: uppercase; color: var(--tx2);
@@ -385,7 +388,16 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
 /* ── TIMELINE ── */
 .timeline {
   display: flex; gap: 6px; align-items: flex-end;
-  height: 200px; margin-bottom: 8px; padding: 0 4px;
+  height: 228px; margin-bottom: 8px; padding: 0 4px;
+}
+.tl-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+  height: 200px;
+  padding-top: 0;
+  flex: 1;
 }
 .tl-col { flex: 1; display: flex; flex-direction: column; gap: 3px; align-items: center; }
 .tl-bars { display: flex; gap: 2px; align-items: flex-end; width: 100%; }
@@ -610,7 +622,7 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="showPage('p1',this)">Painel Financeiro</button>
     <button class="nav-tab" onclick="showPage('p2',this)">Cash Flow &amp; Planeamento</button>
-    <button class="nav-tab" onclick="showPage('p3',this)">Visão DO</button>
+    <button class="nav-tab" onclick="showPage('p3',this)">Director de Obra</button>
   </div>
   <div class="nav-spacer"></div>
   <div class="nav-date" id="nav-date"></div>
@@ -941,8 +953,8 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   <div class="obra-header">
     <div>
       <div class="oh-eyebrow">Primeline Engenharia e Construção</div>
-      <div class="oh-title">Visão do Director de Obra <span class="oh-ref">QM-R-001</span></div>
-      <div class="oh-desc">Estado semanal · Riscos · Acções prioritárias</div>
+      <div class="oh-title">Director de Obra <span class="oh-ref">QM-R-001</span></div>
+      <div class="oh-desc">Estado semanal · Riscos · Acções prioritárias · Obra 120</div>
     </div>
     <div class="oh-meta">
       <div class="oh-item"><span class="lbl">Semana</span><span class="val" id="p3-semana">—</span></div>
@@ -1061,22 +1073,36 @@ function fmtDate(v, mesesOnly=false) {
 }
 
 // Converte array de rows em array de objectos
-// Abas Primeline: 3 linhas de cabeçalho antes dos titulos reais (linha 0: empresa, 1: obra, 2: titulo doc, 3: colunas)
+// Ignora cabeçalhos Primeline (empresa, obra, titulo doc) e encontra linha de headers real
 function toObjArray(rows) {
   if (!rows || rows.length < 2) return [];
-  const r0 = String(rows[0][0]||'');
-  const isPrimelineHeader = r0.includes('PRIMELINE') || r0.includes('Obra 120');
-  const hdrIdx = isPrimelineHeader ? 3 : 0;
-  if (rows.length <= hdrIdx) return [];
-  const hdrs = rows[hdrIdx];
-  return rows.slice(hdrIdx + 1).filter(r => {
-    const first = String(r[0]||'').trim();
-    return first !== '' && !first.startsWith('TOTAL') && !first.startsWith('Primeline Engenharia');
-  }).map(r => {
-    const o = {};
-    hdrs.forEach((h,i) => o[h] = r[i] !== undefined ? r[i] : '');
-    return o;
-  });
+  let headerIdx = 0;
+  for (let i = 0; i < Math.min(rows.length, 5); i++) {
+    const firstCell = String(rows[i][0] || '');
+    if (firstCell &&
+        !firstCell.includes('PRIMELINE') &&
+        !firstCell.includes('Obra 120') &&
+        !firstCell.includes('Data:') &&
+        !firstCell.includes('NÃO EDITAR') &&
+        !firstCell.includes(' ')) {
+      headerIdx = i;
+      break;
+    }
+  }
+  const hdrs = rows[headerIdx];
+  return rows.slice(headerIdx + 1)
+    .filter(r => {
+      if (!r.some(v => v !== null && v !== undefined && v !== '')) return false;
+      const first = String(r[0]||'').trim();
+      if (first.startsWith('TOTAL') || first.startsWith('TOTAIS')) return false;
+      if (first.startsWith('Primeline Engenharia')) return false;
+      return true;
+    })
+    .map(r => {
+      const o = {};
+      hdrs.forEach((h, i) => { o[String(h||'')] = r[i] !== undefined ? r[i] : ''; });
+      return o;
+    });
 }
 
 // Converte aba chave/valor em objecto simples
@@ -1570,20 +1596,26 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     const hEst = Math.round(m.saidaEst  / maxVal * chartH);
     const totalOut = m.saida + m.saidaEst;
     const risk = totalOut > m.entrada && (m.entrada > 0 || totalOut > 0);
-    const lblIn  = m.entrada > 0 ? `<div style="position:absolute;bottom:${hIn+4}px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--blu);white-space:nowrap;font-family:var(--mono)">${(m.entrada/1000).toFixed(0)}k</div>` : '';
-    const lblOut = totalOut  > 0 ? `<div style="position:absolute;bottom:${Math.max(hOut,hOut+hEst)+4}px;right:0;font-size:9px;color:var(--amb);white-space:nowrap;font-family:var(--mono)">${(totalOut/1000).toFixed(0)}k</div>` : '';
     return `<div class="tl-col">
-      <div class="tl-bars" style="position:relative">
-        ${lblIn}
-        ${lblOut}
-        <div class="bar-in ${risk?'neg':''}" style="height:${Math.max(hIn,2)}px"
-          title="${m.label} ${m.y}: Entradas ${eur(m.entrada)}"></div>
-        <div style="display:flex;flex-direction:column;flex:1;align-items:stretch;gap:1px">
-          ${hEst>0?`<div class="bar-est" style="height:${Math.max(hEst,2)}px"
-            title="${m.label} ${m.y}: Estimado ${eur(m.saidaEst)}"></div>`:''}
-          ${hOut>0?`<div class="bar-out" style="height:${Math.max(hOut,2)}px"
-            title="${m.label} ${m.y}: Real ${eur(m.saida)}"></div>`:''}
-          ${!hOut&&!hEst?`<div class="bar-out" style="height:2px;opacity:0.2"></div>`:''}
+      <div class="tl-bars">
+        <div style="display:flex;flex-direction:column;align-items:center;width:48%">
+          <div style="font-size:10px;color:var(--blu);font-family:var(--mono);margin-bottom:2px;height:14px;line-height:14px;text-align:center">
+            ${m.entrada>0?(m.entrada/1000).toFixed(0)+'k':''}
+          </div>
+          <div class="bar-in ${risk?'neg':''}" style="height:${Math.max(hIn,2)}px;width:100%"
+            title="${m.label} ${m.y}: Entradas ${eur(m.entrada)}"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;width:48%">
+          <div style="font-size:10px;color:var(--amb);font-family:var(--mono);margin-bottom:2px;height:14px;line-height:14px;text-align:center">
+            ${totalOut>0?(totalOut/1000).toFixed(0)+'k':''}
+          </div>
+          <div style="display:flex;flex-direction:column;width:100%;gap:1px;align-self:flex-end">
+            ${hEst>0?`<div class="bar-est" style="height:${Math.max(hEst,2)}px"
+              title="${m.label} ${m.y}: Estimado ${eur(m.saidaEst)}"></div>`:''}
+            ${hOut>0?`<div class="bar-out" style="height:${Math.max(hOut,2)}px"
+              title="${m.label} ${m.y}: Real ${eur(m.saida)}"></div>`:''}
+            ${!hOut&&!hEst?`<div class="bar-out" style="height:2px;opacity:0.2"></div>`:''}
+          </div>
         </div>
       </div>
       <div class="tl-month ${m.atual?'current':m.real?'':'future'}">${m.label}<br><span style="font-size:8px;opacity:0.6">${m.y2}</span></div>
@@ -1716,13 +1748,14 @@ function simular() {
 }
 
 
-// ── RENDER PAINEL 3 ───────────────────────────────────
-function renderP3(P, fases, tees, subs) {
+// ── RENDER PAINEL 3 — DIRECTOR DE OBRA ──────────────────
+function renderP3(fases, subs, tees, pdes, des, P) {
   const toDate = v => {
     if (!v || v === '' || v === 0) return null;
     try { const d = new Date(v); return isNaN(d.getTime()) ? null : d; } catch { return null; }
   };
   const hoje = new Date();
+  const em60dias = new Date(hoje.getTime() + 60*24*60*60*1000);
   const fasesData = fases.filter(f => f['Código']);
 
   // Header
@@ -1733,107 +1766,116 @@ function renderP3(P, fases, tees, subs) {
   const pctObra = pctObraRaw ? parseFloat(pctObraRaw) : null;
   const pctPrazo = num(P['% Prazo Consumido']);
   document.getElementById('p3-pct-obra').textContent = pctObra !== null ? pct(pctObra) : '—';
-
   if (pctObra !== null && pctPrazo > 0) {
     const vel = pctObra / pctPrazo;
     const velEl = document.getElementById('p3-velocidade');
     velEl.textContent = vel.toFixed(2) + 'x';
     velEl.style.color = vel >= 1 ? 'var(--grn)' : vel >= 0.8 ? 'var(--amb)' : 'var(--red)';
-    velEl.title = vel >= 1 ? 'Obra dentro ou à frente do prazo' : 'Obra atrasada face ao prazo consumido';
   }
 
-  // ── SEMÁFORO ──
+  // Mapa fase → data início
+  const faseMap = {};
+  fasesData.forEach(f => { if (f['Código']) faseMap[f['Código'].trim()] = toDate(f['Data Início']); });
+
+  // ── SEMÁFORO POR FASE ──
+  function semaforoFase(f) {
+    const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
+    const dFR = toDate(f['Data Fim Real']);
+    const pctF = num(f['% Executado']);
+    if (String(f['Estado']||'') === 'Concluído' || dFR) return 'verde';
+    if (!dI || !dF) return 'cinza';
+    if (dI > hoje) return 'cinza';
+    const totalDias = (dF - dI) / 86400000;
+    const diasDecorridos = Math.max(0, (hoje - dI) / 86400000);
+    const pctEsperado = Math.min(100, diasDecorridos / totalDias * 100);
+    const desvio = pctEsperado - pctF * 100;
+    if (desvio <= 0) return 'verde';
+    if (desvio <= 15) return 'ambar';
+    return 'vermelho';
+  }
+
+  const corSemaforo = { verde: 'var(--grn)', ambar: 'var(--amb)', vermelho: 'var(--red)', cinza: 'var(--tx3)' };
+
   document.getElementById('p3-semaforo').innerHTML = fasesData.map(f => {
-    const pctF  = num(f['% Executado']);
-    const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']), dFR = toDate(f['Data Fim Real']);
-    const sub = f['Subempreiteiro'] || 'Primeline';
-    const estado = String(f['Estado']||'');
-    const diasFim = dF ? Math.round((dF - hoje) / 86400000) : null;
-    let cor, dotColor, nota;
-    if (estado === 'Concluído' || dFR) {
-      cor = 'verde'; dotColor = 'var(--grn)'; nota = dFR ? 'Concluído ' + fmtDate(dFR) : 'Concluído';
-    } else if (pctF === 0 && dI && dI > hoje) {
-      cor = 'cinza'; dotColor = 'var(--tx3)'; nota = 'Arranque: ' + fmtDate(dI);
-    } else if (diasFim !== null && diasFim < 0) {
-      cor = 'vermelho'; dotColor = 'var(--red)'; nota = 'Prazo ultrapassado há ' + Math.abs(diasFim) + ' dias';
-    } else if (pctF < 50 && diasFim !== null && diasFim < 30) {
-      cor = 'vermelho'; dotColor = 'var(--red)'; nota = 'Apenas ' + pctF + '% executado — ' + diasFim + 'd para fim';
-    } else if (diasFim !== null && diasFim < 30) {
-      cor = 'ambar'; dotColor = 'var(--amb)'; nota = diasFim + 'd para fim previsto';
-    } else if (pctF > 0 && pctF < 1) {
-      cor = 'ambar'; dotColor = 'var(--amb)'; nota = 'Em execução';
-    } else {
-      cor = 'cinza'; dotColor = 'var(--tx3)'; nota = diasFim !== null ? 'Início em ' + diasFim + 'd' : '—';
+    const sem = semaforoFase(f);
+    const pctF = Math.round(num(f['% Executado']) * 100);
+    const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
+    const dFR = toDate(f['Data Fim Real']);
+    let nota = '';
+    if (String(f['Estado']||'') === 'Concluído' || dFR) nota = 'Concluído ' + (dFR ? fmtDate(dFR) : '');
+    else if (dI && dI > hoje) nota = 'Arranque: ' + fmtDate(dI);
+    else if (dF) {
+      const diasFim = Math.round((dF - hoje) / 86400000);
+      nota = diasFim < 0 ? 'Prazo ultrapassado há ' + Math.abs(diasFim) + 'd' : diasFim + 'd para fim previsto';
     }
-    return '<div class="p3-fase-card ' + cor + '">' +
+    const sub = f['Subempreiteiro'] || 'Primeline';
+    return '<div class="p3-fase-card ' + sem + '">' +
       '<div class="p3-fase-header">' +
-        '<span class="p3-fase-cod">' + (f['Código']||'—') + '</span>' +
-        '<span class="p3-fase-nome">' + (f['Fase']||'—') + '</span>' +
-        '<span class="p3-semaforo-dot" style="background:' + dotColor + '" title="' + nota + '"></span>' +
+        '<span class="p3-fase-cod">' + (f['Código']||'') + '</span>' +
+        '<span class="p3-fase-nome">' + (f['Fase']||'') + '</span>' +
+        '<span class="p3-semaforo-dot" style="background:' + corSemaforo[sem] + '"></span>' +
       '</div>' +
-      '<div class="p3-fase-detail">' + sub + ' · ' + Math.round(pctF*100) + '% exec.</div>' +
+      '<div class="p3-fase-detail">' + sub + ' · ' + pctF + '% exec.</div>' +
       '<div class="p3-fase-nota">' + nota + '</div>' +
     '</div>';
-  }).join('') || '<div style="color:var(--tx3);font-size:13px;padding:16px">Sem fases no planeamento</div>';
+  }).join('') || '<div style="color:var(--tx3);padding:16px">Sem dados de planeamento</div>';
 
-  // ── SUBS CRÍTICAS ──
-  const faseIndex = {};
-  fasesData.forEach(f => { if (f['Código']) faseIndex[f['Código']] = f; });
-
-  const subsRisco = (subs||[]).filter(s => {
-    const est = String(s['Estado']||'').trim();
-    if (!['Ainda não','Fase consultas'].includes(est)) return false;
-    const fase = faseIndex[s['Fase']];
-    if (!fase) return false;
-    const dI = toDate(fase['Data Início']);
-    if (!dI) return false;
-    return Math.round((dI - hoje) / 86400000) <= 60;
+  // ── SUBEMPREITADAS CRÍTICAS (<60 dias) ──
+  const subsRisco = subs.filter(s => {
+    const est = String(s['Estado']||'').toLowerCase();
+    if (!est.includes('ainda não') && !est.includes('fase consultas') && !est.includes('a confirmar')) return false;
+    const faseKey = String(s['Fase']||'').trim().split('/')[0].trim();
+    const dI = faseMap[faseKey];
+    return dI && dI >= hoje && dI <= em60dias;
   }).map(s => {
-    const fase = faseIndex[s['Fase']];
-    return { ...s, diasParaArranque: Math.round((toDate(fase['Data Início']) - hoje) / 86400000) };
+    const faseKey = String(s['Fase']||'').trim().split('/')[0].trim();
+    const dI = faseMap[faseKey];
+    return { ...s, diasParaArranque: Math.round((dI - hoje) / 86400000) };
   }).sort((a,b) => a.diasParaArranque - b.diasParaArranque);
 
   document.getElementById('p3-subs-criticas').innerHTML = subsRisco.length
     ? subsRisco.map(s => {
         const urgente = s.diasParaArranque <= 14;
         const cor = urgente ? 'var(--red)' : 'var(--amb)';
-        const label = s.diasParaArranque < 0
-          ? '<span style="color:var(--red)">Atrasado ' + Math.abs(s.diasParaArranque) + 'd</span>'
-          : '<span style="color:' + cor + '">' + s.diasParaArranque + 'd</span>';
-        const cd = subN ? subN(s,'C.D.','CD') : num(s['C.D.']);
+        const cd = num(s['C.D.']||s['CD']||0);
         return '<tr>' +
           '<td><strong>' + (s['Especialidade']||'—') + '</strong></td>' +
           '<td class="td-mono">' + (s['Fase']||'—') + '</td>' +
-          '<td class="td-mono">' + label + '</td>' +
+          '<td class="td-mono" style="color:' + cor + '">' + s.diasParaArranque + 'd</td>' +
           '<td class="td-r">' + (cd ? eur(cd) : '—') + '</td>' +
           '<td>' + estadoPill(s['Estado']) + '</td>' +
-          '<td style="font-size:12px;color:' + cor + '">' + (urgente ? 'Adjudicar urgente — fase em <2 semanas' : 'Confirmar proposta e adjudicar') + '</td>' +
+          '<td style="font-size:12px;color:' + cor + '">' + (urgente ? 'Adjudicar urgente — <2 semanas' : 'Confirmar e adjudicar') + '</td>' +
         '</tr>';
       }).join('')
     : '<tr><td colspan="6" style="color:var(--grn);text-align:center;padding:16px">✓ Sem subempreitadas críticas nos próximos 60 dias</td></tr>';
 
   // ── TEEs CRÍTICOS ──
-  const teesCrit = (tees||[]).filter(t => {
-    const s = String(t['Aprovado (S/N)']||'').trim().toUpperCase();
-    return s !== 'SIM' && t['Número'] && t['Descrição'];
+  const teesCrit = tees.filter(t => {
+    const aprov = String(t['Aprovado (S/N)']||'').trim().toUpperCase();
+    if (aprov === 'SIM') return false;
+    if (!t['Número'] || !t['Descrição']) return false;
+    const fase = String(t['Fase']||'').trim();
+    const dI = faseMap[fase];
+    return dI && dI <= em60dias;
   });
+
   document.getElementById('p3-tees-criticos').innerHTML = teesCrit.length
     ? teesCrit.map(t => {
-        const v = teeV ? teeV(t) : num(t['Valor (€) s/IVA']||t['Valor (€)']);
-        const s = String(t['Aprovado (S/N)']||'').trim().toUpperCase();
-        const estr = s === 'NÃO' || s === 'NAO' ? 'Recusado' : s === 'AGUARDA RESPOSTA' ? 'Em análise' : 'Em curso';
+        const aprov = String(t['Aprovado (S/N)']||'').trim().toUpperCase();
+        const estr = aprov === 'NÃO' || aprov === 'NAO' ? 'Recusado' : aprov === 'AGUARDA RESPOSTA' ? 'Em análise' : 'Em curso';
+        const v = num(t['Valor (€) s/IVA']||t['Valor (€)']||0);
         return '<tr>' +
           '<td class="td-mono">' + (t['Número']||'—') + '</td>' +
           '<td>' + (t['Descrição']||'—') + '</td>' +
           '<td>' + estadoPill(estr) + '</td>' +
           '<td class="td-r">' + (v ? eur(v) : '—') + '</td>' +
           '<td class="td-mono" style="color:var(--tx3)">' + (t['Especialidade']||'—') + '</td>' +
-          '<td style="font-size:12px;color:var(--tx2)">' + (t['Notas']||'Aguarda aprovação DO') + '</td>' +
+          '<td style="font-size:12px;color:var(--tx2)">' + (t['Notas']||'Aguarda aprovação') + '</td>' +
         '</tr>';
       }).join('')
-    : '<tr><td colspan="6" style="color:var(--grn);text-align:center;padding:16px">✓ Sem TEEs pendentes</td></tr>';
+    : '<tr><td colspan="6" style="color:var(--grn);text-align:center;padding:16px">✓ Sem TEEs críticos nos próximos 60 dias</td></tr>';
 
-  // ── HORIZONTE 30 / 60 DIAS ──
+  // ── PRÓXIMAS FASES (30 e 60 dias) ──
   function horizonte(dias) {
     const limite = new Date(hoje.getTime() + dias * 86400000);
     const items = [];
@@ -1841,54 +1883,63 @@ function renderP3(P, fases, tees, subs) {
       const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
       const pctF = num(f['% Executado']);
       if (String(f['Estado']||'') === 'Concluído') return;
-      if (dI && dI >= hoje && dI <= limite) {
-        items.push({ cor: 'var(--blu)', texto: f['Código'] + ' — ' + f['Fase'] + ': arranque previsto', sub: fmtDate(dI) + (f['Subempreiteiro'] ? ' · ' + f['Subempreiteiro'] : ''), urgencia: (dI-hoje)/86400000 });
-      }
+      if (dI && dI >= hoje && dI <= limite)
+        items.push({ cor: 'var(--blu)', texto: f['Código'] + ' — ' + f['Fase'] + ': arranque previsto', sub: fmtDate(dI) + (f['Subempreiteiro'] ? ' · ' + f['Subempreiteiro'] : ''), urg: (dI-hoje)/86400000 });
       if (dF && dF >= hoje && dF <= limite && pctF < 1) {
         const df = Math.round((dF-hoje)/86400000);
-        items.push({ cor: df < 14 ? 'var(--red)' : 'var(--amb)', texto: f['Código'] + ' — ' + f['Fase'] + ': fim previsto', sub: fmtDate(dF) + ' · ' + Math.round(pctF*100) + '% executado', urgencia: df });
+        items.push({ cor: df < 14 ? 'var(--red)' : 'var(--amb)', texto: f['Código'] + ' — ' + f['Fase'] + ': fim previsto', sub: fmtDate(dF) + ' · ' + Math.round(pctF*100) + '% executado', urg: df });
       }
     });
-    subsRisco.filter(s => s.diasParaArranque >= 0 && s.diasParaArranque <= dias).forEach(s => {
-      items.push({ cor: s.diasParaArranque <= 14 ? 'var(--red)' : 'var(--amb)', texto: 'Adjudicar ' + s['Especialidade'] + ' (' + s['Fase'] + ')', sub: 'Fase arranca em ' + s.diasParaArranque + 'd — não adjudicado', urgencia: s.diasParaArranque });
-    });
+    subsRisco.filter(s => s.diasParaArranque >= 0 && s.diasParaArranque <= dias).forEach(s =>
+      items.push({ cor: s.diasParaArranque <= 14 ? 'var(--red)' : 'var(--amb)', texto: 'Adjudicar ' + s['Especialidade'] + ' (' + s['Fase'] + ')', sub: 'Fase arranca em ' + s.diasParaArranque + 'd', urg: s.diasParaArranque })
+    );
     if (!items.length) return '<div class="p3-horizon-item"><div class="p3-horizon-text" style="color:var(--tx3)">Sem eventos críticos neste período</div></div>';
-    return items.sort((a,b) => a.urgencia-b.urgencia).map(i =>
-      '<div class="p3-horizon-item"><span class="p3-horizon-dot" style="background:' + i.cor + '"></span>' +
-      '<div><div class="p3-horizon-text">' + i.texto + '</div><div class="p3-horizon-sub">' + i.sub + '</div></div></div>'
+    return items.sort((a,b)=>a.urg-b.urg).map(i =>
+      '<div class="p3-horizon-item"><span class="p3-horizon-dot" style="background:'+i.cor+'"></span><div><div class="p3-horizon-text">'+i.texto+'</div><div class="p3-horizon-sub">'+i.sub+'</div></div></div>'
     ).join('');
   }
   document.getElementById('p3-30dias').innerHTML = horizonte(30);
   document.getElementById('p3-60dias').innerHTML = horizonte(60);
 
-  // ── ACÇÕES ──
+  // ── ACÇÕES PENDENTES ──
   const prioCor = { urgente:['var(--red-bg)','var(--red)','var(--red2)'], 'atenção':['var(--amb-bg)','var(--amb)','var(--amb2)'], atencao:['var(--amb-bg)','var(--amb)','var(--amb2)'], pendente:['var(--blu-bg)','var(--blu)','var(--blu2)'] };
   const prioOrd = { urgente:0, 'atenção':1, atencao:1, pendente:2 };
   const accoes = [];
-  subsRisco.forEach(s => accoes.push({ prio: s.diasParaArranque <= 14 ? 'urgente' : 'atenção', texto: 'Adjudicar: ' + s['Especialidade'] + ' (' + s['Fase'] + ') — arranca em ' + s.diasParaArranque + 'd', fase: s['Fase'] }));
-  teesCrit.forEach(t => accoes.push({ prio: 'pendente', texto: 'Acompanhar TEE ' + (t['Número']||'') + ' — ' + (t['Descrição']||''), fase: t['Especialidade']||'—' }));
-  fasesData.forEach(f => {
-    const dF = toDate(f['Data Fim Prevista']);
-    if (dF && dF < hoje && num(f['% Executado']) < 1 && String(f['Estado']||'') !== 'Concluído')
-      accoes.push({ prio: 'urgente', texto: f['Código'] + ' — ' + f['Fase'] + ': prazo ultrapassado (' + Math.round(num(f['% Executado'])*100) + '% exec.)', fase: f['Código'] });
-  });
+
+  subsRisco.forEach(s => accoes.push({ prio: s.diasParaArranque <= 14 ? 'urgente' : 'atenção', texto: 'Adjudicar: ' + s['Especialidade'] + ' — fase ' + s['Fase'] + ' arranca em ' + s.diasParaArranque + 'd', fase: s['Fase'] }));
+
+  // TEEs aguarda resposta há mais de 14 dias
+  tees.filter(t => {
+    const aprov = String(t['Aprovado (S/N)']||'').trim().toUpperCase();
+    if (aprov === 'SIM') return false;
+    const dE = toDate(t['Data Envio']);
+    return dE && (hoje - dE) / 86400000 > 14;
+  }).forEach(t => accoes.push({ prio: 'atenção', texto: 'TEE ' + (t['Número']||'') + ' — ' + (t['Descrição']||'') + ': sem resposta há ' + Math.round((hoje - toDate(t['Data Envio'])) / 86400000) + 'd', fase: t['Fase']||'—' }));
+
+  // Notas urgentes do painel
   for (let i=1; i<=8; i++) {
     const prio = String(P['Nota ' + i + ' Prioridade']||'').trim().toLowerCase();
     const txt  = String(P['Nota ' + i + ' Texto']||'').trim();
     if (txt) accoes.push({ prio, texto: txt, fase: '—' });
   }
+
+  // Fases com prazo ultrapassado
+  fasesData.forEach(f => {
+    const dF = toDate(f['Data Fim Prevista']);
+    if (dF && dF < hoje && num(f['% Executado']) < 1 && String(f['Estado']||'') !== 'Concluído')
+      accoes.push({ prio: 'urgente', texto: f['Código'] + ' — ' + f['Fase'] + ': prazo ultrapassado (' + Math.round(num(f['% Executado'])*100) + '% exec.)', fase: f['Código'] });
+  });
+
   document.getElementById('p3-accoes').innerHTML = accoes.length
     ? accoes.sort((a,b) => (prioOrd[a.prio]||9)-(prioOrd[b.prio]||9)).map(a => {
         const [bg,fg,bd] = prioCor[a.prio] || ['var(--s2)','var(--tx2)','var(--bd)'];
-        return '<div class="p3-accao-item">' +
-          '<span class="p3-accao-prio" style="background:' + bg + ';color:' + fg + ';border:1px solid ' + bd + '">' + (a.prio||'info') + '</span>' +
-          '<div><div class="p3-accao-texto">' + a.texto + '</div><div class="p3-accao-fase">' + a.fase + '</div></div>' +
-        '</div>';
+        return '<div class="p3-accao-item"><span class="p3-accao-prio" style="background:'+bg+';color:'+fg+';border:1px solid '+bd+'">'+(a.prio||'info')+'</span><div><div class="p3-accao-texto">'+a.texto+'</div><div class="p3-accao-fase">'+a.fase+'</div></div></div>';
       }).join('')
     : '<div class="p3-accao-item"><div class="p3-accao-texto" style="color:var(--grn)">✓ Sem acções pendentes identificadas</div></div>';
 
   document.getElementById('p3-time').textContent = 'Actualizado ' + now.toLocaleTimeString('pt-PT');
 }
+
 
 // ── LOADING ───────────────────────────────────────────
 async function loadData() {
@@ -1932,6 +1983,8 @@ async function loadData() {
     const fat  = toObjArray(data['6_Faturação']      || []);
     const mat  = toObjArray(data['7_Materiais']      || []);
     const cf   = toObjArray(data['8_Custos'] || data['7_Custos_Fixos'] || []);
+    const pdes = toObjArray(data['9_Indice_PDEs'] || []);
+    const des  = toObjArray(data['10_Indice_Desenhos'] || []);
     const ci   = [];
 
     const todosOsCustos = [...cf, ...ci, ...mat.map(m => ({
@@ -1940,7 +1993,7 @@ async function loadData() {
 
     try { renderP1(P, C, tees, subs); } catch(e) { console.error('renderP1:', e); }
     try { renderP2(fases, fat, todosOsCustos, [], pags, subs); } catch(e) { console.error('renderP2:', e); }
-    try { renderP3(P, fases, tees, subs); } catch(e) { console.error('renderP3:', e); }
+    try { renderP3(fases, subs, tees, pdes, des, P); } catch(e) { console.error('renderP3:', e); }
 
   } catch(err) {
     document.querySelectorAll('[id^="spin-"]').forEach(e => {
