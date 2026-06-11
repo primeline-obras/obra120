@@ -1353,7 +1353,8 @@ function renderP1(P, C, tees, subs) {
     <td></td>`;
 
   // Sub-empreiteiros activos (cards)
-  document.getElementById('sub-cards').innerHTML = subsFilt
+  const _subCards = document.getElementById('sub-cards');
+  if (_subCards) _subCards.innerHTML = subsFilt
     .filter(r => (r['Empresa / Fornecedor']||r['Empresa']) && ['Adjudicado','Fase consultas','Em execução','Activo'].includes(r['Estado']))
     .map((r,i) => `
       <div class="sub-card">
@@ -1391,7 +1392,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
       return isNaN(d.getTime()) ? null : d;
     } catch { return null; }
   };
-  const fasesData = fases.filter(f => f['Código']);
+  const fasesData = fases.filter(f => /^F\d{2}( |—|$)/.test(String(f['Código']||'')));
 
   const obraInicio = fasesData.reduce((min, f) => {
     const d = toDate(f['Data Início']); return d && (!min || d < min) ? d : min;
@@ -1756,7 +1757,7 @@ function renderP3(fases, subs, tees, pdes, des, P) {
   };
   const hoje = new Date();
   const em60dias = new Date(hoje.getTime() + 60*24*60*60*1000);
-  const fasesData = fases.filter(f => f['Código']);
+  const fasesData = fases.filter(f => /^F\d{2}( |—|$)/.test(String(f['Código']||'')));
 
   // Header
   const semana = Math.ceil((hoje - new Date(hoje.getFullYear(), 0, 1)) / 604800000);
