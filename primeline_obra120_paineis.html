@@ -396,10 +396,11 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   justify-content: center;
   gap: 2px;
   height: 200px;
-  width: 100%;
+  padding-top: 0;
   flex: 1;
 }
 .tl-col { flex: 1; display: flex; flex-direction: column; gap: 3px; align-items: center; }
+.tl-bars { display: flex; gap: 2px; align-items: flex-end; width: 100%; }
 .bar-in { flex: 1; border-radius: 3px 3px 0 0; background: var(--blu); min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); position: relative; }
 .bar-out { flex: 1; border-radius: 0 0 3px 3px; background: var(--amb); min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); }
 .bar-est { flex: 1; border-radius: 3px 3px 0 0; background: var(--amb); opacity: 0.35; min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); border-top: 1px dashed var(--amb); }
@@ -787,22 +788,7 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   <!-- SUBEMPREITADAS -->
   <div class="sec">Subempreitadas</div>
   <div class="card tbl-wrap">
-    <table style="table-layout:fixed">
-      <colgroup>
-        <col style="width:13%">
-        <col style="width:11%">
-        <col style="width:7%">
-        <col style="width:7%">
-        <col style="width:8%">
-        <col style="width:8%">
-        <col style="width:7%">
-        <col style="width:8%">
-        <col style="width:9%">
-        <col style="width:7%">
-        <col style="width:7%">
-        <col style="width:5%">
-        <col style="width:8%">
-      </colgroup>
+    <table>
       <thead><tr>
         <th>Subempreiteiro / Fornecedor</th>
         <th>Especialidade</th>
@@ -878,13 +864,13 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
       <span><span style="display:inline-block;width:20px;height:1px;border-top:2px dashed var(--amb);vertical-align:middle;margin-right:5px"></span>Custos orçamentais</span>
       <span><span class="leg-dot" style="background:var(--red);border-radius:50%"></span>Mês em risco</span>
     </div>
+    <div style="font-size:11px;color:var(--tx3);margin-top:8px;font-family:var(--mono);line-height:1.6">
+      <strong style="color:var(--tx2)">Saldo acumulado (∑)</strong> — soma de entradas menos saídas desde o início da obra até ao mês. Indica se a obra está a gerar ou consumir caixa.
+      &nbsp;·&nbsp;
+      <strong style="color:var(--tx2)">Saldo previsional</strong> — mesmo cálculo projectado até ao fim da obra, incluindo estimativas futuras.
+    </div>
     <div class="chart-wrap" id="cf-chart-wrap">
       <div class="timeline" id="cf-chart"></div>
-    </div>
-    <div style="font-size:12px;color:var(--tx3);margin-top:8px;margin-bottom:4px;font-family:var(--mono);line-height:1.6;padding:0 4px">
-      <strong style="color:var(--tx2)">Saldo acumulado (∑)</strong> — entradas menos saídas desde o início da obra até ao mês. Indica se a obra está a gerar ou a consumir caixa.
-      &nbsp;·&nbsp;
-      <strong style="color:var(--tx2)">Saldo previsional</strong> — mesmo cálculo projectado até ao fim da obra com estimativas futuras.
     </div>
     <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap" id="cf-summary"></div>
   </div>
@@ -1055,9 +1041,19 @@ function eur(n)     { return (parseFloat(n)||0).toLocaleString('pt-PT',{minimumF
 function pct(n,d=2) { return (parseFloat(n)||0).toLocaleString('pt-PT',{minimumFractionDigits:d,maximumFractionDigits:d}) + '%'; }
 function num(v) {
   if (v === null || v === undefined || v === '') return 0;
-  if (typeof v === 'number') return v;
+  if (typeof v === 'number') {
+    // Valores absurdamente grandes provavelmente são datas interpretadas como números
+    // Ex: 46362 = 6 Dez 2026 em formato de série Excel, 3273 = data
+    // Para valores financeiros desta obra, nada acima de 600000 faz sentido por linha
+    if (v > 600000) return 0;
+    return v;
+  }
   const s = String(v).replace(/€/g,'').replace(/\s/g,'');
-  if (!s || s === '-') return 0;
+  if (!s || s === '-' || s === '—') return 0;
+  // String de data ISO — não é número
+  if (/^\d{4}-\d{2}-\d{2}T/.test(s)) return 0;
+  // "indefinido" ou texto
+  if (/[a-zA-Z]/.test(s)) return 0;
   // "41.628.32" — múltiplos pontos: último é decimal, restantes são milhar
   if ((s.match(/\./g)||[]).length > 1) {
     const parts = s.split('.');
@@ -1067,7 +1063,7 @@ function num(v) {
   if (/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) {
     return parseFloat(s.replace(/\./g,'').replace(',','.')) || 0;
   }
-  // Formato "1 634,00" sem ponto (espaço já removido) — vírgula é decimal
+  // Formato "880,76" — vírgula é decimal PT
   if (/^\d+(,\d+)?$/.test(s) && s.includes(',')) {
     return parseFloat(s.replace(',','.')) || 0;
   }
@@ -1091,14 +1087,16 @@ function fmtDate(v, mesesOnly=false) {
 function toObjArray(rows) {
   if (!rows || rows.length < 2) return [];
   let headerIdx = 0;
-  for (let i = 0; i < Math.min(rows.length, 5); i++) {
+  for (let i = 0; i < Math.min(rows.length, 6); i++) {
     const firstCell = String(rows[i][0] || '');
     if (firstCell &&
         !firstCell.includes('PRIMELINE') &&
         !firstCell.includes('Obra 120') &&
         !firstCell.includes('Data:') &&
         !firstCell.includes('NÃO EDITAR') &&
-        !firstCell.includes(' ')) {
+        !firstCell.includes('Índice') &&
+        firstCell.trim() !== '' &&
+        firstCell.trim() !== ' ') {
       headerIdx = i;
       break;
     }
@@ -1108,13 +1106,22 @@ function toObjArray(rows) {
     .filter(r => {
       if (!r.some(v => v !== null && v !== undefined && v !== '')) return false;
       const first = String(r[0]||'').trim();
+      // Filtrar linhas de totais, rodapé, legenda e grupos visuais
       if (first.startsWith('TOTAL') || first.startsWith('TOTAIS')) return false;
       if (first.startsWith('Primeline Engenharia')) return false;
+      if (first.startsWith('LEGENDA') || first.startsWith('NOTA:')) return false;
+      if (first.startsWith('Linha de fase') || first.startsWith('Grupo /') || first.startsWith('Subitem')) return false;
+      // Filtrar linhas de grupo visual (começam com espaços e ──)
+      if (first.startsWith('  ──') || first.startsWith('──')) return false;
       return true;
     })
     .map(r => {
       const o = {};
-      hdrs.forEach((h, i) => { o[String(h||'')] = r[i] !== undefined ? r[i] : ''; });
+      // Apenas as primeiras N colunas (evitar colunas bilingues nas abas PDEs/Desenhos)
+      const maxCols = Math.min(hdrs.length, 9);
+      hdrs.slice(0, maxCols).forEach((h, i) => {
+        o[String(h||'')] = r[i] !== undefined ? r[i] : '';
+      });
       return o;
     });
 }
@@ -1405,7 +1412,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
       return isNaN(d.getTime()) ? null : d;
     } catch { return null; }
   };
-  const fasesData = fases.filter(f => f['Código']);
+  const fasesData = fases.filter(f => f['Código'] && /^F\d{2}( —|$)/.test(String(f['Código']).trim()));
 
   const obraInicio = fasesData.reduce((min, f) => {
     const d = toDate(f['Data Início']); return d && (!min || d < min) ? d : min;
@@ -1494,7 +1501,12 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
   // Saídas estimadas — subempreitadas não adjudicadas distribuídas pela fase
   // Cria índice de fases por código para acesso rápido
   const faseIndex = {};
-  fasesData.forEach(f => { if (f['Código']) faseIndex[f['Código']] = f; });
+  fasesData.forEach(f => {
+    if (f['Código']) {
+      const cod = String(f['Código']).trim().split(/[\s—]/)[0].trim();
+      faseIndex[cod] = f;
+    }
+  });
 
   (subs||[]).filter(s => {
     const est = (s['Estado']||'').trim();
@@ -1567,15 +1579,19 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
 
   fasesData.forEach(f => {
     const dI  = toDate(f['Data Início']),      dF  = toDate(f['Data Fim Prevista']);
-    const dIR = toDate(f['Data Fim Real']);     // data real se existir
+    const dIR = toDate(f['Data Fim Real']);
     if (!dI || !dF) return;
     const left  = Math.max(0, (dI - obraInicio) / totalMs * 100).toFixed(1);
     const width = Math.max(1, (dF - dI)         / totalMs * 100).toFixed(1);
     const p     = num(f['% Executado']);
-    const cor   = FASE_CORES[f['Código']] || '#4A6090';
-    const sub   = (f['Subempreiteiro']||'').split('/')[0].trim().slice(0,8);
+    // Extrai código limpo "F01" de "F01 — ESTALEIRO..."
+    const codRaw = String(f['Código']||'').trim();
+    const codClean = codRaw.split(/[\s—]/)[0].trim();
+    const cor   = FASE_CORES[codClean] || '#4A6090';
+    // Nome da fase — nova estrutura usa 'Descrição / Trabalhos', antiga usava 'Fase'
+    const faseNome = f['Fase'] || f['Descrição / Trabalhos'] || codClean;
+    const sub   = (f['Responsável'] || f['Subempreiteiro']||'').split('/')[0].trim().slice(0,10);
 
-    // Barra real (se data fim real existir)
     let barraReal = '';
     if (dIR) {
       const wR = Math.max(0.5, (dIR - dI) / totalMs * 100).toFixed(1);
@@ -1583,7 +1599,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     }
 
     ganttHTML += `<div class="gantt-row" style="${hdrCols}">
-      <div class="gantt-fase">${f['Código']} — ${f['Fase']}</div>
+      <div class="gantt-fase">${codClean} — ${faseNome.split('|')[0].trim().slice(0,25)}</div>
       <div style="padding:0 8px;font-size:10px;color:var(--tx3)">${sub}</div>
       <div style="position:relative;padding:4px">
         <div class="gantt-bar-wrap">
@@ -1591,7 +1607,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
           <div class="gantt-bar" style="left:${left}%;width:${width}%;background:${cor}25;border:1px solid ${cor}55">
             <div style="position:absolute;left:0;top:0;height:100%;width:${p}%;background:${cor};border-radius:3px 0 0 3px;opacity:0.75"></div>
             ${barraReal}
-            <span class="gantt-bar-label" style="position:relative;z-index:1">${f['Fase']}</span>
+            <span class="gantt-bar-label" style="position:relative;z-index:1">${faseNome.split('|')[0].trim().slice(0,20)}</span>
           </div>
         </div>
       </div>
@@ -1770,7 +1786,7 @@ function renderP3(fases, subs, tees, pdes, des, P) {
   };
   const hoje = new Date();
   const em60dias = new Date(hoje.getTime() + 60*24*60*60*1000);
-  const fasesData = fases.filter(f => f['Código']);
+  const fasesData = fases.filter(f => f['Código'] && /^F\d{2}( —|$)/.test(String(f['Código']).trim()));
 
   // Header
   const semana = Math.ceil((hoje - new Date(hoje.getFullYear(), 0, 1)) / 604800000);
@@ -1787,9 +1803,14 @@ function renderP3(fases, subs, tees, pdes, des, P) {
     velEl.style.color = vel >= 1 ? 'var(--grn)' : vel >= 0.8 ? 'var(--amb)' : 'var(--red)';
   }
 
-  // Mapa fase → data início
+  // Mapa fase → data início — extrai código limpo "F01" de "F01 — ESTALEIRO..."
   const faseMap = {};
-  fasesData.forEach(f => { if (f['Código']) faseMap[f['Código'].trim()] = toDate(f['Data Início']); });
+  fasesData.forEach(f => {
+    if (f['Código']) {
+      const cod = String(f['Código']).trim().split(/[\s—]/)[0].trim();
+      faseMap[cod] = toDate(f['Data Início']);
+    }
+  });
 
   // ── SEMÁFORO POR FASE ──
   function semaforoFase(f) {
@@ -1802,7 +1823,7 @@ function renderP3(fases, subs, tees, pdes, des, P) {
     const totalDias = (dF - dI) / 86400000;
     const diasDecorridos = Math.max(0, (hoje - dI) / 86400000);
     const pctEsperado = Math.min(100, diasDecorridos / totalDias * 100);
-    const desvio = pctEsperado - pctF;  // sheet guarda % como 35 não 0.35
+    const desvio = pctEsperado - pctF; // pctF já é 0-100, pctEsperado também
     if (desvio <= 0) return 'verde';
     if (desvio <= 15) return 'ambar';
     return 'vermelho';
@@ -1812,9 +1833,14 @@ function renderP3(fases, subs, tees, pdes, des, P) {
 
   document.getElementById('p3-semaforo').innerHTML = fasesData.map(f => {
     const sem = semaforoFase(f);
-    const pctF = Math.round(num(f['% Executado']));  // sheet guarda % como 35 não 0.35
+    const pctF = num(f['% Executado']);
     const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
     const dFR = toDate(f['Data Fim Real']);
+    // Novo planeamento: código "F01 — ESTALEIRO..." — extrair código limpo e nome
+    const codRaw = String(f['Código']||'').trim();
+    const codClean = codRaw.split(/[\s—]/)[0].trim();
+    const faseNome = f['Fase'] || f['Descrição / Trabalhos'] || codClean;
+    const sub = f['Responsável'] || f['Subempreiteiro'] || 'Primeline';
     let nota = '';
     if (String(f['Estado']||'') === 'Concluído' || dFR) nota = 'Concluído ' + (dFR ? fmtDate(dFR) : '');
     else if (dI && dI > hoje) nota = 'Arranque: ' + fmtDate(dI);
@@ -1822,14 +1848,13 @@ function renderP3(fases, subs, tees, pdes, des, P) {
       const diasFim = Math.round((dF - hoje) / 86400000);
       nota = diasFim < 0 ? 'Prazo ultrapassado há ' + Math.abs(diasFim) + 'd' : diasFim + 'd para fim previsto';
     }
-    const sub = f['Subempreiteiro'] || 'Primeline';
     return '<div class="p3-fase-card ' + sem + '">' +
       '<div class="p3-fase-header">' +
-        '<span class="p3-fase-cod">' + (f['Código']||'') + '</span>' +
-        '<span class="p3-fase-nome">' + (f['Fase']||'') + '</span>' +
+        '<span class="p3-fase-cod">' + codClean + '</span>' +
+        '<span class="p3-fase-nome">' + faseNome.split('|')[0].trim().slice(0,30) + '</span>' +
         '<span class="p3-semaforo-dot" style="background:' + corSemaforo[sem] + '"></span>' +
       '</div>' +
-      '<div class="p3-fase-detail">' + sub + ' · ' + pctF + '% exec.</div>' +
+      '<div class="p3-fase-detail">' + sub.split('/')[0].trim() + ' · ' + pctF + '% exec.</div>' +
       '<div class="p3-fase-nota">' + nota + '</div>' +
     '</div>';
   }).join('') || '<div style="color:var(--tx3);padding:16px">Sem dados de planeamento</div>';
@@ -1899,7 +1924,7 @@ function renderP3(fases, subs, tees, pdes, des, P) {
       if (String(f['Estado']||'') === 'Concluído') return;
       if (dI && dI >= hoje && dI <= limite)
         items.push({ cor: 'var(--blu)', texto: f['Código'] + ' — ' + f['Fase'] + ': arranque previsto', sub: fmtDate(dI) + (f['Subempreiteiro'] ? ' · ' + f['Subempreiteiro'] : ''), urg: (dI-hoje)/86400000 });
-      if (dF && dF >= hoje && dF <= limite && pctF < 1) {
+      if (dF && dF >= hoje && dF <= limite && pctF < 100) {
         const df = Math.round((dF-hoje)/86400000);
         items.push({ cor: df < 14 ? 'var(--red)' : 'var(--amb)', texto: f['Código'] + ' — ' + f['Fase'] + ': fim previsto', sub: fmtDate(dF) + ' · ' + Math.round(pctF) + '% executado', urg: df });
       }
