@@ -405,9 +405,9 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   height: 200px;
   padding-top: 20px; /* espaço para labels acima das barras */
 }
-.bar-wrap-in  { display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; justify-content: flex-end; }
-.bar-wrap-out { display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; justify-content: flex-end; }
-.bar-lbl { font-size: 10px; font-family: var(--mono); margin-bottom: 3px; white-space: nowrap; height: 14px; line-height: 14px; }
+.bar-wrap-in  { display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; }
+.bar-wrap-out { display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; }
+.bar-lbl { font-size: 10px; font-family: var(--mono); white-space: nowrap; height: 16px; line-height: 16px; flex-shrink: 0; }
 .bar-in  { width: 100%; border-radius: 3px 3px 0 0; background: var(--blu); min-height: 3px; transition: height 0.5s ease; }
 .bar-out { width: 100%; border-radius: 0 0 3px 3px; background: var(--amb); min-height: 3px; transition: height 0.5s ease; }
 .bar-est { width: 100%; border-radius: 3px 3px 0 0; background: var(--amb); opacity: 0.35; min-height: 3px; border-top: 1px dashed var(--amb); }
@@ -1603,7 +1603,8 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     if (!dI || !dF) return;
     const left  = Math.max(0, (dI - obraInicio) / totalMs * 100).toFixed(1);
     const width = Math.max(1, (dF - dI)         / totalMs * 100).toFixed(1);
-    const p     = num(f['% Executado']);
+    // % executado — usar % Ponderada (calculada) se existir, senão % Executado
+    const p = num(f['% Ponderada']) || num(f['% Executado']);
     // Extrai código limpo "F01" de "F01 — ESTALEIRO..."
     const codRaw = String(f['Código']||'').trim();
     const codClean = codRaw.split(/[\s—]/)[0].trim();
@@ -1652,12 +1653,14 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
       <div class="tl-bars">
         <div class="bar-wrap-in">
           ${lblIn}
-          <div class="bar-in ${risk?'neg':''}" style="height:${Math.max(hIn,3)}px"
+          <div style="flex:1"></div>
+          <div class="bar-in ${risk?'neg':''}" style="height:${Math.max(hIn,3)}px;width:100%"
             title="${m.label} ${m.y}: Entradas ${eur(m.entrada)}"></div>
         </div>
         <div class="bar-wrap-out">
           ${lblOut}
-          <div style="display:flex;flex-direction:column;width:100%;gap:1px;justify-content:flex-end;flex:1">
+          <div style="flex:1"></div>
+          <div style="display:flex;flex-direction:column;width:100%;gap:1px">
             ${hEst>0?`<div class="bar-est" style="height:${Math.max(hEst,3)}px" title="Estimado ${eur(m.saidaEst)}"></div>`:''}
             ${hOut>0?`<div class="bar-out" style="height:${Math.max(hOut,3)}px" title="Real ${eur(m.saida)}"></div>`:''}
             ${!hOut&&!hEst?`<div class="bar-out" style="height:3px;opacity:0.15"></div>`:''}
@@ -1700,9 +1703,12 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
       svg.appendChild(el);
     };
     // Linha faturação expectável por mês (entradaOrc)
-    drawLine(CF.map((m,i) => ({ x: xs[i], y: chartH - Math.round(m.entradaOrc / maxVal * chartH) })), 'var(--blu)', '6,4');
+    // As barras usam (chartH-20) como escala — linhas SVG usam mesma escala + offset de 20px (altura dos labels)
+    const barScale = chartH - 20;
+    const labelOffset = 20; // altura reservada para os labels
+    drawLine(CF.map((m,i) => ({ x: xs[i], y: labelOffset + barScale - Math.round(m.entradaOrc / maxVal * barScale) })), 'var(--blu)', '6,4');
     // Linha custos orçamentais por mês (saidaOrc)
-    drawLine(CF.map((m,i) => ({ x: xs[i], y: chartH - Math.round(m.saidaOrc / maxVal * chartH) })), 'var(--amb)', '4,4');
+    drawLine(CF.map((m,i) => ({ x: xs[i], y: labelOffset + barScale - Math.round(m.saidaOrc / maxVal * barScale) })), 'var(--amb)', '4,4');
     wrap.appendChild(svg);
   }, 300);
 
@@ -1840,7 +1846,7 @@ function renderP3(fases, subs, tees, pdes, des, P) {
   function semaforoFase(f) {
     const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
     const dFR = toDate(f['Data Fim Real']);
-    const pctF = num(f['% Executado']);
+    const pctF = num(f['% Ponderada']) || num(f['% Executado']);
     if (String(f['Estado']||'') === 'Concluído' || dFR) return 'verde';
     if (!dI || !dF) return 'cinza';
     if (dI > hoje) return 'cinza';
@@ -1857,7 +1863,7 @@ function renderP3(fases, subs, tees, pdes, des, P) {
 
   document.getElementById('p3-semaforo').innerHTML = fasesData.map(f => {
     const sem = semaforoFase(f);
-    const pctF = num(f['% Executado']);
+    const pctF = num(f['% Ponderada']) || num(f['% Executado']);
     const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
     const dFR = toDate(f['Data Fim Real']);
     // Novo planeamento: código "F01 — ESTALEIRO..." — extrair código limpo e nome
@@ -1944,7 +1950,7 @@ function renderP3(fases, subs, tees, pdes, des, P) {
     const items = [];
     fasesData.forEach(f => {
       const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
-      const pctF = num(f['% Executado']);
+      const pctF = num(f['% Ponderada']) || num(f['% Executado']);
       if (String(f['Estado']||'') === 'Concluído') return;
       if (dI && dI >= hoje && dI <= limite)
         items.push({ cor: 'var(--blu)', texto: f['Código'] + ' — ' + f['Fase'] + ': arranque previsto', sub: fmtDate(dI) + (f['Subempreiteiro'] ? ' · ' + f['Subempreiteiro'] : ''), urg: (dI-hoje)/86400000 });
