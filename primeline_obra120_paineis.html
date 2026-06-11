@@ -1355,11 +1355,11 @@ function renderP1(P, C, tees, subs) {
   // Sub-empreiteiros activos (cards)
   const _subCards = document.getElementById('sub-cards');
   if (_subCards) _subCards.innerHTML = subsFilt
-    .filter(r => (r['Empresa / Fornecedor']||r['Empresa']) && ['Adjudicado','Fase consultas','Em execução','Activo'].includes(r['Estado']))
+    .filter(r => (r['Subempreiteiro']||r['Empresa / Fornecedor']||r['Empresa']) && ['Adjudicado','Fase consultas','Em execução','Activo'].includes(r['Estado']))
     .map((r,i) => `
       <div class="sub-card">
         <span class="sub-dot" style="background:${subsCores[i%subsCores.length]}"></span>
-        <div><div class="sub-name">${r['Empresa / Fornecedor']||r['Empresa']}</div><div class="sub-scope">${r['Especialidade']||''}</div></div>
+        <div><div class="sub-name">${r['Subempreiteiro']||r['Empresa / Fornecedor']||r['Empresa']}</div><div class="sub-scope">${r['Especialidade']||''}</div></div>
       </div>`).join('') || '<div style="color:var(--tx3);font-size:13px">Sem subempreiteiros activos</div>';
 
   // Alertas — 3 quadros por prioridade
