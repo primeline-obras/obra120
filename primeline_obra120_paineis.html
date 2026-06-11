@@ -1131,21 +1131,6 @@ function toObjArray(rows) {
       return o;
     });
 }
-  const hdrs = rows[headerIdx];
-  return rows.slice(headerIdx + 1)
-    .filter(r => {
-      if (!r.some(v => v !== null && v !== undefined && v !== '')) return false;
-      const first = String(r[0]||'').trim();
-      if (first.startsWith('TOTAL') || first.startsWith('TOTAIS')) return false;
-      if (first.startsWith('Primeline Engenharia')) return false;
-      return true;
-    })
-    .map(r => {
-      const o = {};
-      hdrs.forEach((h, i) => { o[String(h||'')] = r[i] !== undefined ? r[i] : ''; });
-      return o;
-    });
-}
 
 // Converte aba chave/valor em objecto simples
 function toKV(rows) {
