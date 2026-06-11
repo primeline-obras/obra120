@@ -988,7 +988,22 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
 
   <div class="sec">TEEs críticos — não aprovados</div>
   <div class="card tbl-wrap">
-    <table>
+    <table style="table-layout:fixed;width:100%">
+      <colgroup>
+        <col style="width:13%">
+        <col style="width:11%">
+        <col style="width:7%">
+        <col style="width:7%">
+        <col style="width:8%">
+        <col style="width:8%">
+        <col style="width:8%">
+        <col style="width:8%">
+        <col style="width:9%">
+        <col style="width:7%">
+        <col style="width:7%">
+        <col style="width:5%">
+        <col style="width:8%">
+      </colgroup>
       <thead><tr><th>Número</th><th>Descrição</th><th>Estado</th><th class="td-r">Valor (€)</th><th>Especialidade</th><th>Nota</th></tr></thead>
       <tbody id="p3-tees-criticos"><tr><td colspan="6" style="color:var(--tx3);text-align:center;padding:16px">A carregar…</td></tr></tbody>
     </table>
@@ -1392,11 +1407,11 @@ function renderP1(P, C, tees, subs, fases) {
   // Sub-empreiteiros activos (cards)
   const subCardsEl = document.getElementById('sub-cards');
   if (subCardsEl) subCardsEl.innerHTML = subsFilt
-    .filter(r => (r['Empresa / Fornecedor']||r['Empresa']) && ['Adjudicado','Fase consultas','Em execução','Activo'].includes(r['Estado']))
+    .filter(r => (r['Subempreiteiro']||r['Empresa / Fornecedor']||r['Empresa']) && ['Adjudicado','Fase consultas','Em execução','Activo'].includes(r['Estado']))
     .map((r,i) => `
       <div class="sub-card">
         <span class="sub-dot" style="background:${subsCores[i%subsCores.length]}"></span>
-        <div><div class="sub-name">${r['Empresa / Fornecedor']||r['Empresa']}</div><div class="sub-scope">${r['Especialidade']||''}</div></div>
+        <div><div class="sub-name">${r['Subempreiteiro']||r['Empresa / Fornecedor']||r['Empresa']}</div><div class="sub-scope">${r['Especialidade']||''}</div></div>
       </div>`).join('') || '<div style="color:var(--tx3);font-size:13px">Sem subempreiteiros activos</div>';
 
   // Alertas — 3 quadros por prioridade
@@ -1571,7 +1586,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
       ...m,
       entrada:       entradasMes[k]||0,
       saida:         saidasMes[k]||0,
-      saidaEst:      saidasEstMes[k]||0,
+      saidaEst:      isReal ? 0 : (saidasEstMes[k]||0),
       entradaOrc:    entradaOrcMensal,   // referência orçamental mensal entradas
       saidaOrc:      saidaOrcMensal,     // referência orçamental mensal saídas
       real: isReal, atual: isAtual
