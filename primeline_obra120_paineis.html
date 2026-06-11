@@ -125,6 +125,32 @@ html.light {
 .theme-toggle:hover { border-color: var(--blu); color: var(--blu); }
 .theme-icon { font-size: 14px; line-height: 1; transition: transform 0.3s; }
 .theme-toggle:hover .theme-icon { transform: rotate(20deg); }
+
+/* ── MODO TV — maior contraste e legibilidade para apresentação ── */
+html.tv-mode {
+  --tx:  #FFFFFF;
+  --tx2: #C8D8F0;
+  --tx3: #8AAAD0;
+}
+html.tv-mode.light {
+  --tx:  #0A1428;
+  --tx2: #1A2A50;
+  --tx3: #3A4A70;
+  --bg:  #E8EDF8;
+  --s1:  #FFFFFF;
+}
+html.tv-mode body { font-size: 17px; }
+html.tv-mode .kpi-val { font-size: 34px !important; }
+html.tv-mode .kpi-tag { font-size: 13px !important; }
+html.tv-mode .kpi-sub { font-size: 14px !important; }
+html.tv-mode .sec { font-size: 15px !important; }
+html.tv-mode table td, html.tv-mode table th { font-size: 14px !important; }
+html.tv-mode .tl-month { font-size: 13px !important; }
+html.tv-mode .bar-lbl { font-size: 12px !important; }
+html.tv-mode .oh-title { font-size: 26px !important; }
+html.tv-mode .sbar-val { font-size: 16px !important; }
+html.tv-mode .sbar-lbl { font-size: 12px !important; }
+html.tv-mode .month-card { font-size: 14px !important; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
@@ -637,6 +663,10 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
     <span class="theme-icon" id="theme-icon">🌙</span>
     <span id="theme-label">Escuro</span>
   </button>
+  <button class="theme-toggle" onclick="toggleTV()" id="tv-btn" style="margin-left:6px">
+    <span>📺</span>
+    <span id="tv-label">TV</span>
+  </button>
 </nav>
 
 <!-- ════════════════════════════════════════════════════════
@@ -797,7 +827,7 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   <div class="card tbl-wrap">
     <table>
       <thead><tr>
-        <th>Subempreiteiro / Fornecedor</th>
+        <th>Subempreiteiro</th>
         <th>Especialidade</th>
         <th class="td-r">C.D.</th>
         <th class="td-r">P.V.</th>
@@ -1022,6 +1052,12 @@ function toggleTheme() {
   document.getElementById('theme-label').textContent = isLight ? 'Claro' : 'Escuro';
   localStorage.setItem('primeline-theme', isLight ? 'light' : 'dark');
 }
+function toggleTV() {
+  const isTV = document.documentElement.classList.toggle('tv-mode');
+  document.getElementById('tv-label').textContent = isTV ? 'TV ON' : 'TV';
+  document.getElementById('tv-btn').style.borderColor = isTV ? 'var(--grn)' : '';
+  document.getElementById('tv-btn').style.color = isTV ? 'var(--grn)' : '';
+}
 
 // restore saved preference
 (function() {
@@ -1167,7 +1203,7 @@ const FASE_CORES = {
 };
 
 // ── RENDER PAINEL 1 ───────────────────────────────────
-function renderP1(P, C, tees, subs) {
+function renderP1(P, C, tees, subs, fases) {
   const vendaContratual = num(C['Venda Contratual']);
   const cdContratual    = num(C['Custo Directo Contratual']);
   const teeVenda        = num(C['TEE Venda']);
@@ -1327,7 +1363,7 @@ function renderP1(P, C, tees, subs) {
 
   // Subempreitadas table
   const subsCores = ['var(--blu)','var(--grn)','var(--amb)','var(--red)','var(--vio)'];
-  const subsFilt = subs.filter(s => s['Empresa / Fornecedor'] || s['Empresa'] || s['Especialidade']);
+  const subsFilt = subs.filter(s => s['Subempreiteiro'] || s['Empresa'] || s['Especialidade']);
   const subN = (r,...ks) => { for(const k of ks){const v=num(r[k]);if(v)return v;} return 0; };
   const totCD   = subsFilt.reduce((s,r) => s+subN(r,'C.D.','CD'),0);
   const totPV   = subsFilt.reduce((s,r) => s+subN(r,'P.V.','PV'),0);
@@ -1344,7 +1380,7 @@ function renderP1(P, C, tees, subs) {
     const pctP = adj ? pago/adj*100 : 0;
     const difCD  = adj && cd ? adj - cd : 0;
     const margEmp = adj && pv ? pv - adj : 0;
-    const empresa = r['Empresa / Fornecedor'] || r['Empresa'] || '—';
+    const empresa = r['Subempreiteiro'] || r['Empresa'] || '—';
 
     const valorRef = adj || cd;
     const contratoNecessario = String(r['Contrato Necessário']||'').toUpperCase() === 'SIM' || valorRef >= 5000;
@@ -1395,11 +1431,11 @@ function renderP1(P, C, tees, subs) {
 
   // Sub-empreiteiros activos (cards)
   document.getElementById('sub-cards').innerHTML = subsFilt
-    .filter(r => (r['Empresa / Fornecedor']||r['Empresa']) && ['Adjudicado','Fase consultas','Em execução','Activo'].includes(r['Estado']))
+    .filter(r => (r['Subempreiteiro']||r['Empresa']) && ['Adjudicado','Fase consultas','Em execução','Activo'].includes(r['Estado']))
     .map((r,i) => `
       <div class="sub-card">
         <span class="sub-dot" style="background:${subsCores[i%subsCores.length]}"></span>
-        <div><div class="sub-name">${r['Empresa / Fornecedor']||r['Empresa']}</div><div class="sub-scope">${r['Especialidade']||''}</div></div>
+        <div><div class="sub-name">${r['Subempreiteiro']||r['Empresa']}</div><div class="sub-scope">${r['Especialidade']||''}</div></div>
       </div>`).join('') || '<div style="color:var(--tx3);font-size:13px">Sem subempreiteiros activos</div>';
 
   // Alertas — 3 quadros por prioridade
@@ -1611,7 +1647,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     const cor   = FASE_CORES[codClean] || '#4A6090';
     // Nome da fase — nova estrutura usa 'Descrição / Trabalhos', antiga usava 'Fase'
     const faseNome = f['Fase'] || f['Descrição / Trabalhos'] || codClean;
-    const sub   = (f['Responsável'] || f['Subempreiteiro']||'').split('/')[0].trim().slice(0,10);
+    const faseDesc = faseNome.split('|')[0].replace(/^F\d{2}\s*[—-]\s*/,'').trim().slice(0,22);
 
     let barraReal = '';
     if (dIR) {
@@ -1621,7 +1657,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
 
     ganttHTML += `<div class="gantt-row" style="${hdrCols}">
       <div class="gantt-fase">${codClean} — ${faseNome.split('|')[0].trim().slice(0,25)}</div>
-      <div style="padding:0 8px;font-size:10px;color:var(--tx3)">${sub}</div>
+      <div style="padding:0 8px;font-size:10px;color:var(--tx3)">${faseDesc}</div>
       <div style="position:relative;padding:4px">
         <div class="gantt-bar-wrap">
           <div class="gantt-today" style="left:${(hojePos*100).toFixed(1)}%"></div>
@@ -1703,12 +1739,47 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
       svg.appendChild(el);
     };
     // Linha faturação expectável por mês (entradaOrc)
-    // As barras usam (chartH-20) como escala — linhas SVG usam mesma escala + offset de 20px (altura dos labels)
     const barScale = chartH - 20;
-    const labelOffset = 20; // altura reservada para os labels
+    const labelOffset = 20;
     drawLine(CF.map((m,i) => ({ x: xs[i], y: labelOffset + barScale - Math.round(m.entradaOrc / maxVal * barScale) })), 'var(--blu)', '6,4');
     // Linha custos orçamentais por mês (saidaOrc)
     drawLine(CF.map((m,i) => ({ x: xs[i], y: labelOffset + barScale - Math.round(m.saidaOrc / maxVal * barScale) })), 'var(--amb)', '4,4');
+
+    // Linha saldo previsional acumulado
+    // Calcular saldo acumulado para cada mês
+    let saldoPrevAcc = 0;
+    const maxSaldo = Math.max(...CF.map(m => Math.abs(m.entrada - (m.saida + m.saidaEst))), 1);
+    const saldoMaxAbs = CF.reduce((acc, m) => {
+      saldoPrevAcc += m.entrada - (m.saida + m.saidaEst);
+      return Math.max(acc, Math.abs(saldoPrevAcc));
+    }, 1);
+    // Linha de zero do saldo (meio do gráfico verticalmente)
+    const zeroY = labelOffset + barScale * 0.5;
+    const saldoScale = barScale * 0.4 / (saldoMaxAbs || 1);
+    saldoPrevAcc = 0;
+    const ptsSaldo = CF.map((m, i) => {
+      saldoPrevAcc += m.entrada - (m.saida + m.saidaEst);
+      return { x: xs[i], y: zeroY - saldoPrevAcc * saldoScale };
+    });
+    // Linha zero a tracejado
+    const zeroLine = document.createElementNS(svgNS, 'line');
+    zeroLine.setAttribute('x1', '0'); zeroLine.setAttribute('x2', wW.toString());
+    zeroLine.setAttribute('y1', zeroY.toString()); zeroLine.setAttribute('y2', zeroY.toString());
+    zeroLine.setAttribute('stroke', 'var(--tx3)'); zeroLine.setAttribute('stroke-width', '0.8');
+    zeroLine.setAttribute('stroke-dasharray', '3,5'); zeroLine.setAttribute('opacity', '0.4');
+    svg.appendChild(zeroLine);
+    // Linha saldo previsional a verde/vermelho
+    const saldoFinal = ptsSaldo[ptsSaldo.length-1];
+    const corSaldo = saldoFinal && saldoFinal.y < zeroY ? '#4ade80' : '#f87171';
+    drawLine(ptsSaldo, corSaldo, '');
+    // Pontos nos extremos
+    [ptsSaldo[0], saldoFinal].filter(Boolean).forEach(pt => {
+      const circle = document.createElementNS(svgNS, 'circle');
+      circle.setAttribute('cx', pt.x.toFixed(1)); circle.setAttribute('cy', pt.y.toFixed(1));
+      circle.setAttribute('r', '3'); circle.setAttribute('fill', corSaldo); circle.setAttribute('opacity', '0.9');
+      svg.appendChild(circle);
+    });
+
     wrap.appendChild(svg);
   }, 300);
 
@@ -1904,8 +1975,9 @@ function renderP3(fases, subs, tees, pdes, des, P) {
 
   document.getElementById('p3-subs-criticas').innerHTML = subsRisco.length
     ? subsRisco.map(s => {
-        const urgente = s.diasParaArranque <= 14;
-        const cor = urgente ? 'var(--red)' : 'var(--amb)';
+        const critico = s.diasParaArranque <= 60;
+        const urgente = s.diasParaArranque <= 70 && s.diasParaArranque > 60;
+        const cor = critico ? 'var(--red)' : urgente ? 'var(--amb)' : 'var(--tx2)';
         const cd = num(s['C.D.']||s['CD']||0);
         return '<tr>' +
           '<td><strong>' + (s['Especialidade']||'—') + '</strong></td>' +
@@ -1913,7 +1985,7 @@ function renderP3(fases, subs, tees, pdes, des, P) {
           '<td class="td-mono" style="color:' + cor + '">' + s.diasParaArranque + 'd</td>' +
           '<td class="td-r">' + (cd ? eur(cd) : '—') + '</td>' +
           '<td>' + estadoPill(s['Estado']) + '</td>' +
-          '<td style="font-size:12px;color:' + cor + '">' + (urgente ? 'Adjudicar urgente — <2 semanas' : 'Confirmar e adjudicar') + '</td>' +
+          '<td style="font-size:12px;color:' + cor + '">' + (critico ? '🔴 Crítico — adjudicar em ' + s.diasParaArranque + 'd' : urgente ? '🟡 Urgente — adjudicar em ' + s.diasParaArranque + 'd' : 'Confirmar e adjudicar') + '</td>' +
         '</tr>';
       }).join('')
     : '<tr><td colspan="6" style="color:var(--grn);text-align:center;padding:16px">✓ Sem subempreitadas críticas nos próximos 60 dias</td></tr>';
@@ -2060,7 +2132,7 @@ async function loadData() {
       'Mês': m['Mês'], 'Valor (€)': m['Valor (€)'], '% Afectação Obra': '100'
     }))];
 
-    try { renderP1(P, C, tees, subs); } catch(e) { console.error('renderP1:', e); }
+    try { renderP1(P, C, tees, subs, fases); } catch(e) { console.error('renderP1:', e); }
     try { renderP2(fases, fat, todosOsCustos, [], pags, subs); } catch(e) { console.error('renderP2:', e); }
     try { renderP3(fases, subs, tees, pdes, des, P); } catch(e) { console.error('renderP3:', e); }
 
