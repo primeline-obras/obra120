@@ -787,37 +787,24 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
 
   <!-- SUBEMPREITADAS -->
   <div class="sec">Subempreitadas</div>
-  <div class="tbl-wrap">
-    <table style="width:100%;min-width:980px;border-collapse:collapse;table-layout:fixed">
-      <colgroup>
-        <col style="width:110px">
-        <col style="width:145px">
-        <col style="width:95px">
-        <col style="width:90px">
-        <col style="width:62px">
-        <col style="width:90px">
-        <col style="width:120px">
-        <col style="width:85px">
-        <col style="width:85px">
-        <col style="width:95px">
-        <col style="width:88px">
-      </colgroup>
-      <thead>
-        <tr>
-          <th style="padding:8px 10px;text-align:left">Subempreiteiro</th>
-          <th style="padding:8px 10px;text-align:left">Especialidade</th>
-          <th class="td-r" style="padding:8px 10px">Adj. Efetivo</th>
-          <th class="td-r" style="padding:8px 10px">Valor Pago</th>
-          <th class="td-r" style="padding:8px 10px">% Pago</th>
-          <th class="td-r" style="padding:8px 10px">Em Falta</th>
-          <th style="padding:8px 10px;text-align:left">Estado</th>
-          <th class="td-r" style="padding:8px 10px">C.D.</th>
-          <th class="td-r" style="padding:8px 10px">P.V.</th>
-          <th class="td-r" style="padding:8px 10px">Marg. Inicial</th>
-          <th style="padding:8px 10px;text-align:left">Contrato</th>
-        </tr>
-      </thead>
-      <tbody id="subs-tbody"><tr><td colspan="11" style="color:var(--tx3);text-align:center;padding:16px">A carregar…</td></tr></tbody>
+  <div class="card tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Subempreiteiro / Fornecedor</th>
+        <th>Especialidade</th>
+        <th class="td-r">C.D.</th>
+        <th class="td-r">P.V.</th>
+        <th class="td-r">Margem Inicial</th>
+        <th class="td-r">Adj. Efetivo</th>
+        <th class="td-r">Dif. face C.D.</th>
+        <th class="td-r">Marg. Empreiteiro</th>
+        <th>Estado</th>
+        <th class="td-r">Valor Pago</th>
+        <th class="td-r">Em Falta</th>
+        <th class="td-r">% Pago</th>
+        <th>Contrato</th>
+      </tr></thead>
+      <tbody id="subs-tbody"><tr><td colspan="13" style="color:var(--tx3);text-align:center;padding:16px">A carregar…</td></tr></tbody>
       <tfoot><tr id="subs-tfoot"></tr></tfoot>
     </table>
   </div>
@@ -1135,12 +1122,7 @@ function estadoPill(e) {
     'Recusado':    ['var(--red-bg)','var(--red)','var(--red2)'],
     'Pago':        ['var(--grn-bg)','var(--grn)','var(--grn2)'],
     'Emitida':     ['var(--amb-bg)','var(--amb)','var(--amb2)'],
-    'Em atraso':      ['var(--red-bg)','var(--red)','var(--red2)'],
-    'Adjudicado':     ['var(--grn-bg)','var(--grn)','var(--grn2)'],
-    'Fase consultas': ['var(--amb-bg)','var(--amb)','var(--amb2)'],
-    'Ainda não':      ['var(--red-bg)','var(--red)','var(--red2)'],
-    'A confirmar':    ['var(--blu-bg)','var(--blu)','var(--blu2)'],
-    'Concluído':      ['var(--grn-bg)','var(--grn)','var(--grn2)'],
+    'Em atraso':   ['var(--red-bg)','var(--red)','var(--red2)'],
     'Activo':      ['var(--blu-bg)','var(--blu)','var(--blu2)'],
     'Em execução': ['var(--amb-bg)','var(--amb)','var(--amb2)'],
     'Por iniciar': ['var(--s3)','var(--tx3)','var(--bd2)'],
@@ -1157,7 +1139,7 @@ const FASE_CORES = {
 };
 
 // ── RENDER PAINEL 1 ───────────────────────────────────
-function renderP1(P, C, tees, subs, fases) {
+function renderP1(P, C, tees, subs) {
   const vendaContratual = num(C['Venda Contratual']);
   const cdContratual    = num(C['Custo Directo Contratual']);
   const teeVenda        = num(C['TEE Venda']);
@@ -1183,10 +1165,8 @@ function renderP1(P, C, tees, subs, fases) {
   const pctObraRaw      = String(P['% Obra Executada']||'').replace('%','').trim();
   const pctObra         = pctObraRaw ? parseFloat(pctObraRaw) : null;
   const margRealEur     = num(C['Margem Real YTD']);
-  const margRealPctRaw  = num(C['Margem Real YTD %']);
-  const margRealPct     = margRealPctRaw < 2 ? margRealPctRaw * 100 : margRealPctRaw;
-  const desvioRaw       = num(C['Desvio Orç %']);
-  const desvio          = desvioRaw < 2 ? desvioRaw * 100 : desvioRaw;
+  const margRealPct     = num(C['Margem Real YTD %']);
+  const desvio          = num(C['Desvio Orç %']);
 
   // Header
   document.querySelector('#p1 .oh-title').innerHTML =
@@ -1285,22 +1265,14 @@ function renderP1(P, C, tees, subs, fases) {
     const estado = estadoTEE(t['Aprovado (S/N)']);
     const aprov = estado === 'Aprovado DO';
     return `<tr>
-      <td style="padding:8px 10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-        <span style="display:flex;align-items:center;gap:6px">
-          <span style="width:8px;height:8px;border-radius:50%;background:${subsCores[i%subsCores.length]};flex-shrink:0"></span>
-          <strong>${empresa||'—'}</strong>
-        </span>
-      </td>
-      <td style="padding:8px 10px;word-break:break-word;white-space:normal;line-height:1.4">${r['Especialidade']||'—'}</td>
-      <td class="td-r" style="padding:8px 10px;color:var(--blu)">${adj?eur(adj):'—'}</td>
-      <td class="td-r" style="padding:8px 10px;color:var(--grn)">${pago?eur(pago):'—'}</td>
-      <td class="td-r" style="padding:8px 10px">${adj?pct(pctP):'—'}</td>
-      <td class="td-r" style="padding:8px 10px;color:var(--amb)">${falt?eur(falt):'—'}</td>
-      <td style="padding:8px 10px">${estadoPill(r['Estado'])}</td>
-      <td class="td-r" style="padding:8px 10px">${cd?eur(cd):'—'}</td>
-      <td class="td-r" style="padding:8px 10px">${pv?eur(pv):'—'}</td>
-      <td class="td-r" style="padding:8px 10px">${(cd&&pv)?eur(pv-cd):'—'}</td>
-      <td style="padding:8px 10px">${contratoPill}</td>
+      <td class="td-mono">${t['Número']||'—'}</td>
+      <td>${t['Descrição']||'—'}</td>
+      <td style="color:var(--tx2);font-size:13px">${t['Especialidade']||'—'}</td>
+      <td>${estadoPill(estado)}</td>
+      <td class="td-r">${v?eur(v):'—'}</td>
+      <td class="td-r">${c?eur(c):'—'}</td>
+      <td class="td-r" style="color:${aprov?'var(--grn)':v<0?'var(--red)':'var(--tx3)'}">${v?eur(m):'—'}</td>
+      <td class="td-r" style="color:${aprov?'var(--grn)':v<0?'var(--red)':'var(--tx3)'}">${v?pct(m/v*100):'—'}</td>
     </tr>`;
   }).join('') || '<tr><td colspan="8" style="color:var(--tx3);text-align:center;padding:16px">Sem TEEs registados</td></tr>';
 
@@ -1314,7 +1286,7 @@ function renderP1(P, C, tees, subs, fases) {
 
   // Subempreitadas table
   const subsCores = ['var(--blu)','var(--grn)','var(--amb)','var(--red)','var(--vio)'];
-  const subsFilt = subs.filter(s => s['Empresa / Fornecedor'] || s['Empresa'] || s['Especialidade']);
+  const subsFilt = subs.filter(s => s['Subempreiteiro'] || s['Empresa / Fornecedor'] || s['Empresa'] || s['Especialidade']);
   const subN = (r,...ks) => { for(const k of ks){const v=num(r[k]);if(v)return v;} return 0; };
   const totCD   = subsFilt.reduce((s,r) => s+subN(r,'C.D.','CD'),0);
   const totPV   = subsFilt.reduce((s,r) => s+subN(r,'P.V.','PV'),0);
@@ -1334,17 +1306,15 @@ function renderP1(P, C, tees, subs, fases) {
     const empresa = r['Subempreiteiro'] || r['Empresa / Fornecedor'] || r['Empresa'] || '—';
 
     const valorRef = adj || cd;
-    const estado_s = String(r['Estado']||'').toLowerCase();
-    const isAdj = estado_s === 'adjudicado';
-    const contratoNecessario = String(r['Contrato']||'') === 'Necessário' || valorRef >= 5000;
+    const contratoNecessario = String(r['Contrato Necessário']||'').toUpperCase() === 'SIM' || valorRef >= 5000;
     const contratoFeito    = String(r['Contrato Feito (S/N)']||'').toUpperCase() === 'SIM';
     const contratoAssinado = String(r['Contrato Assinado (S/N)']||'').toUpperCase() === 'SIM';
 
     let contratoPill = '';
     if (!contratoNecessario) {
       contratoPill = `<span class="ep" style="background:var(--s3);color:var(--tx3)">N/A</span>`;
-    } else if (contratoAssinado || isAdj) {
-      contratoPill = `<span class="ep" style="background:var(--grn-bg);color:var(--grn);border:1px solid var(--grn2)">✓ Feito</span>`;
+    } else if (contratoAssinado) {
+      contratoPill = `<span class="ep" style="background:var(--grn-bg);color:var(--grn);border:1px solid var(--grn2)">✓ Assinado</span>`;
     } else if (contratoFeito) {
       contratoPill = `<span class="ep" style="background:var(--amb-bg);color:var(--amb);border:1px solid var(--amb2)">Feito</span>`;
     } else {
@@ -1352,22 +1322,21 @@ function renderP1(P, C, tees, subs, fases) {
     }
 
     return `<tr>
-      <td style="padding:8px 10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-        <span style="display:flex;align-items:center;gap:6px">
-          <span style="width:8px;height:8px;border-radius:50%;background:${subsCores[i%subsCores.length]};flex-shrink:0"></span>
-          <strong>${empresa||'—'}</strong>
-        </span>
-      </td>
-      <td style="padding:8px 10px;word-break:break-word;white-space:normal;line-height:1.4">${r['Especialidade']||'—'}</td>
-      <td class="td-r" style="padding:8px 10px;color:var(--blu)">${adj?eur(adj):'—'}</td>
-      <td class="td-r" style="padding:8px 10px;color:var(--grn)">${pago?eur(pago):'—'}</td>
-      <td class="td-r" style="padding:8px 10px">${adj?pct(pctP):'—'}</td>
-      <td class="td-r" style="padding:8px 10px;color:var(--amb)">${falt?eur(falt):'—'}</td>
-      <td style="padding:8px 10px">${estadoPill(r['Estado'])}</td>
-      <td class="td-r" style="padding:8px 10px">${cd?eur(cd):'—'}</td>
-      <td class="td-r" style="padding:8px 10px">${pv?eur(pv):'—'}</td>
-      <td class="td-r" style="padding:8px 10px">${(cd&&pv)?eur(pv-cd):'—'}</td>
-      <td style="padding:8px 10px">${contratoPill}</td>
+      <td><span style="display:flex;align-items:center;gap:8px">
+        <span style="width:8px;height:8px;border-radius:50%;background:${subsCores[i%subsCores.length]};flex-shrink:0"></span>
+        <strong>${empresa}</strong></span></td>
+      <td>${r['Especialidade']||'—'}</td>
+      <td class="td-r">${cd?eur(cd):'—'}</td>
+      <td class="td-r">${pv?eur(pv):'—'}</td>
+      <td class="td-r" style="color:var(--tx2)">${cd&&pv?eur(pv-cd):'—'}</td>
+      <td class="td-r" style="color:var(--blu)">${adj?eur(adj):'—'}</td>
+      <td class="td-r" style="color:${difCD>=0?'var(--grn)':'var(--red)'}">${adj&&cd?eur(difCD):'—'}</td>
+      <td class="td-r" style="color:${margEmp>=0?'var(--grn)':'var(--red)'}">${adj&&pv?eur(margEmp):'—'}</td>
+      <td>${estadoPill(r['Estado'])}</td>
+      <td class="td-r" style="color:var(--grn)">${pago?eur(pago):'—'}</td>
+      <td class="td-r" style="color:var(--amb)">${falt?eur(falt):'—'}</td>
+      <td class="td-r" style="color:var(--tx2)">${adj?pct(pctP):'—'}</td>
+      <td>${contratoPill}</td>
     </tr>`;
   }).join('') || '<tr><td colspan="13" style="color:var(--tx3);text-align:center;padding:16px">Sem subempreitadas</td></tr>';
 
@@ -1384,8 +1353,7 @@ function renderP1(P, C, tees, subs, fases) {
     <td></td>`;
 
   // Sub-empreiteiros activos (cards)
-  const subCardsEl = document.getElementById('sub-cards');
-  if (subCardsEl) subCardsEl.innerHTML = subsFilt
+  document.getElementById('sub-cards').innerHTML = subsFilt
     .filter(r => (r['Empresa / Fornecedor']||r['Empresa']) && ['Adjudicado','Fase consultas','Em execução','Activo'].includes(r['Estado']))
     .map((r,i) => `
       <div class="sub-card">
@@ -1414,7 +1382,7 @@ function renderP1(P, C, tees, subs, fases) {
 }
 
 // ── RENDER PAINEL 2 ───────────────────────────────────
-function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, subs, P) {
+function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, subs) {
   // Calcular datas extremas da obra
   const toDate = v => {
     if (!v || v === '' || v === 0) return null;
@@ -1555,7 +1523,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
       ...m,
       entrada:       entradasMes[k]||0,
       saida:         saidasMes[k]||0,
-      saidaEst:      isReal ? 0 : (saidasEstMes[k]||0),
+      saidaEst:      saidasEstMes[k]||0,
       entradaOrc:    entradaOrcMensal,   // referência orçamental mensal entradas
       saidaOrc:      saidaOrcMensal,     // referência orçamental mensal saídas
       real: isReal, atual: isAtual
@@ -2023,8 +1991,8 @@ async function loadData() {
       'Mês': m['Mês'], 'Valor (€)': m['Valor (€)'], '% Afectação Obra': '100'
     }))];
 
-    try { renderP1(P, C, tees, subs, fases); } catch(e) { console.error('renderP1:', e); }
-    try { renderP2(fases, fat, todosOsCustos, [], pags, subs, P); } catch(e) { console.error('renderP2:', e); }
+    try { renderP1(P, C, tees, subs); } catch(e) { console.error('renderP1:', e); }
+    try { renderP2(fases, fat, todosOsCustos, [], pags, subs); } catch(e) { console.error('renderP2:', e); }
     try { renderP3(fases, subs, tees, pdes, des, P); } catch(e) { console.error('renderP3:', e); }
 
   } catch(err) {
