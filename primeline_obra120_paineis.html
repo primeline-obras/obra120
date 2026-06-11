@@ -818,7 +818,7 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
         <th class="td-r">% Pago</th>
         <th>Contrato</th>
       </tr></thead>
-      <tbody id="subs-tbody"><tr><td colspan="13" style="color:var(--tx3);text-align:center;padding:16px">A carregar…</td></tr></tbody>
+      <tbody id="subs-tbody"><tr><td colspan="12" style="color:var(--tx3);text-align:center;padding:16px">A carregar…</td></tr></tbody>
       <tfoot><tr id="subs-tfoot"></tr></tfoot>
     </table>
   </div>
@@ -990,25 +990,25 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   </div>
 
   <div class="sec">TEEs críticos — não aprovados</div>
-  <div class="card tbl-wrap" style="overflow-x:auto">
-    <table style="table-layout:fixed;min-width:1100px;width:100%">
-      <colgroup>
-        <col style="min-width:120px">
-        <col style="min-width:130px">
-        <col style="min-width:80px">
-        <col style="min-width:80px">
-        <col style="min-width:90px">
-        <col style="min-width:95px">
-        <col style="min-width:90px">
-        <col style="min-width:100px">
-        <col style="min-width:110px">
-        <col style="min-width:85px">
-        <col style="min-width:85px">
-        <col style="min-width:60px">
-        <col style="min-width:90px">
-      </colgroup>
-      <thead><tr><th>Número</th><th>Descrição</th><th>Estado</th><th class="td-r">Valor (€)</th><th>Especialidade</th><th>Nota</th></tr></thead>
-      <tbody id="p3-tees-criticos"><tr><td colspan="6" style="color:var(--tx3);text-align:center;padding:16px">A carregar…</td></tr></tbody>
+  <div class="card <div class="tbl-wrap" style="overflow-x:auto">
+    <table style="table-layout:auto;width:100%;border-collapse:collapse">
+      <thead>
+        <tr>
+          <th style="min-width:110px;padding:8px 10px">Subempreiteiro</th>
+          <th style="min-width:120px;padding:8px 10px">Especialidade</th>
+          <th class="td-r" style="min-width:95px;padding:8px 10px">Adj. Efetivo</th>
+          <th class="td-r" style="min-width:85px;padding:8px 10px">Valor Pago</th>
+          <th class="td-r" style="min-width:60px;padding:8px 10px">% Pago</th>
+          <th class="td-r" style="min-width:85px;padding:8px 10px">Em Falta</th>
+          <th style="min-width:115px;padding:8px 10px">Estado</th>
+          <th class="td-r" style="min-width:80px;padding:8px 10px">C.D.</th>
+          <th class="td-r" style="min-width:80px;padding:8px 10px">P.V.</th>
+          <th class="td-r" style="min-width:95px;padding:8px 10px">Marg. Inicial</th>
+          <th class="td-r" style="min-width:105px;padding:8px 10px">Marg. Empreit.</th>
+          <th style="min-width:85px;padding:8px 10px">Contrato</th>
+        </tr>
+      </thead>
+      <tbody id="subs-tbody"></tbody>
     </table>
   </div>
 
@@ -1364,6 +1364,7 @@ function renderP1(P, C, tees, subs, fases) {
     const pctP = adj ? pago/adj*100 : 0;
     const difCD  = adj && cd ? adj - cd : 0;
     const margEmp = adj && pv ? pv - adj : 0;
+    const mi = subN(r,'Margem Inicial Prevista','Margem Inicial','MI');
     const empresa = r['Subempreiteiro'] || r['Empresa / Fornecedor'] || r['Empresa'] || '—';
 
     const valorRef = adj || cd;
@@ -1388,28 +1389,20 @@ function renderP1(P, C, tees, subs, fases) {
     }
 
     return `<tr>
-      <td><span style="display:flex;align-items:center;gap:8px">
+      <td style="padding:8px 10px"><span style="display:flex;align-items:center;gap:6px">
         <span style="width:8px;height:8px;border-radius:50%;background:${subsCores[i%subsCores.length]};flex-shrink:0"></span>
-        <strong>${empresa}</strong></span></td>
-      <td>${r['Especialidade']||'—'}</td>
-      <td class="td-r">${cd?eur(cd):'—'}</td>
-      <td class="td-r">${pv?eur(pv):'—'}</td>
-      <td class="td-r" style="color:var(--tx2)">${cd&&pv?eur(pv-cd):'—'}</td>
-      <td class="td-r" style="color:var(--blu)">${adj?eur(adj):'—'}</td>
-      <td class="td-r" style="color:${difCD>=0?'var(--grn)':'var(--red)'}">${adj&&cd?eur(difCD):'—'}</td>
-      <td class="td-r" style="color:${margEmp>=0?'var(--grn)':'var(--red)'}">${adj&&pv?eur(margEmp):'—'}</td>
-      <td>${(() => {
-        const est = String(r['Estado']||'');
-        const estL = est.toLowerCase();
-        if (estL === 'adjudicado') return `<span class="ep" style="background:var(--grn-bg);color:var(--grn);border:1px solid var(--grn2)">${est}</span>`;
-        if (estL.includes('consultas') || estL.includes('fase')) return `<span class="ep" style="background:var(--amb-bg);color:var(--amb);border:1px solid var(--amb2)">${est}</span>`;
-        if (estL.includes('ainda não') || estL.includes('ainda nao')) return `<span class="ep" style="background:var(--red-bg);color:var(--red);border:1px solid var(--red2)">${est}</span>`;
-        return `<span class="ep" style="background:var(--s3);color:var(--tx3)">${est||'—'}</span>`;
-      })()}</td>
-      <td class="td-r" style="color:var(--grn)">${pago?eur(pago):'—'}</td>
-      <td class="td-r" style="color:var(--amb)">${falt?eur(falt):'—'}</td>
-      <td class="td-r" style="color:var(--tx2)">${adj?pct(pctP):'—'}</td>
-      <td>${contratoPill}</td>
+        <strong style="white-space:nowrap">${empresa||'—'}</strong></span></td>
+      <td style="padding:8px 10px;white-space:nowrap">${r['Especialidade']||'—'}</td>
+      <td class="td-r" style="padding:8px 10px;color:var(--blu)">${adj?eur(adj):'—'}</td>
+      <td class="td-r" style="padding:8px 10px;color:var(--grn)">${pago?eur(pago):'—'}</td>
+      <td class="td-r" style="padding:8px 10px;color:var(--tx2)">${adj?pct(pctP):'—'}</td>
+      <td class="td-r" style="padding:8px 10px;color:var(--amb)">${falt?eur(falt):'—'}</td>
+      <td style="padding:8px 10px">${estadoPill(r['Estado'])}</td>
+      <td class="td-r" style="padding:8px 10px">${cd?eur(cd):'—'}</td>
+      <td class="td-r" style="padding:8px 10px">${pv?eur(pv):'—'}</td>
+      <td class="td-r" style="padding:8px 10px">${cd&&pv?eur(pv-cd):'—'}</td>
+      <td class="td-r" style="padding:8px 10px;color:${margEmp>=0?'var(--grn)':'var(--red)'}">${adj&&pv?eur(margEmp):'—'}</td>
+      <td style="padding:8px 10px">${contratoPill}</td>
     </tr>`;
   }).join('') || '<tr><td colspan="13" style="color:var(--tx3);text-align:center;padding:16px">Sem subempreitadas</td></tr>';
 
