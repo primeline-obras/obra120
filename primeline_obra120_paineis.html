@@ -1082,14 +1082,19 @@ function fmtDate(v, mesesOnly=false) {
 function toObjArray(rows) {
   if (!rows || rows.length < 2) return [];
   let headerIdx = 0;
-  for (let i = 0; i < Math.min(rows.length, 5); i++) {
-    const firstCell = String(rows[i][0] || '');
+  const headerHints = ['Código','Fase','Nº Fatura','Empresa','Número','Data Recebimento','Valor (€)','Subempreiteiro','Descrição / Auto'];
+  for (let i = 0; i < Math.min(rows.length, 8); i++) {
+    const row = rows[i] || [];
+    const firstCell = String(row[0] || '');
+    const nonEmpty = row.filter(v => v !== null && v !== undefined && v !== '').length;
+    const hasHint = row.some(v => headerHints.includes(String(v || '').trim()));
     if (firstCell &&
+        nonEmpty >= 2 &&
+        hasHint &&
         !firstCell.includes('PRIMELINE') &&
         !firstCell.includes('Obra 120') &&
         !firstCell.includes('Data:') &&
-        !firstCell.includes('NÃO EDITAR') &&
-        !firstCell.includes(' ')) {
+        !firstCell.includes('NÃO EDITAR')) {
       headerIdx = i;
       break;
     }
@@ -1543,12 +1548,6 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
 
   const ganttEl = document.getElementById('gantt');
   const hdrCols = 'grid-template-columns: 160px 80px 1fr 50px';
-  const fasesGantt = fases.filter(f => /^F\d{2}\.\d+/.test(String(f['Código']||'')));
-  const faseNome = {};
-  fasesData.forEach(f => {
-    const codigo = String(f['Código']||'').match(/^F\d{2}/)?.[0];
-    if (codigo) faseNome[codigo] = String(f['Código']||'').replace(/^F\d{2}\s*[—-]?\s*/, '').split('|')[0].trim();
-  });
   let ganttHTML = `<div class="gantt-row header" style="${hdrCols}">
     <div style="padding:0 8px">Fase</div>
     <div style="padding:0 8px;font-size:9px">Sub.</div>
@@ -1563,18 +1562,17 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     <div style="padding:0 8px">%</div>
   </div>`;
 
-  fasesGantt.forEach(f => {
+  fasesData.forEach(f => {
     const dI  = toDate(f['Data Início']),      dF  = toDate(f['Data Fim Prevista']);
     const dIR = toDate(f['Data Fim Real']);     // data real se existir
     if (!dI || !dF) return;
     const left  = Math.max(0, (dI - obraInicio) / totalMs * 100).toFixed(1);
     const width = Math.max(1, (dF - dI)         / totalMs * 100).toFixed(1);
-    const p     = num(f['% Executado']);
     const codigo = String(f['Código']||'');
     const faseCod = codigo.match(/^F\d{2}/)?.[0] || codigo;
     const cor   = FASE_CORES[faseCod] || '#4A6090';
-    const fase  = faseNome[faseCod] || faseCod;
-    const sub   = String(f['Descrição / Trabalhos']||'').trim();
+    const fase  = codigo.replace(/^F\d{2}\s*[—-]?\s*/, '').split('|')[0].trim() || faseCod;
+    const p     = fasePct(f);
 
     // Barra real (se data fim real existir)
     let barraReal = '';
@@ -1585,14 +1583,14 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
 
     ganttHTML += `<div class="gantt-row" style="${hdrCols}">
       <div class="gantt-fase">${faseCod} — ${fase}</div>
-      <div style="padding:0 8px;font-size:10px;color:var(--tx3)">${codigo}</div>
+      <div style="padding:0 8px;font-size:10px;color:var(--tx3)">${faseCod}</div>
       <div style="position:relative;padding:4px">
         <div class="gantt-bar-wrap">
           <div class="gantt-today" style="left:${(hojePos*100).toFixed(1)}%"></div>
           <div class="gantt-bar" style="left:${left}%;width:${width}%;background:${cor}25;border:1px solid ${cor}55">
             <div style="position:absolute;left:0;top:0;height:100%;width:${p}%;background:${cor};border-radius:3px 0 0 3px;opacity:0.75"></div>
             ${barraReal}
-            <span class="gantt-bar-label" style="position:relative;z-index:1">${codigo} — ${sub}</span>
+            <span class="gantt-bar-label" style="position:relative;z-index:1">${faseCod} — ${fase}</span>
           </div>
         </div>
       </div>
@@ -1790,7 +1788,16 @@ function renderP3(fases, subs, tees, pdes, des, P) {
 
   // Mapa fase → data início
   const faseMap = {};
-  fasesData.forEach(f => { if (f['Código']) faseMap[f['Código'].trim()] = toDate(f['Data Início']); });
+  const faseFimMap = {};
+  const fasePctMap = {};
+  fasesData.forEach(f => {
+    if (!f['Código']) return;
+    const faseKey = String(f['Código']).trim().match(/^F\d{2}/)?.[0];
+    if (!faseKey) return;
+    faseMap[faseKey] = toDate(f['Data Início']);
+    faseFimMap[faseKey] = toDate(f['Data Fim Prevista']);
+    fasePctMap[faseKey] = fasePct(f);
+  });
 
   // ── SEMÁFORO POR FASE ──
   function semaforoFase(f) {
@@ -1839,24 +1846,27 @@ function renderP3(fases, subs, tees, pdes, des, P) {
   const subsRisco = subs.filter(s => {
     const est = String(s['Estado']||'').toLowerCase();
     if (!est.includes('ainda não') && !est.includes('fase consultas') && !est.includes('a confirmar')) return false;
+    if (num(s['C.D.']||s['CD']||0) <= 0) return false;
     const faseKey = String(s['Fase']||'').trim().split('/')[0].trim();
-    const dI = faseMap[faseKey];
-    return dI && dI >= hoje && dI <= em60dias;
+    const dI = faseMap[faseKey], dF = faseFimMap[faseKey];
+    const pctF = fasePctMap[faseKey] ?? 0;
+    return (dI || dF) && pctF < 100 && (!dF || dF >= hoje || dI <= em60dias);
   }).map(s => {
     const faseKey = String(s['Fase']||'').trim().split('/')[0].trim();
     const dI = faseMap[faseKey];
-    return { ...s, diasParaArranque: Math.round((dI - hoje) / 86400000) };
+    return { ...s, diasParaArranque: dI ? Math.round((dI - hoje) / 86400000) : 9999 };
   }).sort((a,b) => a.diasParaArranque - b.diasParaArranque);
 
   document.getElementById('p3-subs-criticas').innerHTML = subsRisco.length
     ? subsRisco.map(s => {
         const urgente = s.diasParaArranque <= 14;
         const cor = urgente ? 'var(--red)' : 'var(--amb)';
+        const prazo = s.diasParaArranque < 0 ? 'Em curso' : s.diasParaArranque + 'd';
         const cd = num(s['C.D.']||s['CD']||0);
         return '<tr>' +
           '<td><strong>' + (s['Especialidade']||'—') + '</strong></td>' +
           '<td class="td-mono">' + (s['Fase']||'—') + '</td>' +
-          '<td class="td-mono" style="color:' + cor + '">' + s.diasParaArranque + 'd</td>' +
+          '<td class="td-mono" style="color:' + cor + '">' + prazo + '</td>' +
           '<td class="td-r">' + (cd ? eur(cd) : '—') + '</td>' +
           '<td>' + estadoPill(s['Estado']) + '</td>' +
           '<td style="font-size:12px;color:' + cor + '">' + (urgente ? 'Adjudicar urgente — <2 semanas' : 'Confirmar e adjudicar') + '</td>' +
