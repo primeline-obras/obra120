@@ -1421,9 +1421,14 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
   };
   const fasesData = fases.filter(f => f['Código'] && /^F\d{2}( —|$)/.test(String(f['Código']).trim()));
 
-  const obraInicio = fasesData.reduce((min, f) => {
+  // obraInicio: usa data da sheet (P['Início da obra']) para não perder meses anteriores ao planeamento
+  const obraInicioSheet = toDate(P['Início da obra']) || new Date('2026-02-01');
+  const obraInicioPlan  = fasesData.reduce((min, f) => {
     const d = toDate(f['Data Início']); return d && (!min || d < min) ? d : min;
-  }, null) || new Date('2026-02-01');
+  }, null);
+  // Usar o mais antigo entre sheet e planeamento para garantir que todos os meses aparecem
+  const obraInicio = obraInicioSheet && obraInicioPlan && obraInicioSheet < obraInicioPlan
+    ? obraInicioSheet : (obraInicioPlan || obraInicioSheet);
 
   const obraFim = fasesData.reduce((max, f) => {
     const d = toDate(f['Data Fim Prevista']); return d && (!max || d > max) ? d : max;
@@ -1598,7 +1603,9 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     const cor     = FASE_CORES[codClean] || FASE_CORES[f['Código']] || '#4A6090';
     // Nome da fase: coluna 'Descrição / Trabalhos' ou 'Fase', sem parte inglesa e sem código
     const faseNomeRaw = f['Descrição / Trabalhos'] || f['Fase'] || codClean;
-    const faseDesc = faseNomeRaw.split('|')[0].replace(/^F\d{2}[\s—\-]+/,'').trim().slice(0,22);
+    const faseDesc = faseNomeRaw.split('|// Extrair nome limpo: "F01 — ESTALEIRO | Preliminary Work" → "ESTALEIRO"
+    const faseDescRaw = faseNomeRaw.split('|')[0].trim();
+    const faseDesc = faseDescRaw.replace(/^F\d{2}[^A-Z]*/i,'').trim().slice(0,24) || faseDescRaw.slice(0,24);
 
     // Barra real (se data fim real existir)
     let barraReal = '';
