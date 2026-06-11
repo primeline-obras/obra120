@@ -390,24 +390,18 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   display: flex; gap: 6px; align-items: flex-end;
   height: 228px; margin-bottom: 8px; padding: 0 4px;
 }
-.tl-bars {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 2px;
-  height: 200px;
-  padding-top: 0;
-  flex: 1;
-}
-.tl-col { flex: 1; display: flex; flex-direction: column; gap: 3px; align-items: center; }
-.tl-bars { display: flex; gap: 2px; align-items: flex-end; width: 100%; }
-.bar-in { flex: 1; border-radius: 3px 3px 0 0; background: var(--blu); min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); position: relative; }
-.bar-out { flex: 1; border-radius: 0 0 3px 3px; background: var(--amb); min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); }
-.bar-est { flex: 1; border-radius: 3px 3px 0 0; background: var(--amb); opacity: 0.35; min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); border-top: 1px dashed var(--amb); }
+.tl-col { flex: 1; display: flex; flex-direction: column; align-items: center; min-width: 0; }
+.tl-bars { display: flex; gap: 3px; align-items: flex-end; width: 100%; height: 200px; padding-top: 20px; }
+.bar-wrap-in  { display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; }
+.bar-wrap-out { display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; }
+.bar-lbl { font-size: 10px; font-family: var(--mono); white-space: nowrap; height: 16px; line-height: 16px; flex-shrink: 0; }
+.bar-in  { width: 100%; border-radius: 3px 3px 0 0; background: var(--blu); min-height: 3px; transition: height 0.5s ease; }
+.bar-out { width: 100%; border-radius: 0 0 3px 3px; background: var(--amb); min-height: 3px; transition: height 0.5s ease; }
+.bar-est { width: 100%; border-radius: 3px 3px 0 0; background: var(--amb); opacity: 0.35; min-height: 3px; border-top: 1px dashed var(--amb); }
 .bar-in.neg { background: var(--red); }
-.tl-month { font-family: var(--mono); font-size: 9px; color: var(--tx3); margin-top: 5px; text-align: center; }
-.tl-month.current { color: var(--blu); }
-.tl-month.future { color: var(--tx3); opacity: 0.6; }
+.tl-month { font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--tx2); margin-top: 6px; text-align: center; line-height: 1.4; }
+.tl-month.current { color: var(--blu); font-weight: 700; }
+.tl-month.future  { color: var(--tx3); }
 
 /* saldo line overlay */
 .chart-wrap { position: relative; }
@@ -1604,34 +1598,32 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
   const chartH = 200;
 
   document.getElementById('cf-chart').innerHTML = CF.map(m => {
-    const hIn  = Math.round(m.entrada   / maxVal * chartH);
-    const hOut = Math.round(m.saida     / maxVal * chartH);
-    const hEst = Math.round(m.saidaEst  / maxVal * chartH);
+    const hIn  = Math.round(m.entrada   / maxVal * (chartH - 20));
+    const hOut = Math.round(m.saida     / maxVal * (chartH - 20));
+    const hEst = Math.round(m.saidaEst  / maxVal * (chartH - 20));
     const totalOut = m.saida + m.saidaEst;
     const risk = totalOut > m.entrada && (m.entrada > 0 || totalOut > 0);
+    const lblIn  = m.entrada  > 0 ? `<div class="bar-lbl" style="color:var(--blu)">${(m.entrada/1000).toFixed(0)}k</div>` : `<div class="bar-lbl"></div>`;
+    const lblOut = totalOut   > 0 ? `<div class="bar-lbl" style="color:var(--amb)">${(totalOut/1000).toFixed(0)}k</div>` : `<div class="bar-lbl"></div>`;
     return `<div class="tl-col">
       <div class="tl-bars">
-        <div style="display:flex;flex-direction:column;align-items:center;width:48%">
-          <div style="font-size:10px;color:var(--blu);font-family:var(--mono);margin-bottom:2px;height:14px;line-height:14px;text-align:center">
-            ${m.entrada>0?(m.entrada/1000).toFixed(0)+'k':''}
-          </div>
-          <div class="bar-in ${risk?'neg':''}" style="height:${Math.max(hIn,2)}px;width:100%"
+        <div class="bar-wrap-in">
+          ${lblIn}
+          <div style="flex:1"></div>
+          <div class="bar-in ${risk?'neg':''}" style="height:${Math.max(hIn,3)}px;width:100%"
             title="${m.label} ${m.y}: Entradas ${eur(m.entrada)}"></div>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:center;width:48%">
-          <div style="font-size:10px;color:var(--amb);font-family:var(--mono);margin-bottom:2px;height:14px;line-height:14px;text-align:center">
-            ${totalOut>0?(totalOut/1000).toFixed(0)+'k':''}
-          </div>
-          <div style="display:flex;flex-direction:column;width:100%;gap:1px;align-self:flex-end">
-            ${hEst>0?`<div class="bar-est" style="height:${Math.max(hEst,2)}px"
-              title="${m.label} ${m.y}: Estimado ${eur(m.saidaEst)}"></div>`:''}
-            ${hOut>0?`<div class="bar-out" style="height:${Math.max(hOut,2)}px"
-              title="${m.label} ${m.y}: Real ${eur(m.saida)}"></div>`:''}
-            ${!hOut&&!hEst?`<div class="bar-out" style="height:2px;opacity:0.2"></div>`:''}
+        <div class="bar-wrap-out">
+          ${lblOut}
+          <div style="flex:1"></div>
+          <div style="display:flex;flex-direction:column;width:100%;gap:1px">
+            ${hEst>0?`<div class="bar-est" style="height:${Math.max(hEst,3)}px" title="Estimado ${eur(m.saidaEst)}"></div>`:''}
+            ${hOut>0?`<div class="bar-out" style="height:${Math.max(hOut,3)}px" title="Real ${eur(m.saida)}"></div>`:''}
+            ${!hOut&&!hEst?`<div class="bar-out" style="height:3px;opacity:0.15"></div>`:''}
           </div>
         </div>
       </div>
-      <div class="tl-month ${m.atual?'current':m.real?'':'future'}">${m.label}<br><span style="font-size:8px;opacity:0.6">${m.y2}</span></div>
+      <div class="tl-month ${m.atual?'current':m.real?'':'future'}">${m.label}<br><span style="font-size:10px">${m.y2}</span></div>
     </div>`;
   }).join('');
 
@@ -1667,9 +1659,10 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
       svg.appendChild(el);
     };
     // Linha faturação expectável por mês (entradaOrc)
-    drawLine(CF.map((m,i) => ({ x: xs[i], y: chartH - Math.round(m.entradaOrc / maxVal * chartH) })), 'var(--blu)', '6,4');
-    // Linha custos orçamentais por mês (saidaOrc)
-    drawLine(CF.map((m,i) => ({ x: xs[i], y: chartH - Math.round(m.saidaOrc / maxVal * chartH) })), 'var(--amb)', '4,4');
+    const barScale = chartH - 20;
+    const lblOffset = 20;
+    drawLine(CF.map((m,i) => ({ x: xs[i], y: lblOffset + barScale - Math.round(m.entradaOrc / maxVal * barScale) })), 'var(--blu)', '6,4');
+    drawLine(CF.map((m,i) => ({ x: xs[i], y: lblOffset + barScale - Math.round(m.saidaOrc / maxVal * barScale) })), 'var(--amb)', '4,4');
     wrap.appendChild(svg);
   }, 300);
 
