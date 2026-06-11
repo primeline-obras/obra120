@@ -1390,7 +1390,8 @@ function renderP1(P, C, tees, subs, fases) {
     <td></td>`;
 
   // Sub-empreiteiros activos (cards)
-  document.getElementById('sub-cards').innerHTML = subsFilt
+  const subCardsEl = document.getElementById('sub-cards');
+  if (subCardsEl) subCardsEl.innerHTML = subsFilt
     .filter(r => (r['Empresa / Fornecedor']||r['Empresa']) && ['Adjudicado','Fase consultas','Em execução','Activo'].includes(r['Estado']))
     .map((r,i) => `
       <div class="sub-card">
@@ -1419,7 +1420,7 @@ function renderP1(P, C, tees, subs, fases) {
 }
 
 // ── RENDER PAINEL 2 ───────────────────────────────────
-function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, subs) {
+function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, subs, P) {
   // Calcular datas extremas da obra
   const toDate = v => {
     if (!v || v === '' || v === 0) return null;
@@ -1612,7 +1613,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     const cor     = FASE_CORES[codClean] || FASE_CORES[f['Código']] || '#4A6090';
     // Nome da fase: coluna 'Descrição / Trabalhos' ou 'Fase', sem parte inglesa e sem código
     const faseNomeRaw = f['Descrição / Trabalhos'] || f['Fase'] || codClean;
-    // Extrair nome limpo: "F01 — ESTALEIRO | Preliminary Work" → "ESTALEIRO"
+    // Extrair nome limpo: "F01 -- ESTALEIRO | Preliminary Work" -> "ESTALEIRO"
     const faseDescRaw = faseNomeRaw.split('|')[0].trim();
     const faseDesc = faseDescRaw.replace(/^F\d{2}[^A-Z]*/i,'').trim().slice(0,24) || faseDescRaw.slice(0,24);
 
@@ -2051,7 +2052,7 @@ async function loadData() {
     }))];
 
     try { renderP1(P, C, tees, subs, fases); } catch(e) { console.error('renderP1:', e); }
-    try { renderP2(fases, fat, todosOsCustos, [], pags, subs); } catch(e) { console.error('renderP2:', e); }
+    try { renderP2(fases, fat, todosOsCustos, [], pags, subs, P); } catch(e) { console.error('renderP2:', e); }
     try { renderP3(fases, subs, tees, pdes, des, P); } catch(e) { console.error('renderP3:', e); }
 
   } catch(err) {
