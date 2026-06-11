@@ -895,14 +895,16 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   <div style="font-size:12px;color:var(--tx3);margin-bottom:10px;font-family:var(--mono);line-height:1.6;padding:0 2px">
     <strong style="color:var(--tx2)">Saldo acumulado (∑)</strong> — soma de entradas menos saídas desde o início da obra até ao mês. Indica se a obra está a gerar ou consumir caixa.
     &nbsp;·&nbsp;
-    <strong style="color:var(--tx2)">Saldo previsional</strong> — mesmo cálculo projectado até ao fim da obra, incluindo estimativas futuras.
+    <strong style="color:var(--tx2)">Faturação expectável (ajustada)</strong> — nos meses passados mostra o ritmo ideal linear; nos meses futuros redistribui o que falta faturar, reflectindo o atraso acumulado.
+    &nbsp;·&nbsp;
+    <strong style="color:var(--tx2)">Saldo previsional</strong> — linha verde/vermelha a sobrepor o gráfico; sobe quando há excedente, desce quando há défice.
   </div>
   <div class="card">
     <div class="cf-legend">
       <span><span class="leg-dot" style="background:var(--blu)"></span>Faturação ao DO (entradas)</span>
       <span><span class="leg-dot" style="background:var(--amb)"></span>Custos reais (saídas)</span>
       <span><span class="leg-dot" style="background:var(--amb);opacity:0.35;border:1px dashed var(--amb)"></span>Subempreitadas estimadas</span>
-      <span><span style="display:inline-block;width:20px;height:1px;border-top:2px dashed var(--blu);vertical-align:middle;margin-right:5px"></span>Faturação expectável</span>
+      <span><span style="display:inline-block;width:20px;height:1px;border-top:2px dashed var(--blu);vertical-align:middle;margin-right:5px"></span>Faturação expectável (ajustada)</span>
       <span><span style="display:inline-block;width:20px;height:1px;border-top:2px dashed var(--amb);vertical-align:middle;margin-right:5px"></span>Custos orçamentais</span>
       <span><span class="leg-dot" style="background:var(--red);border-radius:50%"></span>Mês em risco</span>
     </div>
@@ -1587,27 +1589,42 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     }
   });
 
-  // Construir CF por mês — com linhas de referência orçamental
-  // Previsão orçamental de entradas: venda total distribuída linearmente pelos meses da obra
-  const vendaTotal = 553619.19;
-  const cdTotal2   = 430569.03; // CD total com TEEs aprovados
-  const entradaOrcMensal = vendaTotal / meses.length;
-  const saidaOrcMensal   = cdTotal2   / meses.length;
-  let entradaOrcAcum = 0, saidaOrcAcum = 0;
+  // Construir CF por mês
+  // vendaTotal vem do renderP2 via P e C passados
+  const vendaTotalOrc = num(C['Venda Contratual']) + num(C['TEE Venda']) || 553619.19;
+  const cdTotalOrc    = num(C['Custo Directo Contratual']) + num(C['TEE Custo']) || 430569.03;
+
+  // Calcular faturação acumulada real até hoje
+  let fatAcumReal = 0;
+  meses.forEach(m => {
+    const isReal = m.y < hojeY || (m.y===hojeY && m.m < hojeM);
+    if (isReal) fatAcumReal += entradasMes[`${m.y}-${m.m}`]||0;
+  });
+
+  // Faturação expectável adaptativa:
+  // Meses passados: o que deveria ter sido faturado (linear)
+  // Meses futuros: o que resta faturar (vendaTotal - fatAcumReal) distribuído pelos meses restantes
+  const mesesPassados = meses.filter(m => m.y < hojeY || (m.y===hojeY && m.m < hojeM)).length;
+  const mesesFuturos  = meses.length - mesesPassados;
+  const fatMensalIdeal = vendaTotalOrc / meses.length;
+  const fatRestante    = Math.max(0, vendaTotalOrc - fatAcumReal);
+  const fatMensalFuturo = mesesFuturos > 0 ? fatRestante / mesesFuturos : 0;
+
+  const saidaOrcMensal = cdTotalOrc / meses.length;
 
   const CF = meses.map((m, idx) => {
     const k = `${m.y}-${m.m}`;
     const isReal  = m.y < hojeY || (m.y===hojeY && m.m < hojeM);
     const isAtual = m.y===hojeY && m.m===hojeM;
-    entradaOrcAcum += entradaOrcMensal;
-    saidaOrcAcum   += saidaOrcMensal;
+    // Linha expectável: passado = ritmo ideal, futuro = ritmo ajustado pelo atraso acumulado
+    const entradaOrc = isReal || isAtual ? fatMensalIdeal : fatMensalFuturo;
     return {
       ...m,
-      entrada:       entradasMes[k]||0,
-      saida:         saidasMes[k]||0,
-      saidaEst:      saidasEstMes[k]||0,
-      entradaOrc:    entradaOrcMensal,   // referência orçamental mensal entradas
-      saidaOrc:      saidaOrcMensal,     // referência orçamental mensal saídas
+      entrada:    entradasMes[k]||0,
+      saida:      saidasMes[k]||0,
+      saidaEst:   saidasEstMes[k]||0,
+      entradaOrc, // linha expectável adaptativa
+      saidaOrc:   saidaOrcMensal,
       real: isReal, atual: isAtual
     };
   });
@@ -1621,7 +1638,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
   const hdrCols = 'grid-template-columns: 160px 80px 1fr 50px';
   let ganttHTML = `<div class="gantt-row header" style="${hdrCols}">
     <div style="padding:0 8px">Fase</div>
-    <div style="padding:0 8px;font-size:9px">Sub.</div>
+    <div style="padding:0 8px;font-size:9px">Trabalho</div>
     <div style="padding:0 4px">
       <div style="display:flex">
         ${mesesHdr.map((ml,i) => {
@@ -1647,7 +1664,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     const cor   = FASE_CORES[codClean] || '#4A6090';
     // Nome da fase — nova estrutura usa 'Descrição / Trabalhos', antiga usava 'Fase'
     const faseNome = f['Fase'] || f['Descrição / Trabalhos'] || codClean;
-    const faseDesc = faseNome.split('|')[0].replace(/^F\d{2}\s*[—-]\s*/,'').trim().slice(0,22);
+    const faseDesc = (f['Descrição / Trabalhos'] || f['Fase'] || codClean).split('|')[0].replace(/^F\d{2}\s*[—\-\s]+/,'').trim().slice(0,24);
 
     let barraReal = '';
     if (dIR) {
@@ -1656,7 +1673,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     }
 
     ganttHTML += `<div class="gantt-row" style="${hdrCols}">
-      <div class="gantt-fase">${codClean} — ${faseNome.split('|')[0].trim().slice(0,25)}</div>
+      <div class="gantt-fase">${codClean}</div>
       <div style="padding:0 8px;font-size:10px;color:var(--tx3)">${faseDesc}</div>
       <div style="position:relative;padding:4px">
         <div class="gantt-bar-wrap">
@@ -1664,7 +1681,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
           <div class="gantt-bar" style="left:${left}%;width:${width}%;background:${cor}25;border:1px solid ${cor}55">
             <div style="position:absolute;left:0;top:0;height:100%;width:${p}%;background:${cor};border-radius:3px 0 0 3px;opacity:0.75"></div>
             ${barraReal}
-            <span class="gantt-bar-label" style="position:relative;z-index:1">${faseNome.split('|')[0].trim().slice(0,20)}</span>
+            <span class="gantt-bar-label" style="position:relative;z-index:1">${codClean} — ${faseDesc}</span>
           </div>
         </div>
       </div>
