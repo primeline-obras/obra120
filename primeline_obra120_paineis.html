@@ -1139,7 +1139,7 @@ const FASE_CORES = {
 };
 
 // ── RENDER PAINEL 1 ───────────────────────────────────
-function renderP1(P, C, tees, subs, fases) {
+function renderP1(P, C, tees, subs) {
   const vendaContratual = num(C['Venda Contratual']);
   const cdContratual    = num(C['Custo Directo Contratual']);
   const teeVenda        = num(C['TEE Venda']);
@@ -1162,16 +1162,8 @@ function renderP1(P, C, tees, subs, fases) {
   const porFaturar      = num(C['Valor Por Faturar']);
   const pctFat          = vendaTotal ? faturado/vendaTotal*100 : 0;
   const pctPrazo        = num(P['% Prazo Consumido']);
-  // % Obra Executada — calculada a partir do planeamento
-  const fasesPrincipais = (fases||[]).filter(f => /^F\d{2}( —|$)/.test(String(f['Código']||'').trim()));
-  let pctObraCalc = null;
-  if (fasesPrincipais.length > 0) {
-    const soma = fasesPrincipais.reduce((s,f) => s + num(f['% Ponderada'] || f['% Executado']), 0);
-    pctObraCalc = soma / fasesPrincipais.length;
-  }
-  const pctObraRaw   = String(P['% Obra Executada']||'').replace('%','').trim();
-  const pctObraManual = pctObraRaw ? parseFloat(pctObraRaw) : null;
-  const pctObra = pctObraCalc !== null && pctObraCalc > 0 ? pctObraCalc : pctObraManual;
+  const pctObraRaw      = String(P['% Obra Executada']||'').replace('%','').trim();
+  const pctObra         = pctObraRaw ? parseFloat(pctObraRaw) : null;
   const margRealEur     = num(C['Margem Real YTD']);
   const margRealPct     = num(C['Margem Real YTD %']);
   const desvio          = num(C['Desvio Orç %']);
@@ -1399,7 +1391,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
       return isNaN(d.getTime()) ? null : d;
     } catch { return null; }
   };
-  const fasesData = fases.filter(f => f['Código'] && /^F\d{2}( —|$)/.test(String(f['Código']).trim()));
+  const fasesData = fases.filter(f => f['Código']);
 
   const obraInicio = fasesData.reduce((min, f) => {
     const d = toDate(f['Data Início']); return d && (!min || d < min) ? d : min;
@@ -1547,7 +1539,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
   const hdrCols = 'grid-template-columns: 160px 80px 1fr 50px';
   let ganttHTML = `<div class="gantt-row header" style="${hdrCols}">
     <div style="padding:0 8px">Fase</div>
-    <div style="padding:0 8px;font-size:9px">Trabalho</div>
+    <div style="padding:0 8px;font-size:9px">Sub.</div>
     <div style="padding:0 4px">
       <div style="display:flex">
         ${mesesHdr.map((ml,i) => {
@@ -1565,14 +1557,9 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     if (!dI || !dF) return;
     const left  = Math.max(0, (dI - obraInicio) / totalMs * 100).toFixed(1);
     const width = Math.max(1, (dF - dI)         / totalMs * 100).toFixed(1);
-    const p       = num(f['% Ponderada']) || num(f['% Executado']);
-    // Extrai código limpo "F01" de "F01 — ESTALEIRO | Preliminary Work"
-    const codRaw  = String(f['Código']||'').trim();
-    const codClean = codRaw.split(/[\s—]/)[0].trim();
-    const cor     = FASE_CORES[codClean] || FASE_CORES[f['Código']] || '#4A6090';
-    // Nome da fase: coluna 'Descrição / Trabalhos' ou 'Fase', sem parte inglesa e sem código
-    const faseNomeRaw = f['Descrição / Trabalhos'] || f['Fase'] || codClean;
-    const faseDesc = faseNomeRaw.split('|')[0].replace(/^F\d{2}[\s—\-]+/,'').trim().slice(0,22);
+    const p     = num(f['% Executado']);
+    const cor   = FASE_CORES[f['Código']] || '#4A6090';
+    const sub   = (f['Subempreiteiro']||'').split('/')[0].trim().slice(0,8);
 
     // Barra real (se data fim real existir)
     let barraReal = '';
@@ -1582,15 +1569,15 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     }
 
     ganttHTML += `<div class="gantt-row" style="${hdrCols}">
-      <div class="gantt-fase">${codClean}</div>
-      <div style="padding:0 8px;font-size:10px;color:var(--tx3)">${faseDesc}</div>
+      <div class="gantt-fase">${f['Código']} — ${f['Fase']}</div>
+      <div style="padding:0 8px;font-size:10px;color:var(--tx3)">${sub}</div>
       <div style="position:relative;padding:4px">
         <div class="gantt-bar-wrap">
           <div class="gantt-today" style="left:${(hojePos*100).toFixed(1)}%"></div>
           <div class="gantt-bar" style="left:${left}%;width:${width}%;background:${cor}25;border:1px solid ${cor}55">
             <div style="position:absolute;left:0;top:0;height:100%;width:${p}%;background:${cor};border-radius:3px 0 0 3px;opacity:0.75"></div>
             ${barraReal}
-            <span class="gantt-bar-label" style="position:relative;z-index:1">${codClean} — ${faseDesc}</span>
+            <span class="gantt-bar-label" style="position:relative;z-index:1">${f['Fase']}</span>
           </div>
         </div>
       </div>
@@ -1769,7 +1756,7 @@ function renderP3(fases, subs, tees, pdes, des, P) {
   };
   const hoje = new Date();
   const em60dias = new Date(hoje.getTime() + 60*24*60*60*1000);
-  const fasesData = fases.filter(f => f['Código'] && /^F\d{2}( —|$)/.test(String(f['Código']).trim()));
+  const fasesData = fases.filter(f => f['Código']);
 
   // Header
   const semana = Math.ceil((hoje - new Date(hoje.getFullYear(), 0, 1)) / 604800000);
@@ -2004,7 +1991,7 @@ async function loadData() {
       'Mês': m['Mês'], 'Valor (€)': m['Valor (€)'], '% Afectação Obra': '100'
     }))];
 
-    try { renderP1(P, C, tees, subs, fases); } catch(e) { console.error('renderP1:', e); }
+    try { renderP1(P, C, tees, subs); } catch(e) { console.error('renderP1:', e); }
     try { renderP2(fases, fat, todosOsCustos, [], pags, subs); } catch(e) { console.error('renderP2:', e); }
     try { renderP3(fases, subs, tees, pdes, des, P); } catch(e) { console.error('renderP3:', e); }
 
