@@ -1095,18 +1095,42 @@ function fmtDate(v, mesesOnly=false) {
 function toObjArray(rows) {
   if (!rows || rows.length < 2) return [];
   let headerIdx = 0;
-  for (let i = 0; i < Math.min(rows.length, 5); i++) {
-    const firstCell = String(rows[i][0] || '');
-    if (firstCell &&
-        !firstCell.includes('PRIMELINE') &&
-        !firstCell.includes('Obra 120') &&
-        !firstCell.includes('Data:') &&
-        !firstCell.includes('NÃO EDITAR') &&
-        !firstCell.includes(' ')) {
-      headerIdx = i;
-      break;
-    }
+  for (let i = 0; i < Math.min(rows.length, 6); i++) {
+    const firstCell = String(rows[i][0] || '').trim();
+    if (!firstCell) continue;
+    // Ignorar linhas de cabeçalho Primeline
+    if (firstCell.includes('PRIMELINE')) continue;
+    if (firstCell.includes('Obra 120')) continue;
+    if (firstCell.startsWith('Índice') || firstCell.startsWith('Registo') ||
+        firstCell.startsWith('Planeamento') || firstCell.startsWith('Subempreitadas')) continue;
+    if (firstCell.includes('NÃO EDITAR')) continue;
+    if (firstCell === ' ' || firstCell === '') continue;
+    // Esta linha é o header real
+    headerIdx = i;
+    break;
   }
+  const hdrs = rows[headerIdx];
+  // Só ler as primeiras 9 colunas (evitar colunas bilingues)
+  const maxCols = Math.min(hdrs.length, 9);
+  return rows.slice(headerIdx + 1)
+    .filter(r => {
+      if (!r.some(v => v !== null && v !== undefined && v !== '')) return false;
+      const first = String(r[0]||'').trim();
+      if (first.startsWith('TOTAL') || first.startsWith('TOTAIS')) return false;
+      if (first.startsWith('Primeline Engenharia')) return false;
+      if (first.startsWith('LEGENDA') || first.startsWith('NOTA:')) return false;
+      if (first.startsWith('Linha de fase') || first.startsWith('Grupo /') || first.startsWith('Subitem')) return false;
+      if (first.startsWith('  ──') || first.startsWith('──')) return false;
+      return true;
+    })
+    .map(r => {
+      const o = {};
+      hdrs.slice(0, maxCols).forEach((h, i) => {
+        o[String(h||'')] = r[i] !== undefined ? r[i] : '';
+      });
+      return o;
+    });
+}
   const hdrs = rows[headerIdx];
   return rows.slice(headerIdx + 1)
     .filter(r => {
