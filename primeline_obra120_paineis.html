@@ -396,11 +396,10 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   justify-content: center;
   gap: 2px;
   height: 200px;
-  padding-top: 0;
+  width: 100%;
   flex: 1;
 }
 .tl-col { flex: 1; display: flex; flex-direction: column; gap: 3px; align-items: center; }
-.tl-bars { display: flex; gap: 2px; align-items: flex-end; width: 100%; }
 .bar-in { flex: 1; border-radius: 3px 3px 0 0; background: var(--blu); min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); position: relative; }
 .bar-out { flex: 1; border-radius: 0 0 3px 3px; background: var(--amb); min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); }
 .bar-est { flex: 1; border-radius: 3px 3px 0 0; background: var(--amb); opacity: 0.35; min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); border-top: 1px dashed var(--amb); }
@@ -788,7 +787,22 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   <!-- SUBEMPREITADAS -->
   <div class="sec">Subempreitadas</div>
   <div class="card tbl-wrap">
-    <table>
+    <table style="table-layout:fixed">
+      <colgroup>
+        <col style="width:13%">
+        <col style="width:11%">
+        <col style="width:7%">
+        <col style="width:7%">
+        <col style="width:8%">
+        <col style="width:8%">
+        <col style="width:7%">
+        <col style="width:8%">
+        <col style="width:9%">
+        <col style="width:7%">
+        <col style="width:7%">
+        <col style="width:5%">
+        <col style="width:8%">
+      </colgroup>
       <thead><tr>
         <th>Subempreiteiro / Fornecedor</th>
         <th>Especialidade</th>
@@ -864,13 +878,13 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
       <span><span style="display:inline-block;width:20px;height:1px;border-top:2px dashed var(--amb);vertical-align:middle;margin-right:5px"></span>Custos orçamentais</span>
       <span><span class="leg-dot" style="background:var(--red);border-radius:50%"></span>Mês em risco</span>
     </div>
-    <div style="font-size:11px;color:var(--tx3);margin-top:8px;font-family:var(--mono);line-height:1.6">
-      <strong style="color:var(--tx2)">Saldo acumulado (∑)</strong> — soma de entradas menos saídas desde o início da obra até ao mês. Indica se a obra está a gerar ou consumir caixa.
-      &nbsp;·&nbsp;
-      <strong style="color:var(--tx2)">Saldo previsional</strong> — mesmo cálculo projectado até ao fim da obra, incluindo estimativas futuras.
-    </div>
     <div class="chart-wrap" id="cf-chart-wrap">
       <div class="timeline" id="cf-chart"></div>
+    </div>
+    <div style="font-size:12px;color:var(--tx3);margin-top:8px;margin-bottom:4px;font-family:var(--mono);line-height:1.6;padding:0 4px">
+      <strong style="color:var(--tx2)">Saldo acumulado (∑)</strong> — entradas menos saídas desde o início da obra até ao mês. Indica se a obra está a gerar ou a consumir caixa.
+      &nbsp;·&nbsp;
+      <strong style="color:var(--tx2)">Saldo previsional</strong> — mesmo cálculo projectado até ao fim da obra com estimativas futuras.
     </div>
     <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap" id="cf-summary"></div>
   </div>
@@ -1788,7 +1802,7 @@ function renderP3(fases, subs, tees, pdes, des, P) {
     const totalDias = (dF - dI) / 86400000;
     const diasDecorridos = Math.max(0, (hoje - dI) / 86400000);
     const pctEsperado = Math.min(100, diasDecorridos / totalDias * 100);
-    const desvio = pctEsperado - pctF * 100;
+    const desvio = pctEsperado - pctF;  // sheet guarda % como 35 não 0.35
     if (desvio <= 0) return 'verde';
     if (desvio <= 15) return 'ambar';
     return 'vermelho';
@@ -1798,7 +1812,7 @@ function renderP3(fases, subs, tees, pdes, des, P) {
 
   document.getElementById('p3-semaforo').innerHTML = fasesData.map(f => {
     const sem = semaforoFase(f);
-    const pctF = Math.round(num(f['% Executado']) * 100);
+    const pctF = Math.round(num(f['% Executado']));  // sheet guarda % como 35 não 0.35
     const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
     const dFR = toDate(f['Data Fim Real']);
     let nota = '';
@@ -1887,7 +1901,7 @@ function renderP3(fases, subs, tees, pdes, des, P) {
         items.push({ cor: 'var(--blu)', texto: f['Código'] + ' — ' + f['Fase'] + ': arranque previsto', sub: fmtDate(dI) + (f['Subempreiteiro'] ? ' · ' + f['Subempreiteiro'] : ''), urg: (dI-hoje)/86400000 });
       if (dF && dF >= hoje && dF <= limite && pctF < 1) {
         const df = Math.round((dF-hoje)/86400000);
-        items.push({ cor: df < 14 ? 'var(--red)' : 'var(--amb)', texto: f['Código'] + ' — ' + f['Fase'] + ': fim previsto', sub: fmtDate(dF) + ' · ' + Math.round(pctF*100) + '% executado', urg: df });
+        items.push({ cor: df < 14 ? 'var(--red)' : 'var(--amb)', texto: f['Código'] + ' — ' + f['Fase'] + ': fim previsto', sub: fmtDate(dF) + ' · ' + Math.round(pctF) + '% executado', urg: df });
       }
     });
     subsRisco.filter(s => s.diasParaArranque >= 0 && s.diasParaArranque <= dias).forEach(s =>
@@ -1926,8 +1940,8 @@ function renderP3(fases, subs, tees, pdes, des, P) {
   // Fases com prazo ultrapassado
   fasesData.forEach(f => {
     const dF = toDate(f['Data Fim Prevista']);
-    if (dF && dF < hoje && num(f['% Executado']) < 1 && String(f['Estado']||'') !== 'Concluído')
-      accoes.push({ prio: 'urgente', texto: f['Código'] + ' — ' + f['Fase'] + ': prazo ultrapassado (' + Math.round(num(f['% Executado'])*100) + '% exec.)', fase: f['Código'] });
+    if (dF && dF < hoje && num(f['% Executado']) < 100 && String(f['Estado']||'') !== 'Concluído')
+      accoes.push({ prio: 'urgente', texto: f['Código'] + ' — ' + f['Fase'] + ': prazo ultrapassado (' + Math.round(num(f['% Executado'])) + '% exec.)', fase: f['Código'] });
   });
 
   document.getElementById('p3-accoes').innerHTML = accoes.length
