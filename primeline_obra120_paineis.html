@@ -1061,6 +1061,11 @@ function num(v) {
   return parseFloat(s) || 0;
 }
 
+function fasePct(f) {
+  const exec = f['% Executado'];
+  return (exec !== null && exec !== undefined && exec !== '') ? num(exec) : num(f['% Ponderada']);
+}
+
 function fmtDate(v, mesesOnly=false) {
   if (!v || v === '') return '—';
   let d;
@@ -1301,7 +1306,7 @@ function renderP1(P, C, tees, subs) {
     const pago = subN(r,'Valor Pago','Pago');
     const falt = subN(r,'Valor em Falta','Em Falta');
     const pctP = adj ? pago/adj*100 : 0;
-    const difCD  = adj && cd ? adj - cd : 0;
+    const difCD  = adj && cd ? cd - adj : 0;
     const margEmp = adj && pv ? pv - adj : 0;
     const empresa = r['Subempreiteiro'] || r['Empresa / Fornecedor'] || r['Empresa'] || '—';
 
@@ -1434,7 +1439,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
 
   // Calcular peso de cada fase futura por mês
   const pesos = {}; // k -> peso
-  fasesData.filter(f => num(f['% Executado']) < 100).forEach(f => {
+  fasesData.filter(f => fasePct(f) < 100).forEach(f => {
     const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
     if (!dI || !dF) return;
     const duracaoMs = dF - dI;
@@ -1538,6 +1543,12 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
 
   const ganttEl = document.getElementById('gantt');
   const hdrCols = 'grid-template-columns: 160px 80px 1fr 50px';
+  const fasesGantt = fases.filter(f => /^F\d{2}\.\d+/.test(String(f['Código']||'')));
+  const faseNome = {};
+  fasesData.forEach(f => {
+    const codigo = String(f['Código']||'').match(/^F\d{2}/)?.[0];
+    if (codigo) faseNome[codigo] = String(f['Código']||'').replace(/^F\d{2}\s*[—-]?\s*/, '').split('|')[0].trim();
+  });
   let ganttHTML = `<div class="gantt-row header" style="${hdrCols}">
     <div style="padding:0 8px">Fase</div>
     <div style="padding:0 8px;font-size:9px">Sub.</div>
@@ -1552,15 +1563,18 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     <div style="padding:0 8px">%</div>
   </div>`;
 
-  fasesData.forEach(f => {
+  fasesGantt.forEach(f => {
     const dI  = toDate(f['Data Início']),      dF  = toDate(f['Data Fim Prevista']);
     const dIR = toDate(f['Data Fim Real']);     // data real se existir
     if (!dI || !dF) return;
     const left  = Math.max(0, (dI - obraInicio) / totalMs * 100).toFixed(1);
     const width = Math.max(1, (dF - dI)         / totalMs * 100).toFixed(1);
     const p     = num(f['% Executado']);
-    const cor   = FASE_CORES[f['Código']] || '#4A6090';
-    const sub   = (f['Subempreiteiro']||'').split('/')[0].trim().slice(0,8);
+    const codigo = String(f['Código']||'');
+    const faseCod = codigo.match(/^F\d{2}/)?.[0] || codigo;
+    const cor   = FASE_CORES[faseCod] || '#4A6090';
+    const fase  = faseNome[faseCod] || faseCod;
+    const sub   = String(f['Descrição / Trabalhos']||'').trim();
 
     // Barra real (se data fim real existir)
     let barraReal = '';
@@ -1570,15 +1584,15 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     }
 
     ganttHTML += `<div class="gantt-row" style="${hdrCols}">
-      <div class="gantt-fase">${f['Código']} — ${f['Fase']}</div>
-      <div style="padding:0 8px;font-size:10px;color:var(--tx3)">${sub}</div>
+      <div class="gantt-fase">${faseCod} — ${fase}</div>
+      <div style="padding:0 8px;font-size:10px;color:var(--tx3)">${codigo}</div>
       <div style="position:relative;padding:4px">
         <div class="gantt-bar-wrap">
           <div class="gantt-today" style="left:${(hojePos*100).toFixed(1)}%"></div>
           <div class="gantt-bar" style="left:${left}%;width:${width}%;background:${cor}25;border:1px solid ${cor}55">
             <div style="position:absolute;left:0;top:0;height:100%;width:${p}%;background:${cor};border-radius:3px 0 0 3px;opacity:0.75"></div>
             ${barraReal}
-            <span class="gantt-bar-label" style="position:relative;z-index:1">${f['Fase']}</span>
+            <span class="gantt-bar-label" style="position:relative;z-index:1">${codigo} — ${sub}</span>
           </div>
         </div>
       </div>
@@ -1691,7 +1705,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
 
   // Simulador — actualiza fases disponíveis
   const simFase = document.getElementById('sim-fase');
-  simFase.innerHTML = fasesData.filter(f=>num(f['% Executado'])<100).map(f =>
+  simFase.innerHTML = fasesData.filter(f=>fasePct(f)<100).map(f =>
     `<option value="${f['Código']}">${f['Código']} — ${f['Fase']} (${f['Subempreiteiro']||'Primeline'})</option>`
   ).join('');
 
@@ -1782,7 +1796,7 @@ function renderP3(fases, subs, tees, pdes, des, P) {
   function semaforoFase(f) {
     const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
     const dFR = toDate(f['Data Fim Real']);
-    const pctF = num(f['% Executado']);
+    const pctF = fasePct(f);
     if (String(f['Estado']||'') === 'Concluído' || dFR) return 'verde';
     if (!dI || !dF) return 'cinza';
     if (dI > hoje) return 'cinza';
@@ -1799,7 +1813,7 @@ function renderP3(fases, subs, tees, pdes, des, P) {
 
   document.getElementById('p3-semaforo').innerHTML = fasesData.map(f => {
     const sem = semaforoFase(f);
-    const pctF = num(f['% Executado']); // sheet guarda 35, não 0.35
+    const pctF = fasePct(f); // sheet guarda 35, não 0.35
     const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
     const dFR = toDate(f['Data Fim Real']);
     let nota = '';
@@ -1882,7 +1896,7 @@ function renderP3(fases, subs, tees, pdes, des, P) {
     const items = [];
     fasesData.forEach(f => {
       const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
-      const pctF = num(f['% Executado']);
+      const pctF = fasePct(f);
       if (String(f['Estado']||'') === 'Concluído') return;
       if (dI && dI >= hoje && dI <= limite)
         items.push({ cor: 'var(--blu)', texto: f['Código'] + ' — ' + f['Fase'] + ': arranque previsto', sub: fmtDate(dI) + (f['Subempreiteiro'] ? ' · ' + f['Subempreiteiro'] : ''), urg: (dI-hoje)/86400000 });
@@ -1927,8 +1941,8 @@ function renderP3(fases, subs, tees, pdes, des, P) {
   // Fases com prazo ultrapassado
   fasesData.forEach(f => {
     const dF = toDate(f['Data Fim Prevista']);
-    if (dF && dF < hoje && num(f['% Executado']) < 1 && String(f['Estado']||'') !== 'Concluído')
-      accoes.push({ prio: 'urgente', texto: f['Código'] + ' — ' + f['Fase'] + ': prazo ultrapassado (' + Math.round(num(f['% Executado'])*100) + '% exec.)', fase: f['Código'] });
+    if (dF && dF < hoje && fasePct(f) < 1 && String(f['Estado']||'') !== 'Concluído')
+      accoes.push({ prio: 'urgente', texto: f['Código'] + ' — ' + f['Fase'] + ': prazo ultrapassado (' + Math.round(fasePct(f)) + '% exec.)', fase: f['Código'] });
   });
 
   document.getElementById('p3-accoes').innerHTML = accoes.length
