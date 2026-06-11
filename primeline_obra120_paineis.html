@@ -362,8 +362,21 @@ tbody tr { border-bottom: 1px solid var(--bd); transition: background 0.1s; }
 tbody tr:hover { background: var(--s2); }
 tbody td { padding: 9px 12px; vertical-align: middle; white-space: nowrap; }
 tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color: var(--grn); background: var(--s2); border-top: 1px solid var(--bd2); white-space: nowrap; }
-.subs-table { min-width: 1500px; }
-.subs-table thead th, .subs-table tbody td, .subs-table tfoot td { padding-left: 16px; padding-right: 16px; }
+.subs-table { min-width: 2300px; table-layout: auto; }
+.subs-table thead th, .subs-table tbody td, .subs-table tfoot td { padding-left: 22px; padding-right: 22px; }
+.subs-table th:nth-child(1), .subs-table td:nth-child(1) { min-width: 210px; }
+.subs-table th:nth-child(2), .subs-table td:nth-child(2) { min-width: 210px; }
+.subs-table th:nth-child(3), .subs-table td:nth-child(3),
+.subs-table th:nth-child(4), .subs-table td:nth-child(4),
+.subs-table th:nth-child(5), .subs-table td:nth-child(5),
+.subs-table th:nth-child(6), .subs-table td:nth-child(6),
+.subs-table th:nth-child(7), .subs-table td:nth-child(7),
+.subs-table th:nth-child(8), .subs-table td:nth-child(8),
+.subs-table th:nth-child(10), .subs-table td:nth-child(10),
+.subs-table th:nth-child(11), .subs-table td:nth-child(11) { min-width: 150px; }
+.subs-table th:nth-child(9), .subs-table td:nth-child(9),
+.subs-table th:nth-child(12), .subs-table td:nth-child(12),
+.subs-table th:nth-child(13), .subs-table td:nth-child(13) { min-width: 120px; }
 .subs-table tbody tr.sub-ok { background: rgba(60, 185, 120, 0.08); }
 .subs-table tbody tr.sub-consulta { background: rgba(220, 160, 55, 0.09); }
 .subs-table tbody tr.sub-risco { background: rgba(235, 90, 90, 0.08); }
@@ -408,10 +421,10 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   flex: 1;
 }
 .tl-col { flex: 1; display: flex; flex-direction: column; gap: 3px; align-items: center; }
-.tl-bars { display: flex; gap: 2px; align-items: flex-end; width: 100%; }
-.bar-in { flex: 1; border-radius: 3px 3px 0 0; background: var(--blu); min-height: 8px; transition: height 0.7s cubic-bezier(.4,0,.2,1); position: relative; box-shadow: 0 0 0 1px rgba(255,255,255,0.08) inset; }
-.bar-out { flex: 1; border-radius: 0 0 3px 3px; background: var(--amb); min-height: 8px; transition: height 0.7s cubic-bezier(.4,0,.2,1); box-shadow: 0 0 0 1px rgba(255,255,255,0.08) inset; }
-.bar-est { flex: 1; border-radius: 3px 3px 0 0; background: var(--amb); opacity: 0.45; min-height: 8px; transition: height 0.7s cubic-bezier(.4,0,.2,1); border-top: 1px dashed var(--amb); }
+.tl-bars { display: flex; gap: 6px; align-items: flex-end; width: 100%; }
+.bar-in { flex: 0 0 auto; border-radius: 3px 3px 0 0; background: var(--blu); min-height: 8px; transition: height 0.7s cubic-bezier(.4,0,.2,1); position: relative; box-shadow: 0 0 0 1px rgba(255,255,255,0.08) inset; }
+.bar-out { flex: 0 0 auto; border-radius: 0 0 3px 3px; background: var(--amb); min-height: 8px; transition: height 0.7s cubic-bezier(.4,0,.2,1); box-shadow: 0 0 0 1px rgba(255,255,255,0.08) inset; }
+.bar-est { flex: 0 0 auto; border-radius: 3px 3px 0 0; background: var(--amb); opacity: 0.45; min-height: 8px; transition: height 0.7s cubic-bezier(.4,0,.2,1); border-top: 1px dashed var(--amb); }
 .bar-in.neg { background: var(--red); }
 .tl-month { font-family: var(--mono); font-size: 9px; color: var(--tx3); margin-top: 5px; text-align: center; }
 .tl-month.current { color: var(--blu); }
@@ -1625,18 +1638,18 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     const risk = totalOut > m.entrada && (m.entrada > 0 || totalOut > 0);
     return `<div class="tl-col">
       <div class="tl-bars">
-        <div style="display:flex;flex-direction:column;align-items:center;width:48%">
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:48%;height:100%">
           <div style="font-size:10px;color:var(--blu);font-family:var(--mono);margin-bottom:2px;height:14px;line-height:14px;text-align:center">
             ${m.entrada>0?(m.entrada/1000).toFixed(0)+'k':''}
           </div>
           <div class="bar-in ${risk?'neg':''}" style="height:${m.entrada>0?Math.max(hIn,8):2}px;width:100%"
             title="${m.label} ${m.y}: Entradas ${eur(m.entrada)}"></div>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:center;width:48%">
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:48%;height:100%">
           <div style="font-size:10px;color:var(--amb);font-family:var(--mono);margin-bottom:2px;height:14px;line-height:14px;text-align:center">
             ${totalOut>0?(totalOut/1000).toFixed(0)+'k':''}
           </div>
-          <div style="display:flex;flex-direction:column;width:100%;gap:1px;align-self:flex-end">
+          <div style="display:flex;flex-direction:column;justify-content:flex-end;width:100%;gap:1px;align-self:flex-end">
             ${hEst>0?`<div class="bar-est" style="height:${Math.max(hEst,8)}px"
               title="${m.label} ${m.y}: Estimado ${eur(m.saidaEst)}"></div>`:''}
             ${hOut>0?`<div class="bar-out" style="height:${Math.max(hOut,8)}px"
