@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Primeline — Obra 120 QM-R-001</title>
+<title>Primeline — Obra 120 QM-R-001 v4</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
 <style>
 
@@ -1524,7 +1524,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
       ...m,
       entrada:       entradasMes[k]||0,
       saida:         saidasMes[k]||0,
-      saidaEst:      saidasEstMes[k]||0,
+      saidaEst:      isReal ? 0 : (saidasEstMes[k]||0),
       entradaOrc:    entradaOrcMensal,   // referência orçamental mensal entradas
       saidaOrc:      saidaOrcMensal,     // referência orçamental mensal saídas
       real: isReal, atual: isAtual
