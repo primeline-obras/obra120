@@ -125,6 +125,19 @@ html.light {
 .theme-toggle:hover { border-color: var(--blu); color: var(--blu); }
 .theme-icon { font-size: 14px; line-height: 1; transition: transform 0.3s; }
 .theme-toggle:hover .theme-icon { transform: rotate(20deg); }
+
+/* ── MODO TV ── */
+html.tv-mode body { font-size: 17px !important; }
+html.tv-mode .kpi-val { font-size: 34px !important; }
+html.tv-mode .kpi-tag { font-size: 13px !important; }
+html.tv-mode .sec { font-size: 15px !important; letter-spacing: 0.08em; }
+html.tv-mode table td, html.tv-mode table th { font-size: 14px !important; }
+html.tv-mode .tl-month { font-size: 13px !important; }
+html.tv-mode .bar-lbl { font-size: 12px !important; }
+html.tv-mode .oh-title { font-size: 26px !important; }
+html.tv-mode .page { max-width: 1600px !important; }
+html.tv-mode, html.tv-mode.light { --tx: #FFFFFF; --tx2: #D0E0F8; --tx3: #90A8C8; }
+html.tv-mode.light { --tx: #050F20; --tx2: #101E3C; --tx3: #304060; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
@@ -624,6 +637,10 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
     <span class="theme-icon" id="theme-icon">🌙</span>
     <span id="theme-label">Escuro</span>
   </button>
+  <button class="theme-toggle" onclick="toggleTV()" id="tv-btn" style="margin-left:6px">
+    <span>📺</span>
+    <span id="tv-label">TV</span>
+  </button>
 </nav>
 
 <!-- ════════════════════════════════════════════════════════
@@ -1009,6 +1026,13 @@ function toggleTheme() {
   document.getElementById('theme-label').textContent = isLight ? 'Claro' : 'Escuro';
   localStorage.setItem('primeline-theme', isLight ? 'light' : 'dark');
 }
+function toggleTV() {
+  const isTV = document.documentElement.classList.toggle('tv-mode');
+  const btn = document.getElementById('tv-btn');
+  document.getElementById('tv-label').textContent = isTV ? 'TV ON' : 'TV';
+  btn.style.borderColor = isTV ? 'var(--grn)' : '';
+  btn.style.color = isTV ? 'var(--grn)' : '';
+}
 
 // restore saved preference
 (function() {
@@ -1167,8 +1191,10 @@ function renderP1(P, C, tees, subs, fases) {
   const pctObraManual = pctObraRaw ? parseFloat(pctObraRaw) : null;
   const pctObra = pctObraCalc !== null && pctObraCalc > 0 ? pctObraCalc : pctObraManual;
   const margRealEur     = num(C['Margem Real YTD']);
-  const margRealPct     = num(C['Margem Real YTD %']);
-  const desvio          = num(C['Desvio Orç %']);
+  const margRealPctRaw  = num(C['Margem Real YTD %']);
+  const margRealPct     = margRealPctRaw < 2 ? margRealPctRaw * 100 : margRealPctRaw;
+  const desvioRaw       = num(C['Desvio Orç %']);
+  const desvio          = desvioRaw < 2 ? desvioRaw * 100 : desvioRaw;
 
   // Header
   document.querySelector('#p1 .oh-title').innerHTML =
@@ -1435,7 +1461,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
 
   // Calcular peso de cada fase futura por mês
   const pesos = {}; // k -> peso
-  fasesData.filter(f => num(f['% Executado']) < 100).forEach(f => {
+  fasesData.filter(f => (num(f['% Ponderada']) || num(f['% Executado'])) < 100).forEach(f => {
     const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
     if (!dI || !dF) return;
     const duracaoMs = dF - dI;
@@ -1482,7 +1508,12 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
   // Saídas estimadas — subempreitadas não adjudicadas distribuídas pela fase
   // Cria índice de fases por código para acesso rápido
   const faseIndex = {};
-  fasesData.forEach(f => { if (f['Código']) faseIndex[f['Código']] = f; });
+  fasesData.forEach(f => {
+    if (f['Código']) {
+      const m = String(f['Código']).trim().match(/^(F\d{2})/);
+      if (m) faseIndex[m[1]] = f;
+    }
+  });
 
   (subs||[]).filter(s => {
     const est = (s['Estado']||'').trim();
@@ -1562,7 +1593,8 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     const p       = num(f['% Ponderada']) || num(f['% Executado']);
     // Extrai código limpo "F01" de "F01 — ESTALEIRO | Preliminary Work"
     const codRaw  = String(f['Código']||'').trim();
-    const codClean = codRaw.split(/[\s—]/)[0].trim();
+    const codMatch = codRaw.match(/^(F\d{2})/);
+    const codClean = codMatch ? codMatch[1] : codRaw.split(/[\s—]/)[0].trim();
     const cor     = FASE_CORES[codClean] || FASE_CORES[f['Código']] || '#4A6090';
     // Nome da fase: coluna 'Descrição / Trabalhos' ou 'Fase', sem parte inglesa e sem código
     const faseNomeRaw = f['Descrição / Trabalhos'] || f['Fase'] || codClean;
@@ -1781,13 +1813,18 @@ function renderP3(fases, subs, tees, pdes, des, P) {
 
   // Mapa fase → data início
   const faseMap = {};
-  fasesData.forEach(f => { if (f['Código']) faseMap[f['Código'].trim()] = toDate(f['Data Início']); });
+  fasesData.forEach(f => {
+    if (f['Código']) {
+      const m = String(f['Código']).trim().match(/^(F\d{2})/);
+      if (m) faseMap[m[1]] = toDate(f['Data Início']);
+    }
+  });
 
   // ── SEMÁFORO POR FASE ──
   function semaforoFase(f) {
     const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
     const dFR = toDate(f['Data Fim Real']);
-    const pctF = num(f['% Executado']);
+    const pctF = num(f['% Ponderada']) || num(f['% Executado']);
     if (String(f['Estado']||'') === 'Concluído' || dFR) return 'verde';
     if (!dI || !dF) return 'cinza';
     if (dI > hoje) return 'cinza';
@@ -1804,7 +1841,7 @@ function renderP3(fases, subs, tees, pdes, des, P) {
 
   document.getElementById('p3-semaforo').innerHTML = fasesData.map(f => {
     const sem = semaforoFase(f);
-    const pctF = num(f['% Executado']); // sheet guarda 35, não 0.35
+    const pctFd = num(f['% Ponderada']) || num(f['% Executado']); // sheet guarda 35, não 0.35
     const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
     const dFR = toDate(f['Data Fim Real']);
     let nota = '';
@@ -1821,7 +1858,7 @@ function renderP3(fases, subs, tees, pdes, des, P) {
         '<span class="p3-fase-nome">' + (f['Fase']||'') + '</span>' +
         '<span class="p3-semaforo-dot" style="background:' + corSemaforo[sem] + '"></span>' +
       '</div>' +
-      '<div class="p3-fase-detail">' + sub + ' · ' + pctF + '% exec.</div>' +
+      '<div class="p3-fase-detail">' + sub + ' · ' + pctFd + '% exec.</div>' +
       '<div class="p3-fase-nota">' + nota + '</div>' +
     '</div>';
   }).join('') || '<div style="color:var(--tx3);padding:16px">Sem dados de planeamento</div>';
