@@ -905,6 +905,66 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   </div>
 </div>
 
+
+<!-- ════════════════════════════════════════════════════════
+     PAINEL 3 — DIRECTOR DE OBRA
+════════════════════════════════════════════════════════ -->
+<div class="page" id="p3">
+  <div class="obra-header">
+    <div>
+      <div class="oh-eyebrow">Primeline Engenharia e Construção</div>
+      <div class="oh-title">Director de Obra <span class="oh-ref">QM-R-001</span></div>
+      <div class="oh-desc">Estado semanal · Riscos · Acções prioritárias · Obra 120</div>
+    </div>
+    <div class="oh-meta">
+      <div class="oh-item"><span class="lbl">Semana</span><span class="val" id="p3-semana">—</span></div>
+      <div class="oh-item"><span class="lbl">% Obra</span><span class="val" id="p3-pct-obra" style="color:var(--grn)">—</span></div>
+      <div class="oh-item"><span class="lbl">Velocidade</span><span class="val" id="p3-velocidade">—</span></div>
+      <div class="oh-item"><span class="lbl">Prazo</span><span class="val">Jan 2027 <span class="pill pill-amb">+1M</span></span></div>
+    </div>
+  </div>
+
+  <div class="sec">Estado da obra — semáforo por fase</div>
+  <div id="p3-semaforo" class="p3-semaforo-grid"><div style="color:var(--tx3);font-size:13px;padding:16px">A carregar…</div></div>
+
+  <div class="sec">Subempreitadas críticas — fase arranca em &lt;60 dias sem adjudicação</div>
+  <div class="card tbl-wrap">
+    <table>
+      <thead><tr><th>Especialidade</th><th>Fase</th><th>Arranca em</th><th class="td-r">C.D. (€)</th><th>Estado</th><th>Acção</th></tr></thead>
+      <tbody id="p3-subs-criticas"><tr><td colspan="6" style="color:var(--tx3);text-align:center;padding:16px">A carregar…</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="sec">TEEs críticos — não aprovados</div>
+  <div class="card tbl-wrap">
+    <table>
+      <thead><tr><th>Número</th><th>Descrição</th><th>Estado</th><th class="td-r">Valor (€)</th><th>Especialidade</th><th>Nota</th></tr></thead>
+      <tbody id="p3-tees-criticos"><tr><td colspan="6" style="color:var(--tx3);text-align:center;padding:16px">A carregar…</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="g2">
+    <div>
+      <div class="sec">Próximas 4 semanas (30 dias)</div>
+      <div id="p3-30dias" class="p3-horizon-list"><div style="color:var(--tx3);font-size:13px">A carregar…</div></div>
+    </div>
+    <div>
+      <div class="sec">Próximos 2 meses (60 dias)</div>
+      <div id="p3-60dias" class="p3-horizon-list"><div style="color:var(--tx3);font-size:13px">A carregar…</div></div>
+    </div>
+  </div>
+
+  <div class="sec">Acções pendentes do Director de Obra</div>
+  <div id="p3-accoes" class="p3-accoes-list"><div style="color:var(--tx3);font-size:13px;padding:16px">A carregar…</div></div>
+
+  <div class="footer">
+    <span>Primeline · Obra 120 · QM-R-001</span>
+    <button class="refresh-btn" onclick="loadData()">↻ Actualizar</button>
+    <span id="p3-time"></span>
+  </div>
+</div>
+
+
 <script>
 // ── CONFIGURAÇÃO ─────────────────────────────────────
 const API_URL = "https://script.google.com/macros/s/AKfycbwER0TXxOzhGtQwH5kmAjV4qeHUfA8fTYIq05UkUl9Suw6R4ql4nc4905CJ7d7lq24/exec";
@@ -1033,9 +1093,11 @@ function renderP1(P, C, tees, subs) {
   const faturado        = num(C['Valor Faturado']);
   const porFaturar      = num(C['Valor Por Faturar']);
   const pctFat          = vendaTotal ? faturado/vendaTotal*100 : 0;
-  const pctPrazo        = num(P['% Prazo Consumido']);
+  const pctPrazoRaw = num(P['% Prazo Consumido']);
+  const pctPrazo = pctPrazoRaw < 1 ? pctPrazoRaw * 100 : pctPrazoRaw;
   const pctObraRaw      = String(P['% Obra Executada']||'').replace('%','').trim();
-  const pctObra         = pctObraRaw ? parseFloat(pctObraRaw) : null;
+  let pctObra           = pctObraRaw ? parseFloat(pctObraRaw) : null;
+  if (pctObra !== null && pctObra < 1) pctObra = pctObra * 100;
   const margRealEur     = num(C['Margem Real YTD']);
   const margRealPct     = num(C['Margem Real YTD %']);
   const desvio          = num(C['Desvio Orç %']);
@@ -1219,15 +1281,7 @@ function renderP1(P, C, tees, subs) {
     <td class="td-r">${totAdj?pct(totPago/totAdj*100):'—'}</td>
     <td></td>`;
 
-  // Sub-empreiteiros activos (cards)
-  document.getElementById('sub-cards').innerHTML = subsFilt
-    .filter(r => r['Empresa'] && ['Adjudicado','Fase consultas','Em execução','Activo'].includes(r['Estado']))
-    .map((r,i) => `
-      <div class="sub-card">
-        <span class="sub-dot" style="background:${subsCores[i%subsCores.length]}"></span>
-        <div><div class="sub-name">${r['Empresa']}</div><div class="sub-scope">${r['Especialidade']||''}</div></div>
-      </div>`).join('') || '<div style="color:var(--tx3);font-size:13px">Sem subempreiteiros activos</div>';
-
+  
   // Alertas — 3 quadros por prioridade
   const alertas = [];
   for (let i=1; i<=8; i++) {
