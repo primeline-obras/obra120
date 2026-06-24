@@ -969,12 +969,37 @@ function fmtDate(v, mesesOnly=false) {
 // Converte array de rows (cabeçalho + dados) em array de objectos
 function toObjArray(rows) {
   if (!rows || rows.length < 2) return [];
-  const hdrs = rows[0];
-  return rows.slice(1).map(r => {
-    const o = {};
-    hdrs.forEach((h,i) => o[h] = r[i] !== undefined ? r[i] : '');
-    return o;
-  });
+  // Encontrar a linha de cabecalho real (ignora linhas Primeline/obra/data)
+  let headerIdx = 0;
+  const headerHints = ['Código','Fase','Nº Fatura','Número','Subempreiteiro','Especialidade',
+    'Data Recebimento','Valor (€)','Descrição / Auto','Nome Funcionário','Nº Doc','Fornecedor',
+    'Nº Doc / Fatura','Data Fatura','Descrição / Trabalhos','Nº Doc / Ref.','Quant. Horas'];
+  for (let i = 0; i < Math.min(rows.length, 6); i++) {
+    const row = rows[i] || [];
+    const first = String(row[0] || '');
+    const hasHint = row.some(v => headerHints.includes(String(v || '').trim()));
+    if (hasHint && !first.includes('PRIMELINE') && !first.includes('Obra 120') &&
+        !first.includes('NÃO EDITAR') && !first.includes('Data:') &&
+        !first.includes('Índice') && !first.includes('Registo')) {
+      headerIdx = i;
+      break;
+    }
+  }
+  const hdrs = rows[headerIdx];
+  return rows.slice(headerIdx + 1)
+    .filter(r => {
+      if (!r.some(v => v !== null && v !== undefined && v !== '')) return false;
+      const first = String(r[0]||'').trim();
+      if (first.startsWith('TOTAL') || first.startsWith('TOTAIS')) return false;
+      if (first.startsWith('Primeline Engenharia')) return false;
+      if (first.startsWith('LEGENDA') || first.startsWith('NOTA:')) return false;
+      return true;
+    })
+    .map(r => {
+      const o = {};
+      hdrs.forEach((h, i) => { o[String(h||'')] = r[i] !== undefined ? r[i] : ''; });
+      return o;
+    });
 }
 
 // Converte aba chave/valor em objecto simples
@@ -1117,7 +1142,7 @@ function renderP1(P, C, tees, subs) {
   });
 
   // TEEs — colunas: Número, Descrição, Data Envio, Data Aprovação, Valor Apresentado (€), Aprovado (S/N), Preço Custo (€), Margem (€)
-  const teeAprovado = t => t['Aprovado (S/N)'] || t['Aprovado \n(S/N)'] || t['Aprovado\n(S/N)'] || '';
+  const teeAprovado = t => { const keys = Object.keys(t); const k = keys.find(k => k.replace(/\s+/g,' ').trim() === 'Aprovado (S/N)'); return k ? t[k] : ''; };
   const estadoTEE = v => {
     const s = String(v||'').trim().toUpperCase();
     if (s==='SIM' || s==='APROVADO') return 'Aprovado DO';
@@ -1129,12 +1154,14 @@ function renderP1(P, C, tees, subs) {
 
   const teesFiltrados = tees.filter(t => t['Número'] && t['Descrição']);
   const teesAprovados = teesFiltrados.filter(t => estadoTEE(teeAprovado(t))==='Aprovado DO');
-  const totalVTee = teesAprovados.reduce((s,t) => s+num(t['Valor Apresentado (€)']),0);
-  const totalCTee = teesAprovados.reduce((s,t) => s+num(t['Preço Custo (€)']),0);
+  const teeV = t => num(t['Valor (€) s/IVA'] || t['Valor Apresentado (€)'] || t['Valor (€)'] || 0);
+  const teeC = t => num(t['Preço Custo (€)'] || t['Custo (€)'] || 0);
+  const totalVTee = teesAprovados.reduce((s,t) => s+teeV(t),0);
+  const totalCTee = teesAprovados.reduce((s,t) => s+teeC(t),0);
   const totalMTee = totalVTee - totalCTee;
 
   document.getElementById('tees-tbody').innerHTML = teesFiltrados.map(t => {
-    const v = num(t['Valor Apresentado (€)']), c = num(t['Preço Custo (€)']), m = v-c;
+    const v = teeV(t), c = teeC(t), m = v-c;
     const estado = estadoTEE(teeAprovado(t));
     const aprov = estado === 'Aprovado DO';
     return `<tr>
