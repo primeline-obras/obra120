@@ -1367,6 +1367,15 @@ function renderP1(P, C, tees, subs) {
   document.getElementById('p1-time').textContent = 'Actualizado ' + now.toLocaleTimeString('pt-PT');
 }
 
+
+// Calcula % executado de uma fase (sheet guarda 35 = 35%, não 0.35)
+function fasePct(f) {
+  const pond = f['% Ponderada'];
+  if (pond !== null && pond !== undefined && pond !== '' && num(pond) > 0) return num(pond);
+  const exec = f['% Executado'];
+  return (exec !== null && exec !== undefined && exec !== '') ? num(exec) : 0;
+}
+
 // ── RENDER PAINEL 2 ───────────────────────────────────
 function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, subs) {
   // Calcular datas extremas da obra
@@ -1377,7 +1386,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
       return isNaN(d.getTime()) ? null : d;
     } catch { return null; }
   };
-  const fasesData = fases.filter(f => f['Código']);
+  const fasesData = fases.filter(f => /^F\d{2}( |—|$)/.test(String(f['Código']||'')));
 
   const obraInicio = fasesData.reduce((min, f) => {
     const d = toDate(f['Data Início']); return d && (!min || d < min) ? d : min;
@@ -1601,20 +1610,20 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     const hEst = Math.round(m.saidaEst  / maxVal * chartH);
     const totalOut = m.saida + m.saidaEst;
     const risk = totalOut > m.entrada && (m.entrada > 0 || totalOut > 0);
-    const lblIn  = m.entrada > 0 ? `<div style="position:absolute;bottom:${hIn+4}px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--blu);white-space:nowrap;font-family:var(--mono)">${(m.entrada/1000).toFixed(0)}k</div>` : '';
-    const lblOut = totalOut  > 0 ? `<div style="position:absolute;bottom:${Math.max(hOut,hOut+hEst)+4}px;right:0;font-size:9px;color:var(--amb);white-space:nowrap;font-family:var(--mono)">${(totalOut/1000).toFixed(0)}k</div>` : '';
     return `<div class="tl-col">
-      <div class="tl-bars" style="position:relative">
-        ${lblIn}
-        ${lblOut}
-        <div class="bar-in ${risk?'neg':''}" style="height:${Math.max(hIn,2)}px"
-          title="${m.label} ${m.y}: Entradas ${eur(m.entrada)}"></div>
-        <div style="display:flex;flex-direction:column;flex:1;align-items:stretch;gap:1px">
-          ${hEst>0?`<div class="bar-est" style="height:${Math.max(hEst,2)}px"
-            title="${m.label} ${m.y}: Estimado ${eur(m.saidaEst)}"></div>`:''}
-          ${hOut>0?`<div class="bar-out" style="height:${Math.max(hOut,2)}px"
-            title="${m.label} ${m.y}: Real ${eur(m.saida)}"></div>`:''}
-          ${!hOut&&!hEst?`<div class="bar-out" style="height:2px;opacity:0.2"></div>`:''}
+      <div class="tl-bars" style="align-items:flex-end">
+        <div style="display:flex;flex-direction:column;align-items:center;flex:1">
+          <div style="font-size:9px;color:var(--blu);font-family:var(--mono);height:14px;line-height:14px">${m.entrada>0?(m.entrada/1000).toFixed(0)+'k':''}</div>
+          <div class="bar-in ${risk?'neg':''}" style="height:${Math.max(hIn,2)}px;width:100%"
+            title="${m.label} ${m.y}: Entradas ${eur(m.entrada)}"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;flex:1">
+          <div style="font-size:9px;color:var(--amb);font-family:var(--mono);height:14px;line-height:14px">${totalOut>0?(totalOut/1000).toFixed(0)+'k':''}</div>
+          <div style="display:flex;flex-direction:column;width:100%;gap:1px;align-self:flex-end">
+            ${hEst>0?`<div class="bar-est" style="height:${Math.max(hEst,2)}px" title="${m.label} ${m.y}: Estimado ${eur(m.saidaEst)}"></div>`:''}
+            ${hOut>0?`<div class="bar-out" style="height:${Math.max(hOut,2)}px" title="${m.label} ${m.y}: Real ${eur(m.saida)}"></div>`:''}
+            ${!hOut&&!hEst?`<div class="bar-out" style="height:2px;opacity:0.2"></div>`:''}
+          </div>
         </div>
       </div>
       <div class="tl-month ${m.atual?'current':m.real?'':'future'}">${m.label}<br><span style="font-size:8px;opacity:0.6">${m.y2}</span></div>
