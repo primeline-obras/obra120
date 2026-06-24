@@ -573,6 +573,32 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   min-height: 18px;
   font-family: var(--mono);
 }
+
+/* ══════════════════════════════════════
+   PAINEL 3 — VISÃO DO DIRECTOR DE OBRA
+══════════════════════════════════════ */
+.p3-semaforo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; margin-bottom: 8px; }
+.p3-fase-card { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--r-md); padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; border-left: 4px solid transparent; }
+.p3-fase-card.verde   { border-left-color: var(--grn); }
+.p3-fase-card.ambar   { border-left-color: var(--amb); }
+.p3-fase-card.vermelho{ border-left-color: var(--red); }
+.p3-fase-card.cinza   { border-left-color: var(--tx3); }
+.p3-fase-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.p3-fase-cod  { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--tx3); }
+.p3-fase-nome { font-size: 13px; font-weight: 500; color: var(--tx); flex: 1; }
+.p3-semaforo-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.p3-fase-detail { font-size: 12px; color: var(--tx2); font-family: var(--mono); }
+.p3-fase-nota { font-size: 11px; color: var(--tx3); font-style: italic; line-height: 1.4; }
+.p3-horizon-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.p3-horizon-item { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--r-sm); padding: 10px 14px; display: flex; align-items: flex-start; gap: 10px; }
+.p3-horizon-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+.p3-horizon-text { font-size: 13px; line-height: 1.45; }
+.p3-horizon-sub  { font-size: 11px; color: var(--tx3); font-family: var(--mono); margin-top: 2px; }
+.p3-accoes-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.p3-accao-item { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--r-sm); padding: 12px 16px; display: flex; align-items: flex-start; gap: 12px; }
+.p3-accao-prio { font-family: var(--mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 8px; border-radius: 20px; white-space: nowrap; margin-top: 1px; flex-shrink: 0; }
+.p3-accao-texto { font-size: 13px; line-height: 1.5; flex: 1; }
+.p3-accao-fase  { font-size: 11px; color: var(--tx3); font-family: var(--mono); margin-top: 3px; }
 </style>
 </head>
 <body>
@@ -583,6 +609,7 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="showPage('p1',this)">Painel Financeiro</button>
     <button class="nav-tab" onclick="showPage('p2',this)">Cash Flow &amp; Planeamento</button>
+    <button class="nav-tab" onclick="showPage('p3',this)">Director de Obra</button>
   </div>
   <div class="nav-spacer"></div>
   <div class="nav-date" id="nav-date"></div>
@@ -905,6 +932,65 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   </div>
 </div>
 
+<!-- ════════════════════════════════════════════════════════
+     PAINEL 3 — VISÃO DO DIRECTOR DE OBRA
+════════════════════════════════════════════════════════ -->
+<div class="page" id="p3">
+  <div class="obra-header">
+    <div>
+      <div class="oh-eyebrow">Primeline Engenharia e Construção</div>
+      <div class="oh-title">Director de Obra <span class="oh-ref">QM-R-001</span></div>
+      <div class="oh-desc">Estado semanal · Riscos · Acções prioritárias · Obra 120</div>
+    </div>
+    <div class="oh-meta">
+      <div class="oh-item"><span class="lbl">Semana</span><span class="val" id="p3-semana">—</span></div>
+      <div class="oh-item"><span class="lbl">% Obra</span><span class="val" id="p3-pct-obra" style="color:var(--grn)">—</span></div>
+      <div class="oh-item"><span class="lbl">Velocidade</span><span class="val" id="p3-velocidade">—</span></div>
+      <div class="oh-item"><span class="lbl">Prazo</span><span class="val">Jan 2027 <span class="pill pill-amb">+1M</span></span></div>
+    </div>
+  </div>
+
+  <div class="sec">Estado da obra — semáforo por fase</div>
+  <div id="p3-semaforo" class="p3-semaforo-grid"><div style="color:var(--tx3);font-size:13px;padding:16px">A carregar…</div></div>
+
+  <div class="sec">Subempreitadas críticas — fase arranca em &lt;60 dias sem adjudicação</div>
+  <div class="card tbl-wrap">
+    <table>
+      <thead><tr><th>Especialidade</th><th>Fase</th><th>Arranca em</th><th class="td-r">C.D. (€)</th><th>Estado</th><th>Acção</th></tr></thead>
+      <tbody id="p3-subs-criticas"><tr><td colspan="6" style="color:var(--tx3);text-align:center;padding:16px">A carregar…</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="sec">TEEs críticos — não aprovados</div>
+  <div class="card tbl-wrap">
+    <table>
+      <thead><tr><th>Número</th><th>Descrição</th><th>Estado</th><th class="td-r">Valor (€)</th><th>Especialidade</th><th>Nota</th></tr></thead>
+      <tbody id="p3-tees-criticos"><tr><td colspan="6" style="color:var(--tx3);text-align:center;padding:16px">A carregar…</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="g2">
+    <div>
+      <div class="sec">Próximas 4 semanas (30 dias)</div>
+      <div id="p3-30dias" class="p3-horizon-list"><div style="color:var(--tx3);font-size:13px">A carregar…</div></div>
+    </div>
+    <div>
+      <div class="sec">Próximos 2 meses (60 dias)</div>
+      <div id="p3-60dias" class="p3-horizon-list"><div style="color:var(--tx3);font-size:13px">A carregar…</div></div>
+    </div>
+  </div>
+
+  <div class="sec">Acções pendentes do Director de Obra</div>
+  <div id="p3-accoes" class="p3-accoes-list"><div style="color:var(--tx3);font-size:13px;padding:16px">A carregar…</div></div>
+
+  <div class="footer">
+    <span>Primeline · Obra 120 · QM-R-001</span>
+    <button class="refresh-btn" onclick="loadData()">↻ Actualizar</button>
+    <span id="p3-time"></span>
+  </div>
+</div>
+
+
 <script>
 // ── CONFIGURAÇÃO ─────────────────────────────────────
 const API_URL = "https://script.google.com/macros/s/AKfycbwER0TXxOzhGtQwH5kmAjV4qeHUfA8fTYIq05UkUl9Suw6R4ql4nc4905CJ7d7lq24/exec";
@@ -1064,8 +1150,10 @@ function renderP1(P, C, tees, subs) {
   let   pctObra         = pctObraRaw ? parseFloat(pctObraRaw) : null;
   if (pctObra !== null && pctObra < 1) pctObra = pctObra * 100;
   const margRealEur     = num(C['Margem Real YTD']);
-  const margRealPct     = num(C['Margem Real YTD %']);
-  const desvio          = num(C['Desvio Orç %']);
+  const margRealPctRaw  = num(C['Margem Real YTD %']);
+  const margRealPct     = margRealPctRaw < 1 ? margRealPctRaw * 100 : margRealPctRaw;
+  const desvioRaw       = num(C['Desvio Orç %']);
+  const desvio          = desvioRaw < 1 ? desvioRaw * 100 : desvioRaw;
 
   // Header
   document.querySelector('#p1 .oh-title').innerHTML =
@@ -1658,6 +1746,200 @@ function simular() {
   document.getElementById('sim-result').classList.add('show');
 }
 
+
+// ── RENDER PAINEL 3 — DIRECTOR DE OBRA ──────────────────
+function renderP3(fases, subs, tees, P) {
+  const toDate = v => {
+    if (!v || v === '' || v === 0) return null;
+    try { const d = new Date(v); return isNaN(d.getTime()) ? null : d; } catch { return null; }
+  };
+  const hoje = new Date();
+  const em60dias = new Date(hoje.getTime() + 60*24*60*60*1000);
+  const fasesData = fases.filter(f => /^F\d{2}( |—|$)/.test(String(f['Código']||'')));
+
+  // Header
+  const semana = Math.ceil((hoje - new Date(hoje.getFullYear(), 0, 1)) / 604800000);
+  document.getElementById('p3-semana').textContent = 'Sem. ' + semana + ' · ' + hoje.toLocaleDateString('pt-PT', {day:'2-digit',month:'short',year:'numeric'});
+
+  const pctObraRaw = num(P['% Obra Executada']);
+  const pctObra = pctObraRaw < 1 ? pctObraRaw * 100 : pctObraRaw;
+  const pctPrazoRaw = num(P['% Prazo Consumido']);
+  const pctPrazo = pctPrazoRaw < 1 ? pctPrazoRaw * 100 : pctPrazoRaw;
+  document.getElementById('p3-pct-obra').textContent = pct(pctObra);
+  if (pctObra && pctPrazo > 0) {
+    const vel = pctObra / pctPrazo;
+    const velEl = document.getElementById('p3-velocidade');
+    velEl.textContent = vel.toFixed(2) + 'x';
+    velEl.style.color = vel >= 1 ? 'var(--grn)' : vel >= 0.8 ? 'var(--amb)' : 'var(--red)';
+  }
+
+  // Mapa fase → datas
+  const faseMap = {}, faseFimMap = {}, fasePctMap = {};
+  fasesData.forEach(f => {
+    const k = String(f['Código']).trim();
+    faseMap[k] = toDate(f['Data Início']);
+    faseFimMap[k] = toDate(f['Data Fim Prevista']);
+    fasePctMap[k] = fasePct(f);
+  });
+
+  // ── SEMÁFORO POR FASE ──
+  function semaforoFase(f) {
+    const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
+    const dFR = toDate(f['Data Fim Real']);
+    const pctF = fasePct(f);
+    if (String(f['Estado']||'') === 'Concluído' || dFR) return 'verde';
+    if (!dI || !dF || dI > hoje) return 'cinza';
+    const totalDias = (dF - dI) / 86400000;
+    const diasDecorridos = Math.max(0, (hoje - dI) / 86400000);
+    const pctEsperado = Math.min(100, diasDecorridos / totalDias * 100);
+    const desvio = pctEsperado - pctF;
+    if (desvio <= 0) return 'verde';
+    if (desvio <= 15) return 'ambar';
+    return 'vermelho';
+  }
+
+  const corSemaforo = { verde: 'var(--grn)', ambar: 'var(--amb)', vermelho: 'var(--red)', cinza: 'var(--tx3)' };
+
+  document.getElementById('p3-semaforo').innerHTML = fasesData.map(f => {
+    const sem = semaforoFase(f);
+    const pctF = fasePct(f);
+    const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
+    const dFR = toDate(f['Data Fim Real']);
+    const fNome = (f['Descrição / Trabalhos']||'').replace(/^F\d{2}\s*[—-]?\s*/, '').split('|')[0].trim();
+    const sub = f['Responsável'] || f['Subempreiteiro'] || 'Primeline';
+    let nota = '';
+    if (String(f['Estado']||'') === 'Concluído' || dFR) nota = 'Concluído ' + (dFR ? fmtDate(dFR) : '');
+    else if (dI && dI > hoje) nota = 'Arranque: ' + fmtDate(dI);
+    else if (dF) {
+      const diasFim = Math.round((dF - hoje) / 86400000);
+      nota = diasFim < 0 ? 'Prazo ultrapassado há ' + Math.abs(diasFim) + 'd' : diasFim + 'd para fim previsto';
+    }
+    return '<div class="p3-fase-card ' + sem + '">' +
+      '<div class="p3-fase-header">' +
+        '<span class="p3-fase-cod">' + (f['Código']||'') + '</span>' +
+        '<span class="p3-fase-nome">' + fNome + '</span>' +
+        '<span class="p3-semaforo-dot" style="background:' + corSemaforo[sem] + '"></span>' +
+      '</div>' +
+      '<div class="p3-fase-detail">' + sub + ' · ' + Math.round(pctF) + '% exec.</div>' +
+      '<div class="p3-fase-nota">' + nota + '</div>' +
+    '</div>';
+  }).join('') || '<div style="color:var(--tx3);padding:16px">Sem dados de planeamento</div>';
+
+  // ── SUBEMPREITADAS CRÍTICAS ──
+  const subsRisco = subs.filter(s => {
+    const est = String(s['Estado']||'').toLowerCase();
+    if (!est.includes('ainda não') && !est.includes('fase consultas')) return false;
+    if (num(s['C.D.']) <= 0) return false;
+    const faseKey = String(s['Fase']||'').trim();
+    const dI = faseMap[faseKey], dF = faseFimMap[faseKey];
+    const pctF = fasePctMap[faseKey] ?? 0;
+    return (dI || dF) && pctF < 100;
+  }).map(s => {
+    const faseKey = String(s['Fase']||'').trim();
+    const dI = faseMap[faseKey];
+    return { ...s, diasParaArranque: dI ? Math.round((dI - hoje) / 86400000) : 9999 };
+  }).sort((a,b) => a.diasParaArranque - b.diasParaArranque);
+
+  document.getElementById('p3-subs-criticas').innerHTML = subsRisco.length
+    ? subsRisco.map(s => {
+        const urgente = s.diasParaArranque <= 14;
+        const cor = urgente ? 'var(--red)' : 'var(--amb)';
+        const prazo = s.diasParaArranque < 0 ? 'Em curso' : s.diasParaArranque + 'd';
+        const cd = num(s['C.D.']);
+        return '<tr><td><strong>' + (s['Especialidade']||'—') + '</strong></td>' +
+          '<td class="td-mono">' + (s['Fase']||'—') + '</td>' +
+          '<td class="td-mono" style="color:' + cor + '">' + prazo + '</td>' +
+          '<td class="td-r">' + (cd ? eur(cd) : '—') + '</td>' +
+          '<td>' + estadoPill(s['Estado']) + '</td>' +
+          '<td style="font-size:12px;color:' + cor + '">' + (urgente ? 'Adjudicar urgente' : 'Confirmar e adjudicar') + '</td></tr>';
+      }).join('')
+    : '<tr><td colspan="6" style="color:var(--grn);text-align:center;padding:16px">✓ Sem subempreitadas críticas nos próximos 60 dias</td></tr>';
+
+  // ── TEEs CRÍTICOS ──
+  const teeAprovadoP3 = t => { const keys = Object.keys(t); const k = keys.find(k => k.replace(/\s+/g,' ').trim() === 'Aprovado (S/N)'); return k ? t[k] : ''; };
+  const teesCrit = tees.filter(t => {
+    const aprov = String(teeAprovadoP3(t)||'').trim().toUpperCase();
+    if (aprov === 'SIM' || aprov === 'APROVADO') return false;
+    return t['Número'] && t['Descrição'];
+  });
+
+  document.getElementById('p3-tees-criticos').innerHTML = teesCrit.length
+    ? teesCrit.map(t => {
+        const aprov = String(teeAprovadoP3(t)||'').trim().toUpperCase();
+        const estr = (aprov==='NÃO'||aprov==='NAO'||aprov==='REJEITADO') ? 'Recusado'
+          : aprov==='AGUARDA RESPOSTA' ? 'Em análise' : 'Em curso';
+        const v = num(t['Valor (€) s/IVA']||t['Valor (€)']||0);
+        return '<tr><td class="td-mono">' + (t['Número']||'—') + '</td>' +
+          '<td>' + (t['Descrição']||'—') + '</td>' +
+          '<td>' + estadoPill(estr) + '</td>' +
+          '<td class="td-r">' + (v ? eur(v) : '—') + '</td>' +
+          '<td class="td-mono" style="color:var(--tx3)">' + (t['Especialidade']||'—') + '</td>' +
+          '<td style="font-size:12px;color:var(--tx2)">' + (t['Notas']||'Aguarda aprovação') + '</td></tr>';
+      }).join('')
+    : '<tr><td colspan="6" style="color:var(--grn);text-align:center;padding:16px">✓ Sem TEEs críticos pendentes</td></tr>';
+
+  // ── HORIZONTE 30/60 DIAS ──
+  function horizonte(dias) {
+    const limite = new Date(hoje.getTime() + dias * 86400000);
+    const items = [];
+    fasesData.forEach(f => {
+      const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
+      const pctF = fasePct(f);
+      const fNH = (f['Descrição / Trabalhos']||'').replace(/^F\d{2}\s*[—-]?\s*/, '').split('|')[0].trim();
+      const fRH = f['Responsável'] || f['Subempreiteiro'] || '';
+      if (String(f['Estado']||'') === 'Concluído') return;
+      if (dI && dI >= hoje && dI <= limite)
+        items.push({ cor: 'var(--blu)', texto: f['Código'] + ' — ' + fNH + ': arranque previsto', sub: fmtDate(dI) + (fRH ? ' · ' + fRH : ''), urg: (dI-hoje)/86400000 });
+      if (dF && dF >= hoje && dF <= limite && pctF < 100) {
+        const df = Math.round((dF-hoje)/86400000);
+        items.push({ cor: df < 14 ? 'var(--red)' : 'var(--amb)', texto: f['Código'] + ' — ' + fNH + ': fim previsto', sub: fmtDate(dF) + ' · ' + Math.round(pctF) + '% exec.', urg: df });
+      }
+    });
+    subsRisco.filter(s => s.diasParaArranque >= 0 && s.diasParaArranque <= dias).forEach(s =>
+      items.push({ cor: s.diasParaArranque <= 14 ? 'var(--red)' : 'var(--amb)',
+        texto: 'Adjudicar ' + s['Especialidade'] + ' (' + s['Fase'] + ')',
+        sub: 'Fase arranca em ' + s.diasParaArranque + 'd', urg: s.diasParaArranque })
+    );
+    if (!items.length) return '<div class="p3-horizon-item"><div class="p3-horizon-text" style="color:var(--tx3)">Sem eventos críticos neste período</div></div>';
+    return items.sort((a,b)=>a.urg-b.urg).map(i =>
+      '<div class="p3-horizon-item"><span class="p3-horizon-dot" style="background:'+i.cor+'"></span>' +
+      '<div><div class="p3-horizon-text">'+i.texto+'</div><div class="p3-horizon-sub">'+i.sub+'</div></div></div>'
+    ).join('');
+  }
+  document.getElementById('p3-30dias').innerHTML = horizonte(30);
+  document.getElementById('p3-60dias').innerHTML = horizonte(60);
+
+  // ── ACÇÕES PENDENTES ──
+  const prioCor = { urgente:['var(--red-bg)','var(--red)','var(--red2)'], 'atenção':['var(--amb-bg)','var(--amb)','var(--amb2)'], atencao:['var(--amb-bg)','var(--amb)','var(--amb2)'], pendente:['var(--blu-bg)','var(--blu)','var(--blu2)'] };
+  const prioOrd = { urgente:0, 'atenção':1, atencao:1, pendente:2 };
+  const accoes = [];
+  subsRisco.forEach(s => accoes.push({ prio: s.diasParaArranque <= 14 ? 'urgente' : 'atenção',
+    texto: 'Adjudicar: ' + s['Especialidade'] + ' — fase ' + s['Fase'] + ' arranca em ' + s.diasParaArranque + 'd', fase: s['Fase'] }));
+  teesCrit.forEach(t => accoes.push({ prio: 'atenção',
+    texto: (t['Número']||'') + ' — ' + (t['Descrição']||'') + ': aguarda aprovação DO', fase: t['Fase']||'—' }));
+  for (let i=1; i<=8; i++) {
+    const prio = String(P['Nota ' + i + ' Prioridade']||'').trim().toLowerCase();
+    const txt  = String(P['Nota ' + i + ' Texto']||'').trim();
+    if (txt) accoes.push({ prio, texto: txt, fase: '—' });
+  }
+  fasesData.forEach(f => {
+    const dF = toDate(f['Data Fim Prevista']);
+    const fNome = (f['Descrição / Trabalhos']||'').replace(/^F\d{2}\s*[—-]?\s*/, '').split('|')[0].trim();
+    if (dF && dF < hoje && fasePct(f) < 100 && String(f['Estado']||'') !== 'Concluído')
+      accoes.push({ prio: 'urgente', texto: f['Código'] + ' — ' + fNome + ': prazo ultrapassado (' + Math.round(fasePct(f)) + '% exec.)', fase: f['Código'] });
+  });
+
+  document.getElementById('p3-accoes').innerHTML = accoes.length
+    ? accoes.sort((a,b) => (prioOrd[a.prio]||9)-(prioOrd[b.prio]||9)).map(a => {
+        const [bg,fg,bd] = prioCor[a.prio] || ['var(--s2)','var(--tx2)','var(--bd)'];
+        return '<div class="p3-accao-item"><span class="p3-accao-prio" style="background:'+bg+';color:'+fg+';border:1px solid '+bd+'">'+(a.prio||'info')+'</span>' +
+          '<div><div class="p3-accao-texto">'+a.texto+'</div><div class="p3-accao-fase">'+a.fase+'</div></div></div>';
+      }).join('')
+    : '<div class="p3-accao-item"><div class="p3-accao-texto" style="color:var(--grn)">✓ Sem acções pendentes identificadas</div></div>';
+
+  document.getElementById('p3-time').textContent = 'Actualizado ' + now.toLocaleTimeString('pt-PT');
+}
+
 // ── LOADING ───────────────────────────────────────────
 async function loadData() {
   document.querySelectorAll('.page').forEach(p => {
@@ -1718,6 +2000,7 @@ async function loadData() {
 
     try { renderP1(P, C, tees, subs); } catch(e) { console.error('renderP1:', e); }
     try { renderP2(fases, fat, todosOsCustos, [], pags, subs); } catch(e) { console.error('renderP2:', e); }
+    try { renderP3(fases, subs, tees, P); } catch(e) { console.error('renderP3:', e); }
 
   } catch(err) {
     document.querySelectorAll('[id^="spin-"]').forEach(e => {
