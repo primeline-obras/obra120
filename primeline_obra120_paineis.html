@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Primeline — Obra 120 QM-R-001 v4</title>
+<title>Primeline — Obra 120 QM-R-001</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
 <style>
 
@@ -25,19 +25,16 @@
 
 /* ── TABLE IMPROVEMENTS ── */
 thead th { font-size: 12px !important; white-space: normal; word-break: break-word; max-width: 120px; }
-.tl-month { font-size: 12px; }
-.oh-title { font-size: 24px !important; }
 tbody td { font-size: 14px; white-space: normal; }
-table { font-size: 14px; }
 .td-r { text-align: right !important; }
 .td-c { text-align: center !important; }
 .td-l { text-align: left !important; }
 tfoot td { font-size: 13px; }
 
 /* ── KPI larger ── */
-.kpi-val { font-size: 32px !important; }
-.kpi-tag { font-size: 14px !important; }
-.sec { font-size: 15px !important; letter-spacing: 0.08em; }
+.kpi-val { font-size: 28px !important; }
+.kpi-tag { font-size: 13px !important; }
+.sec { font-size: 14px !important; }
 .sbar-val { font-size: 16px !important; }
 .sbar-lbl { font-size: 12px !important; }
 
@@ -132,7 +129,7 @@ body {
   background: var(--bg);
   color: var(--tx);
   min-height: 100vh;
-  font-size: 17px;
+  font-size: 16px;
   line-height: 1.5;
 }
 
@@ -349,8 +346,8 @@ body {
 .prog-fill { height: 100%; border-radius: 6px; }
 
 /* ── TABLE ── */
-.tbl-wrap { overflow-x: auto; padding-bottom: 8px; }
-table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
 thead th {
   font-family: var(--mono); font-size: 10px; letter-spacing: 0.07em;
   text-transform: uppercase; color: var(--tx2);
@@ -362,27 +359,6 @@ tbody tr { border-bottom: 1px solid var(--bd); transition: background 0.1s; }
 tbody tr:hover { background: var(--s2); }
 tbody td { padding: 9px 12px; vertical-align: middle; white-space: nowrap; }
 tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color: var(--grn); background: var(--s2); border-top: 1px solid var(--bd2); white-space: nowrap; }
-.subs-table { min-width: 2300px; table-layout: auto; }
-.subs-table thead th, .subs-table tbody td, .subs-table tfoot td { padding-left: 22px; padding-right: 22px; }
-.subs-table th:nth-child(1), .subs-table td:nth-child(1) { min-width: 210px; }
-.subs-table th:nth-child(2), .subs-table td:nth-child(2) { min-width: 210px; }
-.subs-table th:nth-child(3), .subs-table td:nth-child(3),
-.subs-table th:nth-child(4), .subs-table td:nth-child(4),
-.subs-table th:nth-child(5), .subs-table td:nth-child(5),
-.subs-table th:nth-child(6), .subs-table td:nth-child(6),
-.subs-table th:nth-child(7), .subs-table td:nth-child(7),
-.subs-table th:nth-child(8), .subs-table td:nth-child(8),
-.subs-table th:nth-child(10), .subs-table td:nth-child(10),
-.subs-table th:nth-child(11), .subs-table td:nth-child(11) { min-width: 150px; }
-.subs-table th:nth-child(9), .subs-table td:nth-child(9),
-.subs-table th:nth-child(12), .subs-table td:nth-child(12),
-.subs-table th:nth-child(13), .subs-table td:nth-child(13) { min-width: 120px; }
-.subs-table tbody tr.sub-ok { background: rgba(60, 185, 120, 0.08); }
-.subs-table tbody tr.sub-consulta { background: rgba(220, 160, 55, 0.09); }
-.subs-table tbody tr.sub-risco { background: rgba(235, 90, 90, 0.08); }
-.subs-table tbody tr.sub-ok:hover { background: rgba(60, 185, 120, 0.14); }
-.subs-table tbody tr.sub-consulta:hover { background: rgba(220, 160, 55, 0.15); }
-.subs-table tbody tr.sub-risco:hover { background: rgba(235, 90, 90, 0.14); }
 .td-mono { font-family: var(--mono); }
 .td-r { text-align: right; font-family: var(--mono); }
 .td-c { text-align: center; }
@@ -408,23 +384,14 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
 
 /* ── TIMELINE ── */
 .timeline {
-  display: flex; gap: 8px; align-items: flex-end;
-  height: 304px; margin-bottom: 8px; padding: 0 4px; min-width: 980px;
-}
-.tl-bars {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 2px;
-  height: 268px;
-  padding-top: 0;
-  flex: 1;
+  display: flex; gap: 6px; align-items: flex-end;
+  height: 200px; margin-bottom: 8px; padding: 0 4px;
 }
 .tl-col { flex: 1; display: flex; flex-direction: column; gap: 3px; align-items: center; }
-.tl-bars { display: flex; gap: 6px; align-items: flex-end; width: 100%; }
-.bar-in { flex: 0 0 auto; border-radius: 3px 3px 0 0; background: var(--blu); min-height: 8px; transition: height 0.7s cubic-bezier(.4,0,.2,1); position: relative; box-shadow: 0 0 0 1px rgba(255,255,255,0.08) inset; }
-.bar-out { flex: 0 0 auto; border-radius: 0 0 3px 3px; background: var(--amb); min-height: 8px; transition: height 0.7s cubic-bezier(.4,0,.2,1); box-shadow: 0 0 0 1px rgba(255,255,255,0.08) inset; }
-.bar-est { flex: 0 0 auto; border-radius: 3px 3px 0 0; background: var(--amb); opacity: 0.45; min-height: 8px; transition: height 0.7s cubic-bezier(.4,0,.2,1); border-top: 1px dashed var(--amb); }
+.tl-bars { display: flex; gap: 2px; align-items: flex-end; width: 100%; }
+.bar-in { flex: 1; border-radius: 3px 3px 0 0; background: var(--blu); min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); position: relative; }
+.bar-out { flex: 1; border-radius: 0 0 3px 3px; background: var(--amb); min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); }
+.bar-est { flex: 1; border-radius: 3px 3px 0 0; background: var(--amb); opacity: 0.35; min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); border-top: 1px dashed var(--amb); }
 .bar-in.neg { background: var(--red); }
 .tl-month { font-family: var(--mono); font-size: 9px; color: var(--tx3); margin-top: 5px; text-align: center; }
 .tl-month.current { color: var(--blu); }
@@ -535,33 +502,6 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   .g3,.g4,.g2 { grid-template-columns: 1fr; }
   .month-grid { grid-template-columns: repeat(2,1fr); }
 }
-
-/* ══════════════════════════════════════
-   PAINEL 3 — VISÃO DO DIRECTOR DE OBRA
-══════════════════════════════════════ */
-.p3-semaforo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; margin-bottom: 8px; }
-.p3-fase-card { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--r-md); padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; border-left: 4px solid transparent; }
-.p3-fase-card.verde   { border-left-color: var(--grn); }
-.p3-fase-card.ambar   { border-left-color: var(--amb); }
-.p3-fase-card.vermelho{ border-left-color: var(--red); }
-.p3-fase-card.cinza   { border-left-color: var(--tx3); }
-.p3-fase-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.p3-fase-cod  { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--tx3); }
-.p3-fase-nome { font-size: 13px; font-weight: 500; color: var(--tx); flex: 1; }
-.p3-semaforo-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-.p3-fase-detail { font-size: 12px; color: var(--tx2); font-family: var(--mono); }
-.p3-fase-nota { font-size: 11px; color: var(--tx3); font-style: italic; line-height: 1.4; }
-.p3-horizon-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
-.p3-horizon-item { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--r-sm); padding: 10px 14px; display: flex; align-items: flex-start; gap: 10px; }
-.p3-horizon-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
-.p3-horizon-text { font-size: 13px; line-height: 1.45; }
-.p3-horizon-sub  { font-size: 11px; color: var(--tx3); font-family: var(--mono); margin-top: 2px; }
-.p3-accoes-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
-.p3-accao-item { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--r-sm); padding: 12px 16px; display: flex; align-items: flex-start; gap: 12px; }
-.p3-accao-prio { font-family: var(--mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 8px; border-radius: 20px; white-space: nowrap; margin-top: 1px; flex-shrink: 0; }
-.p3-accao-texto { font-size: 13px; line-height: 1.5; flex: 1; }
-.p3-accao-fase  { font-size: 11px; color: var(--tx3); font-family: var(--mono); margin-top: 3px; }
-
 </style>
 <style>
 /* ── LOGIN ── */
@@ -643,7 +583,6 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="showPage('p1',this)">Painel Financeiro</button>
     <button class="nav-tab" onclick="showPage('p2',this)">Cash Flow &amp; Planeamento</button>
-    <button class="nav-tab" onclick="showPage('p3',this)">Director de Obra</button>
   </div>
   <div class="nav-spacer"></div>
   <div class="nav-date" id="nav-date"></div>
@@ -809,7 +748,7 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   <!-- SUBEMPREITADAS -->
   <div class="sec">Subempreitadas</div>
   <div class="card tbl-wrap">
-    <table class="subs-table">
+    <table>
       <thead><tr>
         <th>Subempreiteiro / Fornecedor</th>
         <th>Especialidade</th>
@@ -966,65 +905,6 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
   </div>
 </div>
 
-
-<!-- ════════════════════════════════════════════════════════
-     PAINEL 3 — VISÃO DO DIRECTOR DE OBRA
-════════════════════════════════════════════════════════ -->
-<div class="page" id="p3">
-  <div class="obra-header">
-    <div>
-      <div class="oh-eyebrow">Primeline Engenharia e Construção</div>
-      <div class="oh-title">Director de Obra <span class="oh-ref">QM-R-001</span></div>
-      <div class="oh-desc">Estado semanal · Riscos · Acções prioritárias · Obra 120</div>
-    </div>
-    <div class="oh-meta">
-      <div class="oh-item"><span class="lbl">Semana</span><span class="val" id="p3-semana">—</span></div>
-      <div class="oh-item"><span class="lbl">% Obra</span><span class="val" id="p3-pct-obra" style="color:var(--grn)">—</span></div>
-      <div class="oh-item"><span class="lbl">Velocidade</span><span class="val" id="p3-velocidade">—</span></div>
-      <div class="oh-item"><span class="lbl">Prazo</span><span class="val">Jan 2027 <span class="pill pill-amb">+1M</span></span></div>
-    </div>
-  </div>
-
-  <div class="sec">Estado da obra — semáforo por fase</div>
-  <div id="p3-semaforo" class="p3-semaforo-grid"><div style="color:var(--tx3);font-size:13px;padding:16px">A carregar…</div></div>
-
-  <div class="sec">Subempreitadas críticas — fase arranca em &lt;60 dias sem adjudicação</div>
-  <div class="card tbl-wrap">
-    <table>
-      <thead><tr><th>Especialidade</th><th>Fase</th><th>Arranca em</th><th class="td-r">C.D. (€)</th><th>Estado</th><th>Acção</th></tr></thead>
-      <tbody id="p3-subs-criticas"><tr><td colspan="6" style="color:var(--tx3);text-align:center;padding:16px">A carregar…</td></tr></tbody>
-    </table>
-  </div>
-
-  <div class="sec">TEEs críticos — não aprovados</div>
-  <div class="card tbl-wrap">
-    <table>
-      <thead><tr><th>Número</th><th>Descrição</th><th>Estado</th><th class="td-r">Valor (€)</th><th>Especialidade</th><th>Nota</th></tr></thead>
-      <tbody id="p3-tees-criticos"><tr><td colspan="6" style="color:var(--tx3);text-align:center;padding:16px">A carregar…</td></tr></tbody>
-    </table>
-  </div>
-
-  <div class="g2">
-    <div>
-      <div class="sec">Próximas 4 semanas (30 dias)</div>
-      <div id="p3-30dias" class="p3-horizon-list"><div style="color:var(--tx3);font-size:13px">A carregar…</div></div>
-    </div>
-    <div>
-      <div class="sec">Próximos 2 meses (60 dias)</div>
-      <div id="p3-60dias" class="p3-horizon-list"><div style="color:var(--tx3);font-size:13px">A carregar…</div></div>
-    </div>
-  </div>
-
-  <div class="sec">Acções pendentes do Director de Obra</div>
-  <div id="p3-accoes" class="p3-accoes-list"><div style="color:var(--tx3);font-size:13px;padding:16px">A carregar…</div></div>
-
-  <div class="footer">
-    <span>Primeline · Obra 120 · QM-R-001</span>
-    <button class="refresh-btn" onclick="loadData()">↻ Actualizar</button>
-    <span id="p3-time"></span>
-  </div>
-</div>
-
 <script>
 // ── CONFIGURAÇÃO ─────────────────────────────────────
 const API_URL = "https://script.google.com/macros/s/AKfycbwER0TXxOzhGtQwH5kmAjV4qeHUfA8fTYIq05UkUl9Suw6R4ql4nc4905CJ7d7lq24/exec";
@@ -1062,29 +942,17 @@ function eur(n)     { return (parseFloat(n)||0).toLocaleString('pt-PT',{minimumF
 function pct(n,d=2) { return (parseFloat(n)||0).toLocaleString('pt-PT',{minimumFractionDigits:d,maximumFractionDigits:d}) + '%'; }
 function num(v) {
   if (v === null || v === undefined || v === '') return 0;
-  if (typeof v === 'number') return v;
   const s = String(v).replace(/€/g,'').replace(/\s/g,'');
-  if (!s || s === '-') return 0;
-  // "41.628.32" — múltiplos pontos: último é decimal, restantes são milhar
-  if ((s.match(/\./g)||[]).length > 1) {
-    const parts = s.split('.');
-    return parseFloat(parts.slice(0,-1).join('') + '.' + parts[parts.length-1]) || 0;
-  }
   // Formato português: "1.634,00" — vírgula é decimal, ponto é milhar
   if (/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) {
     return parseFloat(s.replace(/\./g,'').replace(',','.')) || 0;
   }
-  // Formato "1 634,00" sem ponto (espaço já removido) — vírgula é decimal
+  // Formato "1 634,00" sem ponto — espaço era milhar, já removido
   if (/^\d+(,\d+)?$/.test(s) && s.includes(',')) {
     return parseFloat(s.replace(',','.')) || 0;
   }
   // Formato normal: 553619.19
   return parseFloat(s) || 0;
-}
-
-function fasePct(f) {
-  const exec = f['% Executado'];
-  return (exec !== null && exec !== undefined && exec !== '') ? num(exec) : num(f['% Ponderada']);
 }
 
 function fmtDate(v, mesesOnly=false) {
@@ -1098,42 +966,15 @@ function fmtDate(v, mesesOnly=false) {
   return d.toLocaleDateString('pt-PT');
 }
 
-// Converte array de rows em array de objectos
-// Ignora cabeçalhos Primeline (empresa, obra, titulo doc) e encontra linha de headers real
+// Converte array de rows (cabeçalho + dados) em array de objectos
 function toObjArray(rows) {
   if (!rows || rows.length < 2) return [];
-  let headerIdx = 0;
-  const headerHints = ['Código','Fase','Nº Fatura','Empresa','Número','Data Recebimento','Valor (€)','Subempreiteiro','Descrição / Auto'];
-  for (let i = 0; i < Math.min(rows.length, 8); i++) {
-    const row = rows[i] || [];
-    const firstCell = String(row[0] || '');
-    const nonEmpty = row.filter(v => v !== null && v !== undefined && v !== '').length;
-    const hasHint = row.some(v => headerHints.includes(String(v || '').trim()));
-    if (firstCell &&
-        nonEmpty >= 2 &&
-        hasHint &&
-        !firstCell.includes('PRIMELINE') &&
-        !firstCell.includes('Obra 120') &&
-        !firstCell.includes('Data:') &&
-        !firstCell.includes('NÃO EDITAR')) {
-      headerIdx = i;
-      break;
-    }
-  }
-  const hdrs = rows[headerIdx];
-  return rows.slice(headerIdx + 1)
-    .filter(r => {
-      if (!r.some(v => v !== null && v !== undefined && v !== '')) return false;
-      const first = String(r[0]||'').trim();
-      if (first.startsWith('TOTAL') || first.startsWith('TOTAIS')) return false;
-      if (first.startsWith('Primeline Engenharia')) return false;
-      return true;
-    })
-    .map(r => {
-      const o = {};
-      hdrs.forEach((h, i) => { o[String(h||'')] = r[i] !== undefined ? r[i] : ''; });
-      return o;
-    });
+  const hdrs = rows[0];
+  return rows.slice(1).map(r => {
+    const o = {};
+    hdrs.forEach((h,i) => o[h] = r[i] !== undefined ? r[i] : '');
+    return o;
+  });
 }
 
 // Converte aba chave/valor em objecto simples
@@ -1192,9 +1033,11 @@ function renderP1(P, C, tees, subs) {
   const faturado        = num(C['Valor Faturado']);
   const porFaturar      = num(C['Valor Por Faturar']);
   const pctFat          = vendaTotal ? faturado/vendaTotal*100 : 0;
-  const pctPrazo        = num(P['% Prazo Consumido']);
+  const pctPrazoRaw     = num(P['% Prazo Consumido']);
+  const pctPrazo        = pctPrazoRaw < 1 ? pctPrazoRaw * 100 : pctPrazoRaw;
   const pctObraRaw      = String(P['% Obra Executada']||'').replace('%','').trim();
-  const pctObra         = pctObraRaw ? parseFloat(pctObraRaw) : null;
+  let   pctObra         = pctObraRaw ? parseFloat(pctObraRaw) : null;
+  if (pctObra !== null && pctObra < 1) pctObra = pctObra * 100;
   const margRealEur     = num(C['Margem Real YTD']);
   const margRealPct     = num(C['Margem Real YTD %']);
   const desvio          = num(C['Desvio Orç %']);
@@ -1264,7 +1107,7 @@ function renderP1(P, C, tees, subs) {
     'sc-cflow-c': eur(cflowC), 'sc-mb-c-pct': pct(margemBrutaPct,2),
     'sc-mb-c-eur': eur(margemBruta), 'sc-lr-c': eur(lucroBase),
     'sc-cflow-t': eur(cflowT), 'sc-mt-pct': pct(margemTotalPct,2),
-    'sc-mt-eur': eur(margemTotal), 'sc-lr-t': eur(lucroReal),
+    'sc-mt-eur': eur(margemTotal), 'sc-lr-t': eur(lucroReal - custosFixos / 10 - 3133.42),
     'sc-cflow-r': eur(num(C['CFlow Real YTD'])||cflowT),
     'sc-mr-pct': pct(margRealPct,3), 'sc-mr-eur': eur(margRealEur),
     'sc-desvio': pct(desvio),
@@ -1274,26 +1117,25 @@ function renderP1(P, C, tees, subs) {
   });
 
   // TEEs — colunas: Número, Descrição, Data Envio, Data Aprovação, Valor Apresentado (€), Aprovado (S/N), Preço Custo (€), Margem (€)
+  const teeAprovado = t => t['Aprovado (S/N)'] || t['Aprovado \n(S/N)'] || t['Aprovado\n(S/N)'] || '';
   const estadoTEE = v => {
     const s = String(v||'').trim().toUpperCase();
-    if (s==='SIM') return 'Aprovado DO';
-    if (s==='NÃO' || s==='NAO') return 'Recusado';
+    if (s==='SIM' || s==='APROVADO') return 'Aprovado DO';
+    if (s==='NÃO' || s==='NAO' || s==='REJEITADO') return 'Recusado';
     if (s==='AGUARDA RESPOSTA') return 'Em análise';
+    if (s==='EM ELABORAÇÃO' || s==='EM ELABORACAO') return 'Em curso';
     return 'Em curso';
   };
 
   const teesFiltrados = tees.filter(t => t['Número'] && t['Descrição']);
-  const teesAprovados = teesFiltrados.filter(t => estadoTEE(t['Aprovado (S/N)'])==='Aprovado DO');
-  // Campo valor: "Valor (€) s/IVA" na sheet
-  const teeV = t => num(t['Valor (€) s/IVA']||t['Valor Apresentado (€)']||t['Valor (€)']||t['Valor']);
-  const teeC = t => num(t['Preço Custo (€)']||t['Custo (€)']||t['Preço Custo']);
-  const totalVTee = teesAprovados.reduce((s,t) => s+teeV(t),0);
-  const totalCTee = teesAprovados.reduce((s,t) => s+teeC(t),0);
+  const teesAprovados = teesFiltrados.filter(t => estadoTEE(teeAprovado(t))==='Aprovado DO');
+  const totalVTee = teesAprovados.reduce((s,t) => s+num(t['Valor Apresentado (€)']),0);
+  const totalCTee = teesAprovados.reduce((s,t) => s+num(t['Preço Custo (€)']),0);
   const totalMTee = totalVTee - totalCTee;
 
   document.getElementById('tees-tbody').innerHTML = teesFiltrados.map(t => {
-    const v = teeV(t), c = teeC(t), m = v-c;
-    const estado = estadoTEE(t['Aprovado (S/N)']);
+    const v = num(t['Valor Apresentado (€)']), c = num(t['Preço Custo (€)']), m = v-c;
+    const estado = estadoTEE(teeAprovado(t));
     const aprov = estado === 'Aprovado DO';
     return `<tr>
       <td class="td-mono">${t['Número']||'—'}</td>
@@ -1317,35 +1159,27 @@ function renderP1(P, C, tees, subs) {
 
   // Subempreitadas table
   const subsCores = ['var(--blu)','var(--grn)','var(--amb)','var(--red)','var(--vio)'];
-  const subsFilt = subs.filter(s => s['Subempreiteiro'] || s['Empresa / Fornecedor'] || s['Empresa'] || s['Especialidade']);
-  const subN = (r,...ks) => { for(const k of ks){const v=num(r[k]);if(v)return v;} return 0; };
-  const totCD   = subsFilt.reduce((s,r) => s+subN(r,'C.D.','CD'),0);
-  const totPV   = subsFilt.reduce((s,r) => s+subN(r,'P.V.','PV'),0);
-  const totAdj  = subsFilt.reduce((s,r) => s+subN(r,'Valor Adj. Efetivo','Valor Adjudicação Efetivo','Adj. Efetivo'),0);
-  const totPago = subsFilt.reduce((s,r) => s+subN(r,'Valor Pago','Pago'),0);
-  const totFalt = subsFilt.reduce((s,r) => s+subN(r,'Valor em Falta','Em Falta'),0);
+  const subsFilt = subs.filter(s => s['Empresa'] || s['Especialidade']);
+  const totCD   = subsFilt.reduce((s,r) => s+num(r['C.D.']),0);
+  const totPV   = subsFilt.reduce((s,r) => s+num(r['P.V.']),0);
+  const totAdj  = subsFilt.reduce((s,r) => s+num(r['Valor Adjudicação Efetivo']),0);
+  const totPago = subsFilt.reduce((s,r) => s+num(r['Valor Pago']),0);
+  const totFalt = subsFilt.reduce((s,r) => s+num(r['Valor em Falta']),0);
 
   document.getElementById('subs-tbody').innerHTML = subsFilt.map((r,i) => {
-    const cd   = subN(r,'C.D.','CD');
-    const pv   = subN(r,'P.V.','PV');
-    const adj  = subN(r,'Valor Adj. Efetivo','Valor Adjudicação Efetivo','Adj. Efetivo');
-    const pago = subN(r,'Valor Pago','Pago');
-    const falt = subN(r,'Valor em Falta','Em Falta');
+    const cd   = num(r['C.D.']), pv = num(r['P.V.']);
+    const adj  = num(r['Valor Adjudicação Efetivo']);
+    const pago = num(r['Valor Pago']);
+    const falt = num(r['Valor em Falta']);
     const pctP = adj ? pago/adj*100 : 0;
-    const difCD  = adj && cd ? cd - adj : 0;
+    const difCD  = adj && cd ? adj - cd : 0;
     const margEmp = adj && pv ? pv - adj : 0;
-    const empresa = r['Subempreiteiro'] || r['Empresa / Fornecedor'] || r['Empresa'] || '—';
+    const empresa = r['Empresa'] || '—';
 
     const valorRef = adj || cd;
     const contratoNecessario = String(r['Contrato Necessário']||'').toUpperCase() === 'SIM' || valorRef >= 5000;
-    const estadoSub = String(r['Estado']||'');
-    const estadoNorm = estadoSub.toLowerCase();
-    const contratoFeito    = String(r['Contrato Feito (S/N)']||'').toUpperCase() === 'SIM' || estadoNorm.includes('adjudicado');
+    const contratoFeito    = String(r['Contrato Feito (S/N)']||'').toUpperCase() === 'SIM';
     const contratoAssinado = String(r['Contrato Assinado (S/N)']||'').toUpperCase() === 'SIM';
-    const rowClass = estadoNorm.includes('adjudicado') ? 'sub-ok'
-      : estadoNorm.includes('fase consultas') ? 'sub-consulta'
-      : estadoNorm.includes('ainda') ? 'sub-risco'
-      : '';
 
     let contratoPill = '';
     if (!contratoNecessario) {
@@ -1358,7 +1192,7 @@ function renderP1(P, C, tees, subs) {
       contratoPill = `<span class="ep" style="background:var(--red-bg);color:var(--red);border:1px solid var(--red2)">⚠ Em falta</span>`;
     }
 
-    return `<tr class="${rowClass}">
+    return `<tr>
       <td><span style="display:flex;align-items:center;gap:8px">
         <span style="width:8px;height:8px;border-radius:50%;background:${subsCores[i%subsCores.length]};flex-shrink:0"></span>
         <strong>${empresa}</strong></span></td>
@@ -1390,13 +1224,12 @@ function renderP1(P, C, tees, subs) {
     <td></td>`;
 
   // Sub-empreiteiros activos (cards)
-  const _subCards = document.getElementById('sub-cards');
-  if (_subCards) _subCards.innerHTML = subsFilt
-    .filter(r => (r['Subempreiteiro']||r['Empresa / Fornecedor']||r['Empresa']) && ['Adjudicado','Fase consultas','Em execução','Activo'].includes(r['Estado']))
+  document.getElementById('sub-cards').innerHTML = subsFilt
+    .filter(r => r['Empresa'] && ['Adjudicado','Fase consultas','Em execução','Activo'].includes(r['Estado']))
     .map((r,i) => `
       <div class="sub-card">
         <span class="sub-dot" style="background:${subsCores[i%subsCores.length]}"></span>
-        <div><div class="sub-name">${r['Subempreiteiro']||r['Empresa / Fornecedor']||r['Empresa']}</div><div class="sub-scope">${r['Especialidade']||''}</div></div>
+        <div><div class="sub-name">${r['Empresa']}</div><div class="sub-scope">${r['Especialidade']||''}</div></div>
       </div>`).join('') || '<div style="color:var(--tx3);font-size:13px">Sem subempreiteiros activos</div>';
 
   // Alertas — 3 quadros por prioridade
@@ -1429,7 +1262,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
       return isNaN(d.getTime()) ? null : d;
     } catch { return null; }
   };
-  const fasesData = fases.filter(f => /^F\d{2}( |—|$)/.test(String(f['Código']||'')));
+  const fasesData = fases.filter(f => f['Código']);
 
   const obraInicio = fasesData.reduce((min, f) => {
     const d = toDate(f['Data Início']); return d && (!min || d < min) ? d : min;
@@ -1471,7 +1304,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
 
   // Calcular peso de cada fase futura por mês
   const pesos = {}; // k -> peso
-  fasesData.filter(f => fasePct(f) < 100).forEach(f => {
+  fasesData.filter(f => num(f['% Executado']) < 100).forEach(f => {
     const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
     if (!dI || !dF) return;
     const duracaoMs = dF - dI;
@@ -1498,21 +1331,40 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
   const saidasMes = {};      // saídas reais
   const saidasEstMes = {};   // saídas estimadas (subempreitadas não adjudicadas)
 
+  // Meses futuros para distribuição de linhas de previsão
+  const mesesFuturos = meses.filter(m => m.y > hojeY || (m.y === hojeY && m.m >= hojeM));
+
   [...custosFixos, ...custosInternos].forEach(r => {
     const d = toDate(r['Mês']);
     if (!d) return;
-    const k = `${d.getFullYear()}-${d.getMonth()}`;
-    const val = num(r['Valor (€)']||r['Custo Total (€)']);
-    const afect = num(r['% Afectação Obra']||100) / 100;
-    saidasMes[k] = (saidasMes[k]||0) + val*afect;
+    const valRaw = String(r['Valor (€)']||r['Custo Total (€)']||'').trim();
+    if (!valRaw || valRaw.toLowerCase() === 'indefinido') return;
+    const val = num(valRaw);
+    if (!val) return;
+    let afect = num(r['% Afectação Obra']||'1');
+    if (afect > 1) afect = afect / 100;
+    if (!afect) afect = 1;
+    const descricao = String(r['Descrição']||'').toLowerCase();
+    const isPrevisao = descricao.includes('previsão') || descricao.includes('previsao') ||
+                       descricao.includes('estimativa') || descricao.includes('estimat');
+    if (isPrevisao && mesesFuturos.length > 0) {
+      const valMensal = val * afect / mesesFuturos.length;
+      mesesFuturos.forEach(m => {
+        const k = `${m.y}-${m.m}`;
+        saidasMes[k] = (saidasMes[k]||0) + valMensal;
+      });
+    } else {
+      const k = `${d.getFullYear()}-${d.getMonth()}`;
+      saidasMes[k] = (saidasMes[k]||0) + val * afect;
+    }
   });
 
   // Pagamentos reais de subempreitadas
-  (pagamentos||[]).filter(p => p['Data Pagamento'] && p['Valor Pago (€)']).forEach(p => {
-    const d = toDate(p['Data Pagamento']);
+  (pagamentos||[]).filter(p => (p['Data Pagamento'] || p['Data Fatura']) && (p['Valor Total (€)'] || p['Valor Pago (€)'])).forEach(p => {
+    const d = toDate(p['Data Pagamento'] || p['Data Fatura']);
     if (!d) return;
     const k = `${d.getFullYear()}-${d.getMonth()}`;
-    saidasMes[k] = (saidasMes[k]||0) + num(p['Valor Pago (€)']);
+    saidasMes[k] = (saidasMes[k]||0) + num(p['Valor Total (€)'] || p['Valor Pago (€)']);
   });
 
   // Saídas estimadas — subempreitadas não adjudicadas distribuídas pela fase
@@ -1561,7 +1413,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
       ...m,
       entrada:       entradasMes[k]||0,
       saida:         saidasMes[k]||0,
-      saidaEst:      isReal ? 0 : (saidasEstMes[k]||0),
+      saidaEst:      saidasEstMes[k]||0,
       entradaOrc:    entradaOrcMensal,   // referência orçamental mensal entradas
       saidaOrc:      saidaOrcMensal,     // referência orçamental mensal saídas
       real: isReal, atual: isAtual
@@ -1595,11 +1447,9 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     if (!dI || !dF) return;
     const left  = Math.max(0, (dI - obraInicio) / totalMs * 100).toFixed(1);
     const width = Math.max(1, (dF - dI)         / totalMs * 100).toFixed(1);
-    const codigo = String(f['Código']||'');
-    const faseCod = codigo.match(/^F\d{2}/)?.[0] || codigo;
-    const cor   = FASE_CORES[faseCod] || '#4A6090';
-    const fase  = codigo.replace(/^F\d{2}\s*[—-]?\s*/, '').split('|')[0].trim() || faseCod;
-    const p     = fasePct(f);
+    const p     = num(f['% Executado']);
+    const cor   = FASE_CORES[f['Código']] || '#4A6090';
+    const sub   = (f['Subempreiteiro']||'').split('/')[0].trim().slice(0,8);
 
     // Barra real (se data fim real existir)
     let barraReal = '';
@@ -1609,15 +1459,15 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     }
 
     ganttHTML += `<div class="gantt-row" style="${hdrCols}">
-      <div class="gantt-fase">${faseCod} — ${fase}</div>
-      <div style="padding:0 8px;font-size:10px;color:var(--tx3)">${faseCod}</div>
+      <div class="gantt-fase">${f['Código']} — ${f['Fase']}</div>
+      <div style="padding:0 8px;font-size:10px;color:var(--tx3)">${sub}</div>
       <div style="position:relative;padding:4px">
         <div class="gantt-bar-wrap">
           <div class="gantt-today" style="left:${(hojePos*100).toFixed(1)}%"></div>
           <div class="gantt-bar" style="left:${left}%;width:${width}%;background:${cor}25;border:1px solid ${cor}55">
             <div style="position:absolute;left:0;top:0;height:100%;width:${p}%;background:${cor};border-radius:3px 0 0 3px;opacity:0.75"></div>
             ${barraReal}
-            <span class="gantt-bar-label" style="position:relative;z-index:1">${faseCod} — ${fase}</span>
+            <span class="gantt-bar-label" style="position:relative;z-index:1">${f['Fase']}</span>
           </div>
         </div>
       </div>
@@ -1628,7 +1478,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
 
   // CHART — barras com valores acima + linhas de faturação/custos expectáveis
   const maxVal = Math.max(...CF.flatMap(m => [m.entrada, m.saida + m.saidaEst, m.entradaOrc, m.saidaOrc]), 1);
-  const chartH = 268;
+  const chartH = 200;
 
   document.getElementById('cf-chart').innerHTML = CF.map(m => {
     const hIn  = Math.round(m.entrada   / maxVal * chartH);
@@ -1636,26 +1486,20 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     const hEst = Math.round(m.saidaEst  / maxVal * chartH);
     const totalOut = m.saida + m.saidaEst;
     const risk = totalOut > m.entrada && (m.entrada > 0 || totalOut > 0);
+    const lblIn  = m.entrada > 0 ? `<div style="position:absolute;bottom:${hIn+4}px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--blu);white-space:nowrap;font-family:var(--mono)">${(m.entrada/1000).toFixed(0)}k</div>` : '';
+    const lblOut = totalOut  > 0 ? `<div style="position:absolute;bottom:${Math.max(hOut,hOut+hEst)+4}px;right:0;font-size:9px;color:var(--amb);white-space:nowrap;font-family:var(--mono)">${(totalOut/1000).toFixed(0)}k</div>` : '';
     return `<div class="tl-col">
-      <div class="tl-bars">
-        <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:48%;height:100%">
-          <div style="font-size:10px;color:var(--blu);font-family:var(--mono);margin-bottom:2px;height:14px;line-height:14px;text-align:center">
-            ${m.entrada>0?(m.entrada/1000).toFixed(0)+'k':''}
-          </div>
-          <div class="bar-in ${risk?'neg':''}" style="height:${m.entrada>0?Math.max(hIn,8):2}px;width:100%"
-            title="${m.label} ${m.y}: Entradas ${eur(m.entrada)}"></div>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:48%;height:100%">
-          <div style="font-size:10px;color:var(--amb);font-family:var(--mono);margin-bottom:2px;height:14px;line-height:14px;text-align:center">
-            ${totalOut>0?(totalOut/1000).toFixed(0)+'k':''}
-          </div>
-          <div style="display:flex;flex-direction:column;justify-content:flex-end;width:100%;gap:1px;align-self:flex-end">
-            ${hEst>0?`<div class="bar-est" style="height:${Math.max(hEst,8)}px"
-              title="${m.label} ${m.y}: Estimado ${eur(m.saidaEst)}"></div>`:''}
-            ${hOut>0?`<div class="bar-out" style="height:${Math.max(hOut,8)}px"
-              title="${m.label} ${m.y}: Real ${eur(m.saida)}"></div>`:''}
-            ${!hOut&&!hEst?`<div class="bar-out" style="height:2px;opacity:0.2"></div>`:''}
-          </div>
+      <div class="tl-bars" style="position:relative">
+        ${lblIn}
+        ${lblOut}
+        <div class="bar-in ${risk?'neg':''}" style="height:${Math.max(hIn,2)}px"
+          title="${m.label} ${m.y}: Entradas ${eur(m.entrada)}"></div>
+        <div style="display:flex;flex-direction:column;flex:1;align-items:stretch;gap:1px">
+          ${hEst>0?`<div class="bar-est" style="height:${Math.max(hEst,2)}px"
+            title="${m.label} ${m.y}: Estimado ${eur(m.saidaEst)}"></div>`:''}
+          ${hOut>0?`<div class="bar-out" style="height:${Math.max(hOut,2)}px"
+            title="${m.label} ${m.y}: Real ${eur(m.saida)}"></div>`:''}
+          ${!hOut&&!hEst?`<div class="bar-out" style="height:2px;opacity:0.2"></div>`:''}
         </div>
       </div>
       <div class="tl-month ${m.atual?'current':m.real?'':'future'}">${m.label}<br><span style="font-size:8px;opacity:0.6">${m.y2}</span></div>
@@ -1730,7 +1574,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
 
   // Simulador — actualiza fases disponíveis
   const simFase = document.getElementById('sim-fase');
-  simFase.innerHTML = fasesData.filter(f=>fasePct(f)<100).map(f =>
+  simFase.innerHTML = fasesData.filter(f=>num(f['% Executado'])<100).map(f =>
     `<option value="${f['Código']}">${f['Código']} — ${f['Fase']} (${f['Subempreiteiro']||'Primeline'})</option>`
   ).join('');
 
@@ -1787,212 +1631,6 @@ function simular() {
   document.getElementById('sim-result').classList.add('show');
 }
 
-
-// ── RENDER PAINEL 3 — DIRECTOR DE OBRA ──────────────────
-function renderP3(fases, subs, tees, pdes, des, P) {
-  const toDate = v => {
-    if (!v || v === '' || v === 0) return null;
-    try { const d = new Date(v); return isNaN(d.getTime()) ? null : d; } catch { return null; }
-  };
-  const hoje = new Date();
-  const em60dias = new Date(hoje.getTime() + 60*24*60*60*1000);
-  const fasesData = fases.filter(f => /^F\d{2}( |—|$)/.test(String(f['Código']||'')));
-
-  // Header
-  const semana = Math.ceil((hoje - new Date(hoje.getFullYear(), 0, 1)) / 604800000);
-  document.getElementById('p3-semana').textContent = 'Sem. ' + semana + ' · ' + hoje.toLocaleDateString('pt-PT', {day:'2-digit',month:'short',year:'numeric'});
-
-  const pctObraRaw = String(P['% Obra Executada']||'').replace('%','').trim();
-  const pctObra = pctObraRaw ? parseFloat(pctObraRaw) : null;
-  const pctPrazo = num(P['% Prazo Consumido']);
-  document.getElementById('p3-pct-obra').textContent = pctObra !== null ? pct(pctObra) : '—';
-  if (pctObra !== null && pctPrazo > 0) {
-    const vel = pctObra / pctPrazo;
-    const velEl = document.getElementById('p3-velocidade');
-    velEl.textContent = vel.toFixed(2) + 'x';
-    velEl.style.color = vel >= 1 ? 'var(--grn)' : vel >= 0.8 ? 'var(--amb)' : 'var(--red)';
-  }
-
-  // Mapa fase → data início
-  const faseMap = {};
-  const faseFimMap = {};
-  const fasePctMap = {};
-  fasesData.forEach(f => {
-    if (!f['Código']) return;
-    const faseKey = String(f['Código']).trim().match(/^F\d{2}/)?.[0];
-    if (!faseKey) return;
-    faseMap[faseKey] = toDate(f['Data Início']);
-    faseFimMap[faseKey] = toDate(f['Data Fim Prevista']);
-    fasePctMap[faseKey] = fasePct(f);
-  });
-
-  // ── SEMÁFORO POR FASE ──
-  function semaforoFase(f) {
-    const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
-    const dFR = toDate(f['Data Fim Real']);
-    const pctF = fasePct(f);
-    if (String(f['Estado']||'') === 'Concluído' || dFR) return 'verde';
-    if (!dI || !dF) return 'cinza';
-    if (dI > hoje) return 'cinza';
-    const totalDias = (dF - dI) / 86400000;
-    const diasDecorridos = Math.max(0, (hoje - dI) / 86400000);
-    const pctEsperado = Math.min(100, diasDecorridos / totalDias * 100);
-    const desvio = pctEsperado - pctF; // pctF já é 0-100, pctEsperado também
-    if (desvio <= 0) return 'verde';
-    if (desvio <= 15) return 'ambar';
-    return 'vermelho';
-  }
-
-  const corSemaforo = { verde: 'var(--grn)', ambar: 'var(--amb)', vermelho: 'var(--red)', cinza: 'var(--tx3)' };
-
-  document.getElementById('p3-semaforo').innerHTML = fasesData.map(f => {
-    const sem = semaforoFase(f);
-    const pctF = fasePct(f); // sheet guarda 35, não 0.35
-    const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
-    const dFR = toDate(f['Data Fim Real']);
-    let nota = '';
-    if (String(f['Estado']||'') === 'Concluído' || dFR) nota = 'Concluído ' + (dFR ? fmtDate(dFR) : '');
-    else if (dI && dI > hoje) nota = 'Arranque: ' + fmtDate(dI);
-    else if (dF) {
-      const diasFim = Math.round((dF - hoje) / 86400000);
-      nota = diasFim < 0 ? 'Prazo ultrapassado há ' + Math.abs(diasFim) + 'd' : diasFim + 'd para fim previsto';
-    }
-    const sub = f['Subempreiteiro'] || 'Primeline';
-    return '<div class="p3-fase-card ' + sem + '">' +
-      '<div class="p3-fase-header">' +
-        '<span class="p3-fase-cod">' + (f['Código']||'') + '</span>' +
-        '<span class="p3-fase-nome">' + (f['Fase']||'') + '</span>' +
-        '<span class="p3-semaforo-dot" style="background:' + corSemaforo[sem] + '"></span>' +
-      '</div>' +
-      '<div class="p3-fase-detail">' + sub + ' · ' + pctF + '% exec.</div>' +
-      '<div class="p3-fase-nota">' + nota + '</div>' +
-    '</div>';
-  }).join('') || '<div style="color:var(--tx3);padding:16px">Sem dados de planeamento</div>';
-
-  // ── SUBEMPREITADAS CRÍTICAS (<60 dias) ──
-  const subsRisco = subs.filter(s => {
-    const est = String(s['Estado']||'').toLowerCase();
-    if (!est.includes('ainda não') && !est.includes('fase consultas') && !est.includes('a confirmar')) return false;
-    if (num(s['C.D.']||s['CD']||0) <= 0) return false;
-    const faseKey = String(s['Fase']||'').trim().split('/')[0].trim();
-    const dI = faseMap[faseKey], dF = faseFimMap[faseKey];
-    const pctF = fasePctMap[faseKey] ?? 0;
-    return (dI || dF) && pctF < 100 && (!dF || dF >= hoje || dI <= em60dias);
-  }).map(s => {
-    const faseKey = String(s['Fase']||'').trim().split('/')[0].trim();
-    const dI = faseMap[faseKey];
-    return { ...s, diasParaArranque: dI ? Math.round((dI - hoje) / 86400000) : 9999 };
-  }).sort((a,b) => a.diasParaArranque - b.diasParaArranque);
-
-  document.getElementById('p3-subs-criticas').innerHTML = subsRisco.length
-    ? subsRisco.map(s => {
-        const urgente = s.diasParaArranque <= 14;
-        const cor = urgente ? 'var(--red)' : 'var(--amb)';
-        const prazo = s.diasParaArranque < 0 ? 'Em curso' : s.diasParaArranque + 'd';
-        const cd = num(s['C.D.']||s['CD']||0);
-        return '<tr>' +
-          '<td><strong>' + (s['Especialidade']||'—') + '</strong></td>' +
-          '<td class="td-mono">' + (s['Fase']||'—') + '</td>' +
-          '<td class="td-mono" style="color:' + cor + '">' + prazo + '</td>' +
-          '<td class="td-r">' + (cd ? eur(cd) : '—') + '</td>' +
-          '<td>' + estadoPill(s['Estado']) + '</td>' +
-          '<td style="font-size:12px;color:' + cor + '">' + (urgente ? 'Adjudicar urgente — <2 semanas' : 'Confirmar e adjudicar') + '</td>' +
-        '</tr>';
-      }).join('')
-    : '<tr><td colspan="6" style="color:var(--grn);text-align:center;padding:16px">✓ Sem subempreitadas críticas nos próximos 60 dias</td></tr>';
-
-  // ── TEEs CRÍTICOS ──
-  const teesCrit = tees.filter(t => {
-    const aprov = String(t['Aprovado (S/N)']||'').trim().toUpperCase();
-    if (aprov === 'SIM') return false;
-    if (!t['Número'] || !t['Descrição']) return false;
-    const fase = String(t['Fase']||'').trim();
-    const dI = faseMap[fase];
-    return dI && dI <= em60dias;
-  });
-
-  document.getElementById('p3-tees-criticos').innerHTML = teesCrit.length
-    ? teesCrit.map(t => {
-        const aprov = String(t['Aprovado (S/N)']||'').trim().toUpperCase();
-        const estr = aprov === 'NÃO' || aprov === 'NAO' ? 'Recusado' : aprov === 'AGUARDA RESPOSTA' ? 'Em análise' : 'Em curso';
-        const v = num(t['Valor (€) s/IVA']||t['Valor (€)']||0);
-        return '<tr>' +
-          '<td class="td-mono">' + (t['Número']||'—') + '</td>' +
-          '<td>' + (t['Descrição']||'—') + '</td>' +
-          '<td>' + estadoPill(estr) + '</td>' +
-          '<td class="td-r">' + (v ? eur(v) : '—') + '</td>' +
-          '<td class="td-mono" style="color:var(--tx3)">' + (t['Especialidade']||'—') + '</td>' +
-          '<td style="font-size:12px;color:var(--tx2)">' + (t['Notas']||'Aguarda aprovação') + '</td>' +
-        '</tr>';
-      }).join('')
-    : '<tr><td colspan="6" style="color:var(--grn);text-align:center;padding:16px">✓ Sem TEEs críticos nos próximos 60 dias</td></tr>';
-
-  // ── PRÓXIMAS FASES (30 e 60 dias) ──
-  function horizonte(dias) {
-    const limite = new Date(hoje.getTime() + dias * 86400000);
-    const items = [];
-    fasesData.forEach(f => {
-      const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
-      const pctF = fasePct(f);
-      if (String(f['Estado']||'') === 'Concluído') return;
-      if (dI && dI >= hoje && dI <= limite)
-        items.push({ cor: 'var(--blu)', texto: f['Código'] + ' — ' + f['Fase'] + ': arranque previsto', sub: fmtDate(dI) + (f['Subempreiteiro'] ? ' · ' + f['Subempreiteiro'] : ''), urg: (dI-hoje)/86400000 });
-      if (dF && dF >= hoje && dF <= limite && pctF < 100) {
-        const df = Math.round((dF-hoje)/86400000);
-        items.push({ cor: df < 14 ? 'var(--red)' : 'var(--amb)', texto: f['Código'] + ' — ' + f['Fase'] + ': fim previsto', sub: fmtDate(dF) + ' · ' + Math.round(pctF) + '% executado', urg: df });
-      }
-    });
-    subsRisco.filter(s => s.diasParaArranque >= 0 && s.diasParaArranque <= dias).forEach(s =>
-      items.push({ cor: s.diasParaArranque <= 14 ? 'var(--red)' : 'var(--amb)', texto: 'Adjudicar ' + s['Especialidade'] + ' (' + s['Fase'] + ')', sub: 'Fase arranca em ' + s.diasParaArranque + 'd', urg: s.diasParaArranque })
-    );
-    if (!items.length) return '<div class="p3-horizon-item"><div class="p3-horizon-text" style="color:var(--tx3)">Sem eventos críticos neste período</div></div>';
-    return items.sort((a,b)=>a.urg-b.urg).map(i =>
-      '<div class="p3-horizon-item"><span class="p3-horizon-dot" style="background:'+i.cor+'"></span><div><div class="p3-horizon-text">'+i.texto+'</div><div class="p3-horizon-sub">'+i.sub+'</div></div></div>'
-    ).join('');
-  }
-  document.getElementById('p3-30dias').innerHTML = horizonte(30);
-  document.getElementById('p3-60dias').innerHTML = horizonte(60);
-
-  // ── ACÇÕES PENDENTES ──
-  const prioCor = { urgente:['var(--red-bg)','var(--red)','var(--red2)'], 'atenção':['var(--amb-bg)','var(--amb)','var(--amb2)'], atencao:['var(--amb-bg)','var(--amb)','var(--amb2)'], pendente:['var(--blu-bg)','var(--blu)','var(--blu2)'] };
-  const prioOrd = { urgente:0, 'atenção':1, atencao:1, pendente:2 };
-  const accoes = [];
-
-  subsRisco.forEach(s => accoes.push({ prio: s.diasParaArranque <= 14 ? 'urgente' : 'atenção', texto: 'Adjudicar: ' + s['Especialidade'] + ' — fase ' + s['Fase'] + ' arranca em ' + s.diasParaArranque + 'd', fase: s['Fase'] }));
-
-  // TEEs aguarda resposta há mais de 14 dias
-  tees.filter(t => {
-    const aprov = String(t['Aprovado (S/N)']||'').trim().toUpperCase();
-    if (aprov === 'SIM') return false;
-    const dE = toDate(t['Data Envio']);
-    return dE && (hoje - dE) / 86400000 > 14;
-  }).forEach(t => accoes.push({ prio: 'atenção', texto: 'TEE ' + (t['Número']||'') + ' — ' + (t['Descrição']||'') + ': sem resposta há ' + Math.round((hoje - toDate(t['Data Envio'])) / 86400000) + 'd', fase: t['Fase']||'—' }));
-
-  // Notas urgentes do painel
-  for (let i=1; i<=8; i++) {
-    const prio = String(P['Nota ' + i + ' Prioridade']||'').trim().toLowerCase();
-    const txt  = String(P['Nota ' + i + ' Texto']||'').trim();
-    if (txt) accoes.push({ prio, texto: txt, fase: '—' });
-  }
-
-  // Fases com prazo ultrapassado
-  fasesData.forEach(f => {
-    const dF = toDate(f['Data Fim Prevista']);
-    if (dF && dF < hoje && fasePct(f) < 1 && String(f['Estado']||'') !== 'Concluído')
-      accoes.push({ prio: 'urgente', texto: f['Código'] + ' — ' + f['Fase'] + ': prazo ultrapassado (' + Math.round(fasePct(f)) + '% exec.)', fase: f['Código'] });
-  });
-
-  document.getElementById('p3-accoes').innerHTML = accoes.length
-    ? accoes.sort((a,b) => (prioOrd[a.prio]||9)-(prioOrd[b.prio]||9)).map(a => {
-        const [bg,fg,bd] = prioCor[a.prio] || ['var(--s2)','var(--tx2)','var(--bd)'];
-        return '<div class="p3-accao-item"><span class="p3-accao-prio" style="background:'+bg+';color:'+fg+';border:1px solid '+bd+'">'+(a.prio||'info')+'</span><div><div class="p3-accao-texto">'+a.texto+'</div><div class="p3-accao-fase">'+a.fase+'</div></div></div>';
-      }).join('')
-    : '<div class="p3-accao-item"><div class="p3-accao-texto" style="color:var(--grn)">✓ Sem acções pendentes identificadas</div></div>';
-
-  document.getElementById('p3-time').textContent = 'Actualizado ' + now.toLocaleTimeString('pt-PT');
-}
-
-
 // ── LOADING ───────────────────────────────────────────
 async function loadData() {
   document.querySelectorAll('.page').forEach(p => {
@@ -2035,17 +1673,24 @@ async function loadData() {
     const fat  = toObjArray(data['6_Faturação']      || []);
     const mat  = toObjArray(data['7_Materiais']      || []);
     const cf   = toObjArray(data['8_Custos'] || data['7_Custos_Fixos'] || []);
-    const pdes = toObjArray(data['9_Indice_PDEs'] || []);
-    const des  = toObjArray(data['10_Indice_Desenhos'] || []);
     const ci   = [];
 
-    const todosOsCustos = [...cf, ...ci, ...mat.map(m => ({
-      'Mês': m['Mês'], 'Valor (€)': m['Valor (€)'], '% Afectação Obra': '100'
-    }))];
+    const todosOsCustos = [
+      ...cf.map(r => ({
+        'Mês': r['Data'] || r['Mês'] || '',
+        'Valor (€)': r['Valor Total (€)'] || r['Valor (€)'] || '',
+        '% Afectação Obra': r['% Afectação Obra'] !== undefined ? r['% Afectação Obra'] : 1
+      })),
+      ...ci,
+      ...mat.map(m => ({
+        'Mês': m['Data'] || m['Mês'] || '',
+        'Valor (€)': m['Valor Total (€)'] || m['Valor (€)'] || '',
+        '% Afectação Obra': 1
+      }))
+    ];
 
     try { renderP1(P, C, tees, subs); } catch(e) { console.error('renderP1:', e); }
     try { renderP2(fases, fat, todosOsCustos, [], pags, subs); } catch(e) { console.error('renderP2:', e); }
-    try { renderP3(fases, subs, tees, pdes, des, P); } catch(e) { console.error('renderP3:', e); }
 
   } catch(err) {
     document.querySelectorAll('[id^="spin-"]').forEach(e => {
