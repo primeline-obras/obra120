@@ -1424,7 +1424,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
 
   // Previsão de faturação futura baseada no planeamento
   // Para cada fase activa/futura, distribui o valor de venda proporcional ao trabalho previsto por mês
-  const vendaTotalObra = 553619.19; // do contratual
+  const vendaTotalObra = num(C['Venda Contratual']) || 472179.26; // efectiva
   const jaFaturado = Object.values(entradasMes).reduce((s,v) => s+v, 0);
   const porFaturar = vendaTotalObra - jaFaturado;
 
@@ -1524,7 +1524,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
   // Construir CF por mês — com linhas de referência orçamental
   // Previsão orçamental de entradas: venda total distribuída linearmente pelos meses da obra
   const vendaTotal = 553619.19;
-  const cdTotal2   = 430569.03; // CD total com TEEs aprovados
+  const cdTotal2   = (num(C['Custo Directo Contratual']) + num(C['TEE Custo'])) || 355023.64;
   const entradaOrcMensal = vendaTotal / meses.length;
   const saidaOrcMensal   = cdTotal2   / meses.length;
   let entradaOrcAcum = 0, saidaOrcAcum = 0;
@@ -1574,7 +1574,8 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     const left  = Math.max(0, (dI - obraInicio) / totalMs * 100).toFixed(1);
     const width = Math.max(1, (dF - dI)         / totalMs * 100).toFixed(1);
     const p     = fasePct(f);
-    const cor   = FASE_CORES[f['Código']] || '#4A6090';
+    const faseCodKey = (String(f['Código']||'').match(/^F\d{2}/)||[''])[0];
+    const cor   = FASE_CORES[faseCodKey] || '#4A6090';
     const sub   = (f['Responsável']||f['Subempreiteiro']||'').split('/')[0].trim().slice(0,8);
 
     // Barra real (se data fim real existir)
@@ -1604,7 +1605,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
 
   // CHART — barras com valores acima + linhas de faturação/custos expectáveis
   const maxVal = Math.max(...CF.flatMap(m => [m.entrada, m.saida + m.saidaEst, m.entradaOrc, m.saidaOrc]), 1);
-  const chartH = 220;
+  const chartH = 280;
 
   document.getElementById('cf-chart').innerHTML = CF.map(m => {
     const hIn  = Math.round(m.entrada   / maxVal * chartH);
@@ -1617,7 +1618,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
         <div style="position:absolute;bottom:0;left:1%;width:46%;height:${Math.max(hIn,2)}px;
           background:${risk?'var(--red)':'var(--blu)'};border-radius:3px 3px 0 0"
           title="${m.label} ${m.y}: Entradas ${eur(m.entrada)}"></div>
-        ${hIn>4?`<div style="position:absolute;bottom:${hIn+20}px;left:1%;width:46%;
+        ${hIn>4?`<div style="position:absolute;bottom:${hIn+28}px;left:1%;width:46%;
           text-align:center;font-size:9px;color:var(--blu);font-family:var(--mono);line-height:1">
           ${(m.entrada/1000).toFixed(0)}k</div>`:''}
         <div style="position:absolute;bottom:0;right:1%;width:46%;height:${Math.max(hOut+hEst,2)}px">
@@ -1628,7 +1629,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
             title="${m.label} ${m.y}: Real ${eur(m.saida)}"></div>`:''}
           ${!hOut&&!hEst?`<div style="width:100%;height:2px;background:var(--amb);opacity:0.2"></div>`:''}
         </div>
-        ${(hOut+hEst)>4?`<div style="position:absolute;bottom:${hOut+hEst+20}px;right:1%;width:46%;
+        ${(hOut+hEst)>4?`<div style="position:absolute;bottom:${hOut+hEst+28}px;right:1%;width:46%;
           text-align:center;font-size:9px;color:var(--amb);font-family:var(--mono);line-height:1">
           ${(totalOut/1000).toFixed(0)}k</div>`:''}
       </div>
@@ -1995,7 +1996,7 @@ async function loadData() {
     const tees = toObjArray(data['3_TEEs'] || []);
     const subs = toObjArray(data['4_Subempreitadas'] || []);
     const pags = toObjArray(data['4b_Pagamentos_Subempreitadas'] || []);
-    const fases= toObjArray(data['5_Planeamento']    || []);
+    const fases= toObjArray(data['5b_Planeamento_Efectivo'] || data['5_Planeamento'] || []);
     const fat  = toObjArray(data['6_Faturação']      || []);
     const mat  = toObjArray(data['7_Materiais']      || []);
     const cf   = toObjArray(data['8_Custos'] || data['7_Custos_Fixos'] || []);
