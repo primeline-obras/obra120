@@ -385,9 +385,9 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
 /* ── TIMELINE ── */
 .timeline {
   display: flex; gap: 6px; align-items: flex-end;
-  height: 200px; margin-bottom: 8px; padding: 0 4px;
+  margin-bottom: 8px; padding: 0 4px; align-items: flex-end;
 }
-.tl-col { flex: 1; display: flex; flex-direction: column; gap: 3px; align-items: center; }
+.tl-col { flex: 1; display: flex; flex-direction: column; gap: 3px; align-items: center; justify-content: flex-end; }
 .tl-bars { display: flex; gap: 2px; align-items: flex-end; width: 100%; }
 .bar-in { flex: 1; border-radius: 3px 3px 0 0; background: var(--blu); min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); position: relative; }
 .bar-out { flex: 1; border-radius: 0 0 3px 3px; background: var(--amb); min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); }
@@ -1615,7 +1615,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     const totalOut = m.saida + m.saidaEst;
     const risk = totalOut > m.entrada && (m.entrada > 0 || totalOut > 0);
     return `<div class="tl-col">
-      <div style="position:relative;width:100%;height:${chartH}px;overflow:hidden">
+      <div style="position:relative;width:100%;height:${chartH}px">
         <div style="position:absolute;bottom:0;left:1%;width:46%;height:${Math.max(hIn,2)}px;
           background:${risk?'var(--red)':'var(--blu)'};border-radius:3px 3px 0 0"
           title="${m.label} ${m.y}: Entradas ${eur(m.entrada)}"></div>
