@@ -851,7 +851,7 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
       <span><span style="display:inline-block;width:20px;height:1px;border-top:2px dashed var(--amb);vertical-align:middle;margin-right:5px"></span>Custos orçamentais</span>
       <span><span class="leg-dot" style="background:var(--red);border-radius:50%"></span>Mês em risco</span>
     </div>
-    <div class="chart-wrap" id="cf-chart-wrap" style="padding-top:20px">
+    <div class="chart-wrap" id="cf-chart-wrap" style="padding-top:36px">
       <div class="timeline" id="cf-chart"></div>
     </div>
     <div style="font-size:11px;color:var(--tx3);margin-top:12px;font-family:var(--mono);line-height:1.6;border-top:1px solid var(--bd);padding-top:10px">
@@ -1587,7 +1587,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     }
 
     ganttHTML += `<div class="gantt-row" style="${hdrCols};background:${cor}18;border-left:3px solid ${cor}">
-      <div class="gantt-fase" style="line-height:1.3;padding:4px 8px">${(f['Descrição / Trabalhos']||f['Fase']||'').split('|')[0].trim()}</div>
+      <div class="gantt-fase" style="line-height:1.3;padding:4px 8px">${(f['Descrição / Trabalhos']||f['Código']||'').split('|')[0].trim()}</div>
       <div style="padding:0 8px;font-size:10px;color:var(--tx3)">${sub}</div>
       <div style="position:relative;padding:4px">
         <div class="gantt-bar-wrap">
@@ -1606,7 +1606,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
 
   // CHART — barras com valores acima + linhas de faturação/custos expectáveis
   const maxVal = Math.max(...CF.flatMap(m => [m.entrada, m.saida + m.saidaEst, m.entradaOrc, m.saidaOrc]), 1);
-  const chartH = 280;
+  const chartH = 240;
 
   document.getElementById('cf-chart').innerHTML = CF.map(m => {
     const hIn  = Math.round(m.entrada   / maxVal * chartH);
@@ -1615,7 +1615,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     const totalOut = m.saida + m.saidaEst;
     const risk = totalOut > m.entrada && (m.entrada > 0 || totalOut > 0);
     return `<div class="tl-col">
-      <div style="position:relative;width:100%;height:${chartH}px">
+      <div style="position:relative;width:100%;height:${chartH}px;overflow:hidden">
         <div style="position:absolute;bottom:0;left:1%;width:46%;height:${Math.max(hIn,2)}px;
           background:${risk?'var(--red)':'var(--blu)'};border-radius:3px 3px 0 0"
           title="${m.label} ${m.y}: Entradas ${eur(m.entrada)}"></div>
