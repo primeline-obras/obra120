@@ -1341,7 +1341,8 @@ function renderP1(P, C, tees, subs) {
     <td></td>`;
 
   // Sub-empreiteiros activos (cards)
-  document.getElementById('sub-cards').innerHTML = subsFilt
+  const subCards = document.getElementById('sub-cards');
+  if (subCards) subCards.innerHTML = subsFilt
     .filter(r => r['Empresa'] && ['Adjudicado','Fase consultas','Em execução','Activo'].includes(r['Estado']))
     .map((r,i) => `
       <div class="sub-card">
@@ -1379,7 +1380,7 @@ function fasePct(f) {
 }
 
 // ── RENDER PAINEL 2 ───────────────────────────────────
-function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, subs) {
+function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, subs, C) {
   // Calcular datas extremas da obra
   const toDate = v => {
     if (!v || v === '' || v === 0) return null;
@@ -2017,7 +2018,7 @@ async function loadData() {
     ];
 
     try { renderP1(P, C, tees, subs); } catch(e) { console.error('renderP1:', e); }
-    try { renderP2(fases, fat, todosOsCustos, [], pags, subs); } catch(e) { console.error('renderP2:', e); }
+    try { renderP2(fases, fat, todosOsCustos, [], pags, subs, C); } catch(e) { console.error('renderP2:', e); }
     try { renderP3(fases, subs, tees, P); } catch(e) { console.error('renderP3:', e); }
 
   } catch(err) {
