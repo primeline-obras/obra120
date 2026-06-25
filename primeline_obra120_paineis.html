@@ -1571,7 +1571,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     if (!dI || !dF) return;
     const left  = Math.max(0, (dI - obraInicio) / totalMs * 100).toFixed(1);
     const width = Math.max(1, (dF - dI)         / totalMs * 100).toFixed(1);
-    const p     = num(f['% Executado']);
+    const p     = fasePct(f);
     const cor   = FASE_CORES[f['Código']] || '#4A6090';
     const sub   = (f['Responsável']||f['Subempreiteiro']||'').split('/')[0].trim().slice(0,8);
 
@@ -1611,13 +1611,13 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     const totalOut = m.saida + m.saidaEst;
     const risk = totalOut > m.entrada && (m.entrada > 0 || totalOut > 0);
     return `<div class="tl-col">
-      <div class="tl-bars" style="align-items:flex-end">
-        <div style="display:flex;flex-direction:column;align-items:center;flex:1">
+      <div class="tl-bars" style="align-items:flex-end;height:214px;justify-content:flex-end">
+        <div style="display:flex;flex-direction:column;align-items:center;flex:1;justify-content:flex-end">
           <div style="font-size:9px;color:var(--blu);font-family:var(--mono);height:14px;line-height:14px">${m.entrada>0?(m.entrada/1000).toFixed(0)+'k':''}</div>
           <div class="bar-in ${risk?'neg':''}" style="height:${Math.max(hIn,2)}px;width:100%"
             title="${m.label} ${m.y}: Entradas ${eur(m.entrada)}"></div>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:center;flex:1">
+        <div style="display:flex;flex-direction:column;align-items:center;flex:1;justify-content:flex-end">
           <div style="font-size:9px;color:var(--amb);font-family:var(--mono);height:14px;line-height:14px">${totalOut>0?(totalOut/1000).toFixed(0)+'k':''}</div>
           <div style="display:flex;flex-direction:column;width:100%;gap:1px;align-self:flex-end">
             ${hEst>0?`<div class="bar-est" style="height:${Math.max(hEst,2)}px" title="${m.label} ${m.y}: Estimado ${eur(m.saidaEst)}"></div>`:''}
