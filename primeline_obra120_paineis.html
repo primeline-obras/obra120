@@ -1611,20 +1611,24 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     const totalOut = m.saida + m.saidaEst;
     const risk = totalOut > m.entrada && (m.entrada > 0 || totalOut > 0);
     return `<div class="tl-col">
-      <div class="tl-bars" style="align-items:flex-end;height:214px;justify-content:flex-end">
-        <div style="display:flex;flex-direction:column;align-items:center;flex:1;justify-content:flex-end">
-          <div style="font-size:9px;color:var(--blu);font-family:var(--mono);height:14px;line-height:14px">${m.entrada>0?(m.entrada/1000).toFixed(0)+'k':''}</div>
-          <div class="bar-in ${risk?'neg':''}" style="height:${Math.max(hIn,2)}px;width:100%"
-            title="${m.label} ${m.y}: Entradas ${eur(m.entrada)}"></div>
+      <div style="position:relative;width:100%;height:${chartH}px">
+        <div style="position:absolute;bottom:0;left:1%;width:46%;height:${Math.max(hIn,2)}px;
+          background:${risk?'var(--red)':'var(--blu)'};border-radius:3px 3px 0 0"
+          title="${m.label} ${m.y}: Entradas ${eur(m.entrada)}"></div>
+        ${hIn>4?`<div style="position:absolute;bottom:${hIn+3}px;left:1%;width:46%;
+          text-align:center;font-size:9px;color:var(--blu);font-family:var(--mono);line-height:1">
+          ${(m.entrada/1000).toFixed(0)}k</div>`:''}
+        <div style="position:absolute;bottom:0;right:1%;width:46%;height:${Math.max(hOut+hEst,2)}px">
+          ${hEst>0?`<div style="width:100%;height:${hEst}px;background:var(--amb);opacity:0.45;
+            border-radius:3px 3px 0 0;border-top:1px dashed var(--amb)"
+            title="${m.label} ${m.y}: Estimado ${eur(m.saidaEst)}"></div>`:''}
+          ${hOut>0?`<div style="width:100%;height:${hOut}px;background:var(--amb)"
+            title="${m.label} ${m.y}: Real ${eur(m.saida)}"></div>`:''}
+          ${!hOut&&!hEst?`<div style="width:100%;height:2px;background:var(--amb);opacity:0.2"></div>`:''}
         </div>
-        <div style="display:flex;flex-direction:column;align-items:center;flex:1;justify-content:flex-end">
-          <div style="font-size:9px;color:var(--amb);font-family:var(--mono);height:14px;line-height:14px">${totalOut>0?(totalOut/1000).toFixed(0)+'k':''}</div>
-          <div style="display:flex;flex-direction:column;width:100%;gap:1px;align-self:flex-end">
-            ${hEst>0?`<div class="bar-est" style="height:${Math.max(hEst,2)}px" title="${m.label} ${m.y}: Estimado ${eur(m.saidaEst)}"></div>`:''}
-            ${hOut>0?`<div class="bar-out" style="height:${Math.max(hOut,2)}px" title="${m.label} ${m.y}: Real ${eur(m.saida)}"></div>`:''}
-            ${!hOut&&!hEst?`<div class="bar-out" style="height:2px;opacity:0.2"></div>`:''}
-          </div>
-        </div>
+        ${(hOut+hEst)>4?`<div style="position:absolute;bottom:${hOut+hEst+3}px;right:1%;width:46%;
+          text-align:center;font-size:9px;color:var(--amb);font-family:var(--mono);line-height:1">
+          ${(totalOut/1000).toFixed(0)}k</div>`:''}
       </div>
       <div class="tl-month ${m.atual?'current':m.real?'':'future'}">${m.label}<br><span style="font-size:8px;opacity:0.6">${m.y2}</span></div>
     </div>`;
