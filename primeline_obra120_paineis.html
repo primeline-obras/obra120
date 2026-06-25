@@ -1537,7 +1537,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
       ...m,
       entrada:       entradasMes[k]||0,
       saida:         saidasMes[k]||0,
-      saidaEst:      saidasEstMes[k]||0,
+      saidaEst:      isReal ? 0 : (saidasEstMes[k]||0),
       entradaOrc:    entradaOrcMensal,   // referência orçamental mensal entradas
       saidaOrc:      saidaOrcMensal,     // referência orçamental mensal saídas
       real: isReal, atual: isAtual
@@ -1573,7 +1573,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     const width = Math.max(1, (dF - dI)         / totalMs * 100).toFixed(1);
     const p     = num(f['% Executado']);
     const cor   = FASE_CORES[f['Código']] || '#4A6090';
-    const sub   = (f['Subempreiteiro']||'').split('/')[0].trim().slice(0,8);
+    const sub   = (f['Responsável']||f['Subempreiteiro']||'').split('/')[0].trim().slice(0,8);
 
     // Barra real (se data fim real existir)
     let barraReal = '';
@@ -1583,7 +1583,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     }
 
     ganttHTML += `<div class="gantt-row" style="${hdrCols}">
-      <div class="gantt-fase">${f['Código']} — ${f['Fase']}</div>
+      <div class="gantt-fase">${f['Código']} — ${(f['Descrição / Trabalhos']||f['Fase']||'').replace(/^F\d{2}\s*[—-]?\s*/,'').split('|')[0].trim()}</div>
       <div style="padding:0 8px;font-size:10px;color:var(--tx3)">${sub}</div>
       <div style="position:relative;padding:4px">
         <div class="gantt-bar-wrap">
@@ -1591,7 +1591,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
           <div class="gantt-bar" style="left:${left}%;width:${width}%;background:${cor}25;border:1px solid ${cor}55">
             <div style="position:absolute;left:0;top:0;height:100%;width:${p}%;background:${cor};border-radius:3px 0 0 3px;opacity:0.75"></div>
             ${barraReal}
-            <span class="gantt-bar-label" style="position:relative;z-index:1">${f['Fase']}</span>
+            <span class="gantt-bar-label" style="position:relative;z-index:1">${(f['Descrição / Trabalhos']||f['Fase']||'').replace(/^F\d{2}\s*[—-]?\s*/,'').split('|')[0].trim()}</span>
           </div>
         </div>
       </div>
@@ -1698,9 +1698,11 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
 
   // Simulador — actualiza fases disponíveis
   const simFase = document.getElementById('sim-fase');
-  simFase.innerHTML = fasesData.filter(f=>num(f['% Executado'])<100).map(f =>
-    `<option value="${f['Código']}">${f['Código']} — ${f['Fase']} (${f['Subempreiteiro']||'Primeline'})</option>`
-  ).join('');
+  simFase.innerHTML = fasesData.filter(f=>num(f['% Executado'])<100).map(f => {
+    const fNomeSim = (f['Descrição / Trabalhos']||f['Fase']||'').replace(/^F\d{2}\s*[—-]?\s*/,'').split('|')[0].trim();
+    const fRespSim = f['Responsável']||f['Subempreiteiro']||'Primeline';
+    return `<option value="${f['Código']}">${f['Código']} — ${fNomeSim} (${fRespSim})</option>`;
+  }).join('');
 
   // KPIs P2
   const totalEnt  = CF.reduce((s,m) => s+m.entrada, 0);
