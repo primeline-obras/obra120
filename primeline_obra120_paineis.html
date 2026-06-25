@@ -851,13 +851,13 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
       <span><span style="display:inline-block;width:20px;height:1px;border-top:2px dashed var(--amb);vertical-align:middle;margin-right:5px"></span>Custos orçamentais</span>
       <span><span class="leg-dot" style="background:var(--red);border-radius:50%"></span>Mês em risco</span>
     </div>
-    <div style="font-size:11px;color:var(--tx3);margin-top:8px;font-family:var(--mono);line-height:1.6">
+    <div class="chart-wrap" id="cf-chart-wrap" style="padding-top:20px">
+      <div class="timeline" id="cf-chart"></div>
+    </div>
+    <div style="font-size:11px;color:var(--tx3);margin-top:12px;font-family:var(--mono);line-height:1.6;border-top:1px solid var(--bd);padding-top:10px">
       <strong style="color:var(--tx2)">Saldo acumulado (∑)</strong> — soma de entradas menos saídas desde o início da obra até ao mês. Indica se a obra está a gerar ou consumir caixa.
       &nbsp;·&nbsp;
       <strong style="color:var(--tx2)">Saldo previsional</strong> — mesmo cálculo projectado até ao fim da obra, incluindo estimativas futuras.
-    </div>
-    <div class="chart-wrap" id="cf-chart-wrap">
-      <div class="timeline" id="cf-chart"></div>
     </div>
     <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap" id="cf-summary"></div>
   </div>
