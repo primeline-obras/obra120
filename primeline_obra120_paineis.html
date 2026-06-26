@@ -1380,7 +1380,7 @@ function fasePct(f) {
 }
 
 // ── RENDER PAINEL 2 ───────────────────────────────────
-function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, subs, C) {
+function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, subs, C, orc) {
   // Calcular datas extremas da obra
   const toDate = v => {
     if (!v || v === '' || v === 0) return null;
@@ -1521,6 +1521,25 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
       c = new Date(c.getFullYear(), c.getMonth()+1, 1);
     }
   });
+
+  // Saídas estimadas por fase usando 0_Orcamento (CDmes e datas de início/fim por fase)
+  if (orc && orc.length > 0) {
+    const orcFases = orc.filter(r => r['Fase'] && String(r['Fase']).match(/^F\d{2}$/));
+    orcFases.forEach(r => {
+      const cdMes = num(r['CD/mês\nestimd.(€)'] || r['C.D./mês\nestimd.(€)'] || r['CDmes'] || 0);
+      const dI = toDate(r['Fase ativa\ninício'] || r['Fase activa\ninício'] || r['Faseativa\ninício']);
+      const dF = toDate(r['Fase ativa\nfim']    || r['Fase activa\nfim']    || r['Faseativa\nfim']);
+      if (!cdMes || !dI || !dF) return;
+      let cur = new Date(dI.getFullYear(), dI.getMonth(), 1);
+      while (cur <= dF) {
+        const k = `${cur.getFullYear()}-${cur.getMonth()}`;
+        // só meses futuros — não sobrescrever histórico real
+        const isFut = cur.getFullYear() > hojeY || (cur.getFullYear() === hojeY && cur.getMonth() >= hojeM);
+        if (isFut) saidasEstMes[k] = (saidasEstMes[k]||0) + cdMes;
+        cur = new Date(cur.getFullYear(), cur.getMonth()+1, 1);
+      }
+    });
+  }
 
   // Construir CF por mês — com linhas de referência orçamental
   // Previsão orçamental de entradas: venda total distribuída linearmente pelos meses da obra
@@ -1998,6 +2017,7 @@ async function loadData() {
     const subs = toObjArray(data['4_Subempreitadas'] || []);
     const pags = toObjArray(data['4b_Pagamentos_Subempreitadas'] || []);
     const fases= toObjArray(data['5b_Planeamento_Efectivo'] || data['5_Planeamento'] || []);
+    const orc  = toObjArray(data['0_Orcamento'] || []);
     const fat  = toObjArray(data['6_Faturação']      || []);
     const mat  = toObjArray(data['7_Materiais']      || []);
     const cf   = toObjArray(data['8_Custos'] || data['7_Custos_Fixos'] || []);
@@ -2018,7 +2038,7 @@ async function loadData() {
     ];
 
     try { renderP1(P, C, tees, subs); } catch(e) { console.error('renderP1:', e); }
-    try { renderP2(fases, fat, todosOsCustos, [], pags, subs, C); } catch(e) { console.error('renderP2:', e); }
+    try { renderP2(fases, fat, todosOsCustos, [], pags, subs, C, orc); } catch(e) { console.error('renderP2:', e); }
     try { renderP3(fases, subs, tees, P); } catch(e) { console.error('renderP3:', e); }
 
   } catch(err) {
