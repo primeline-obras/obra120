@@ -1095,6 +1095,36 @@ function toKV(rows) {
   // Abas _dados têm 2 linhas de cabeçalho (aviso + títulos), outras têm 1
   const start = (rows.length > 1 && String(rows[0][0]).includes('NÃO EDITAR')) ? 2 : 1;
   rows.slice(start).forEach(r => { if (r[0]) o[String(r[0])] = r[1]; });
+  // Normalizar chaves sem espaços para chaves com espaços (Sheets remove espaços)
+  const norm = {
+    'VendaContratual':       'Venda Contratual',
+    'CustoDirectoContratual':'Custo Directo Contratual',
+    'TEEVenda':              'TEE Venda',
+    'TEECusto':              'TEE Custo',
+    'CFlowMensalContratual': 'CFlow Mensal Contratual',
+    'CFlowMensalTotal':      'CFlow Mensal Total',
+    'CFlowRealYTD':          'CFlow Real YTD',
+    'ValorFaturado':         'Valor Faturado',
+    'ValorPorFaturar':       'Valor Por Faturar',
+    'CustosEstimados':       'Custos Estimados',
+    'Pessoal+Viatura':       'Pessoal Viatura',
+    'TotalDespesasYTD':      'Total Despesas YTD',
+    'MargemRealYTD':         'Margem Real YTD',
+    'MargemRealYTD%':        'Margem Real YTD %',
+    'DesvioOrç%':            'Desvio Orç %',
+    '%PrazoConsumido':       '% Prazo Consumido',
+    '%ObraExecutada':        '% Obra Executada',
+    'Iníciodaobra':          'Início da obra',
+    'Prazocontratual':       'Prazo contratual',
+    'Prorrogaçãoativa':      'Prorrogação activa',
+    'Prazoc/prorrogação':    'Prazo c/ prorrogação',
+    'Duraçãocontratual(M)':  'Duração contratual (M)',
+    'DonodeObra':            'Dono de Obra',
+    'DiretordeObra':         'Diretor de Obra',
+    'AdjuntaDO':             'Adjunta DO',
+    'Nome e':                'Nome',
+  };
+  Object.entries(norm).forEach(([from, to]) => { if (from in o) o[to] = o[from]; });
   return o;
 }
 
