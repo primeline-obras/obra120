@@ -2011,16 +2011,17 @@ async function loadData() {
 
     document.querySelectorAll('[id^="spin-"]').forEach(e => e.remove());
 
-    const P    = toKV(data['1_Painel_dados'] || data['1_Painel']     || []);
-    const C    = toKV(data['2_Contratual_dados'] || data['2_Contratual'] || []);
-    const tees = toObjArray(data['3_TEEs'] || []);
-    const subs = toObjArray(data['4_Subempreitadas'] || []);
-    const pags = toObjArray(data['4b_Pagamentos_Subempreitadas'] || []);
-    const fases= toObjArray(data['5b_Planeamento_Efectivo'] || data['5_Planeamento'] || []);
-    const orc  = toObjArray(data['0_Orcamento'] || []);
-    const fat  = toObjArray(data['6_Faturação']      || []);
-    const mat  = toObjArray(data['7_Materiais']      || []);
-    const cf   = toObjArray(data['8_Custos'] || data['7_Custos_Fixos'] || []);
+    let P={}, C={}, tees=[], subs=[], pags=[], fases=[], orc=[], fat=[], mat=[], cf=[];
+    try { P    = toKV(data['1_Painel_dados'] || data['1_Painel'] || []); } catch(e) { console.error('P:',e); }
+    try { C    = toKV(data['2_Contratual_dados'] || data['2_Contratual'] || []); } catch(e) { console.error('C:',e); }
+    try { tees = toObjArray(data['3_TEEs'] || []); } catch(e) { console.error('tees:',e); }
+    try { subs = toObjArray(data['4_Subempreitadas'] || []); } catch(e) { console.error('subs:',e); }
+    try { pags = toObjArray(data['4b_Pagamentos_Subempreitadas'] || []); } catch(e) { console.error('pags:',e); }
+    try { fases= toObjArray(data['5b_Planeamento_Efectivo'] || data['5_Planeamento'] || []); } catch(e) { console.error('fases:',e); }
+    try { orc  = toObjArray(data['0_Orcamento'] || []); } catch(e) { console.error('orc:',e); }
+    try { fat  = toObjArray(data['6_Faturação'] || []); } catch(e) { console.error('fat:',e); }
+    try { mat  = toObjArray(data['7_Materiais'] || []); } catch(e) { console.error('mat:',e); }
+    try { cf   = toObjArray(data['8_Custos'] || data['7_Custos_Fixos'] || []); } catch(e) { console.error('cf:',e); }
     const ci   = [];
 
     const todosOsCustos = [
