@@ -1060,7 +1060,7 @@ function toObjArray(rows) {
   const headerHints = ['Código','Fase','Nº Fatura','Número','Subempreiteiro','Especialidade',
     'Data Recebimento','Valor (€)','Descrição / Auto','Nome Funcionário','Nº Doc','Fornecedor',
     'Nº Doc / Fatura','Data Fatura','Descrição / Trabalhos','Nº Doc / Ref.','Quant. Horas',
-    'Data Emissão do Auto','Data de Emissão da Fatura'];
+    'Data Emissão do Auto','Data de Emissão da Fatura','Mês','Custo Previsto','Considerar Futuro','C.D./mês'];
   for (let i = 0; i < Math.min(rows.length, 6); i++) {
     const row = rows[i] || [];
     const first = String(row[0] || '');
@@ -1410,7 +1410,7 @@ function fasePct(f) {
 }
 
 // ── RENDER PAINEL 2 ───────────────────────────────────
-function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, subs, C, orc) {
+function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, subs, C, orc, previsaoFinanceira) {
   // Calcular datas extremas da obra
   const toDate = v => {
     if (!v || v === '' || v === 0) return null;
@@ -1453,47 +1453,18 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     entradasMes[k] = (entradasMes[k]||0) + num(f['Valor (€)']);
   });
 
-  // Previsão de faturação futura baseada no planeamento
-  // Para cada fase activa/futura, distribui o valor de venda proporcional ao trabalho previsto por mês
-  const vendaTotalObra = num(C['Venda Contratual']) || 472179.26; // efectiva
-  const jaFaturado = Object.values(entradasMes).reduce((s,v) => s+v, 0);
-  const porFaturar = vendaTotalObra - jaFaturado;
-
-  // Calcular peso de cada fase futura por mês
-  const pesos = {}; // k -> peso
-  fasesData.filter(f => num(f['% Executado']) < 100).forEach(f => {
-    const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
-    if (!dI || !dF) return;
-    const duracaoMs = dF - dI;
-    if (duracaoMs <= 0) return;
-    let c = new Date(dI.getFullYear(), dI.getMonth(), 1);
-    while (c <= dF) {
-      const ky = c.getFullYear(), km = c.getMonth();
-      if (ky > hojeY || (ky === hojeY && km >= hojeM)) {
-        const k = `${ky}-${km}`;
-        pesos[k] = (pesos[k]||0) + 1;
-      }
-      c = new Date(ky, km+1, 1);
-    }
-  });
-
-  const totalPeso = Object.values(pesos).reduce((s,v) => s+v, 0);
-  if (totalPeso > 0) {
-    Object.entries(pesos).forEach(([k, p]) => {
-      entradasMes[k] = (entradasMes[k]||0) + (p / totalPeso) * porFaturar;
-    });
-  }
+  // Entradas futuras: não recalcular no HTML. Se existirem linhas futuras na aba de faturação,
+  // são consumidas como dados já preparados; a previsão de custos vem da aba 2b_Previsão Financeira.
 
   // Mapear saídas por mês (custos fixos + internos + pagamentos reais)
   const saidasMes = {};      // saídas reais
   const saidasEstMes = {};   // saídas estimadas (subempreitadas não adjudicadas)
 
-  // Meses futuros para distribuição de linhas de previsão
-  const mesesFuturos = meses.filter(m => m.y > hojeY || (m.y === hojeY && m.m >= hojeM));
-
   [...custosFixos, ...custosInternos].forEach(r => {
     const d = toDate(r['Mês']);
     if (!d) return;
+    const isReal = d.getFullYear() < hojeY || (d.getFullYear() === hojeY && d.getMonth() < hojeM);
+    if (!isReal) return; // meses actuais/futuros vêm da aba 2b_Previsão Financeira
     const valRaw = String(r['Valor (€)']||r['Custo Total (€)']||'').trim();
     if (!valRaw || valRaw.toLowerCase() === 'indefinido') return;
     const val = num(valRaw);
@@ -1501,75 +1472,40 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     let afect = num(r['% Afectação Obra']||'1');
     if (afect > 1) afect = afect / 100;
     if (!afect) afect = 1;
-    const descricao = String(r['Descrição']||'').toLowerCase();
-    const isPrevisao = descricao.includes('previsão') || descricao.includes('previsao') ||
-                       descricao.includes('estimativa') || descricao.includes('estimat');
-    if (isPrevisao && mesesFuturos.length > 0) {
-      const valMensal = val * afect / mesesFuturos.length;
-      mesesFuturos.forEach(m => {
-        const k = `${m.y}-${m.m}`;
-        saidasMes[k] = (saidasMes[k]||0) + valMensal;
-      });
-    } else {
-      const k = `${d.getFullYear()}-${d.getMonth()}`;
-      saidasMes[k] = (saidasMes[k]||0) + val * afect;
-    }
+    const k = `${d.getFullYear()}-${d.getMonth()}`;
+    saidasMes[k] = (saidasMes[k]||0) + val * afect;
   });
 
-  // Pagamentos reais de subempreitadas
+  // Pagamentos reais de subempreitadas: apenas meses passados.
+  // Meses actuais/futuros são alimentados pela aba 2b_Previsão Financeira.
   (pagamentos||[]).filter(p => (p['Data Pagamento'] || p['Data Fatura']) && (p['Valor Total (€)'] || p['Valor Pago (€)'])).forEach(p => {
     const d = toDate(p['Data Pagamento'] || p['Data Fatura']);
     if (!d) return;
+    const isReal = d.getFullYear() < hojeY || (d.getFullYear() === hojeY && d.getMonth() < hojeM);
+    if (!isReal) return;
     const k = `${d.getFullYear()}-${d.getMonth()}`;
     saidasMes[k] = (saidasMes[k]||0) + num(p['Valor Total (€)'] || p['Valor Pago (€)']);
   });
 
-  // Saídas estimadas — subempreitadas não adjudicadas distribuídas pela fase
-  // Cria índice de fases por código para acesso rápido
-  const faseIndex = {};
-  fasesData.forEach(f => { if (f['Código']) faseIndex[f['Código']] = f; });
-
-  (subs||[]).filter(s => {
-    const est = (s['Estado']||'').trim();
-    return ['Ainda não','Fase consultas'].includes(est) && num(s['C.D.']) > 0 && s['Fase'];
-  }).forEach(s => {
-    const fase = faseIndex[s['Fase']];
-    if (!fase) return;
-    const dI = toDate(fase['Data Início']), dF = toDate(fase['Data Fim Prevista']);
-    if (!dI || !dF) return;
-    // Calcular quantos meses tem a fase
-    let nMeses = 0;
-    let c = new Date(dI.getFullYear(), dI.getMonth(), 1);
-    while (c <= dF) { nMeses++; c = new Date(c.getFullYear(), c.getMonth()+1, 1); }
-    if (nMeses === 0) return;
-    const cdMensal = num(s['C.D.']) / nMeses;
-    // Distribuir por cada mês da fase
-    c = new Date(dI.getFullYear(), dI.getMonth(), 1);
-    while (c <= dF) {
-      const k = `${c.getFullYear()}-${c.getMonth()}`;
-      saidasEstMes[k] = (saidasEstMes[k]||0) + cdMensal;
-      c = new Date(c.getFullYear(), c.getMonth()+1, 1);
+  // Saídas previstas — consumir directamente a aba 2b_Previsão Financeira.
+  // O HTML não recalcula duração, C.D./mês nem distribuição por fase: esses valores já vêm do Sheets.
+  (previsaoFinanceira||[]).forEach(r => {
+    const d = toDate(r['Mês'] || r['Mes'] || r['Data'] || r['Data Início']);
+    if (!d) return;
+    const isFuturo = d.getFullYear() > hojeY || (d.getFullYear() === hojeY && d.getMonth() >= hojeM);
+    if (!isFuturo) return;
+    const considerar = String(r['Considerar Futuro'] ?? r['Considerar futuro'] ?? r['Futuro'] ?? 'SIM').trim().toUpperCase();
+    if (['NÃO','NAO','NO','FALSE','0'].includes(considerar)) return;
+    const val = num(r['Custo Previsto'] ?? r['Custo previsto'] ?? r['Valor Previsto'] ?? r['Valor (€)'] ?? 0);
+    if (!val) return;
+    const tipo = String(r['Tipo'] || '').trim().toLowerCase();
+    const k = `${d.getFullYear()}-${d.getMonth()}`;
+    if (tipo.includes('entrada') || tipo.includes('receita') || tipo.includes('fatur') || tipo.includes('factur') || tipo.includes('venda')) {
+      entradasMes[k] = (entradasMes[k]||0) + val;
+    } else {
+      saidasEstMes[k] = (saidasEstMes[k]||0) + val;
     }
   });
-
-  // Saídas estimadas por fase usando 0_Orcamento (CDmes e datas de início/fim por fase)
-  if (orc && orc.length > 0) {
-    const orcFases = orc.filter(r => r['Fase'] && String(r['Fase']).match(/^F\d{2}$/));
-    orcFases.forEach(r => {
-      const cdMes = num(r['CD/mês\nestimd.(€)'] || r['C.D./mês\nestimd.(€)'] || r['CDmes'] || 0);
-      const dI = toDate(r['Fase ativa\ninício'] || r['Fase activa\ninício'] || r['Faseativa\ninício']);
-      const dF = toDate(r['Fase ativa\nfim']    || r['Fase activa\nfim']    || r['Faseativa\nfim']);
-      if (!cdMes || !dI || !dF) return;
-      let cur = new Date(dI.getFullYear(), dI.getMonth(), 1);
-      while (cur <= dF) {
-        const k = `${cur.getFullYear()}-${cur.getMonth()}`;
-        // só meses futuros — não sobrescrever histórico real
-        const isFut = cur.getFullYear() > hojeY || (cur.getFullYear() === hojeY && cur.getMonth() >= hojeM);
-        if (isFut) saidasEstMes[k] = (saidasEstMes[k]||0) + cdMes;
-        cur = new Date(cur.getFullYear(), cur.getMonth()+1, 1);
-      }
-    });
-  }
 
   // Construir CF por mês — com linhas de referência orçamental
   // Previsão orçamental de entradas: venda total distribuída linearmente pelos meses da obra
@@ -2048,7 +1984,9 @@ async function loadData() {
     try { subs = toObjArray(data['4_Subempreitadas'] || []); } catch(e) { console.error('subs:',e); }
     try { pags = toObjArray(data['4b_Pagamentos_Subempreitadas'] || []); } catch(e) { console.error('pags:',e); }
     try { fases= toObjArray(data['5b_Planeamento_Efectivo'] || data['5_Planeamento'] || []); } catch(e) { console.error('fases:',e); }
-    try { orc  = toObjArray(data['0_Orcamento'] || []); } catch(e) { console.error('orc:',e); }
+    try { orc  = toObjArray(data['0_Orçamento'] || data['0_Orcamento'] || []); } catch(e) { console.error('orc:',e); }
+    let prevFin = [];
+    try { prevFin = toObjArray(data['2b_Previsão Financeira'] || data['2b_Previsao Financeira'] || data['2b_Previsao_Financeira'] || []); } catch(e) { console.error('prevFin:',e); }
     try { fat  = toObjArray(data['6_Faturação'] || []); } catch(e) { console.error('fat:',e); }
     try { mat  = toObjArray(data['7_Materiais'] || []); } catch(e) { console.error('mat:',e); }
     try { cf   = toObjArray(data['8_Custos'] || data['7_Custos_Fixos'] || []); } catch(e) { console.error('cf:',e); }
@@ -2069,7 +2007,7 @@ async function loadData() {
     ];
 
     try { renderP1(P, C, tees, subs); } catch(e) { console.error('renderP1:', e); }
-    try { renderP2(fases, fat, todosOsCustos, [], pags, subs, C, orc); } catch(e) { console.error('renderP2:', e); }
+    try { renderP2(fases, fat, todosOsCustos, [], pags, subs, C, orc, prevFin); } catch(e) { console.error('renderP2:', e); }
     try { renderP3(fases, subs, tees, P); } catch(e) { console.error('renderP3:', e); }
 
   } catch(err) {
