@@ -1533,7 +1533,13 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
   // Saídas estimadas — subempreitadas não adjudicadas distribuídas pela fase
   // Cria índice de fases por código para acesso rápido
   const faseIndex = {};
-  fasesData.forEach(f => { if (f['Código']) faseIndex[f['Código']] = f; });
+  fasesData.forEach(f => {
+    if (!f['Código']) return;
+    const codFull = String(f['Código']);
+    faseIndex[codFull] = f; // chave completa ex: 'F01 — ESTALEIRO...'
+    const codCurto = (codFull.match(/^F\d{2}/) || [''])[0];
+    if (codCurto) faseIndex[codCurto] = f; // chave curta ex: 'F01'
+  });
 
   (subs||[]).filter(s => {
     const est = (s['Estado']||'').trim();
