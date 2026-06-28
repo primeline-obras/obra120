@@ -1530,41 +1530,19 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     saidasMes[k] = (saidasMes[k]||0) + num(p['Valor Total (€)']||p['ValorTotal(€)']||p['Valor Pago (€)']);
   });
 
-  // Saídas estimadas — subempreitadas não adjudicadas distribuídas pela fase
-  // Cria índice de fases por código para acesso rápido
+  // Índice de fases por código (curto e completo)
   const faseIndex = {};
   fasesData.forEach(f => {
     if (!f['Código']) return;
     const codFull = String(f['Código']);
-    faseIndex[codFull] = f; // chave completa ex: 'F01 — ESTALEIRO...'
+    faseIndex[codFull] = f;
     const codCurto = (codFull.match(/^F\d{2}/) || [''])[0];
-    if (codCurto) faseIndex[codCurto] = f; // chave curta ex: 'F01'
-  });
-
-  (subs||[]).filter(s => {
-    const est = (s['Estado']||'').trim();
-    return ['Ainda não','Fase consultas'].includes(est) && num(s['C.D.']) > 0 && s['Fase'];
-  }).forEach(s => {
-    const fase = faseIndex[s['Fase']];
-    if (!fase) return;
-    const dI = toDate(fase['Data Início']), dF = toDate(fase['Data Fim Prevista']);
-    if (!dI || !dF) return;
-    // Calcular quantos meses tem a fase
-    let nMeses = 0;
-    let c = new Date(dI.getFullYear(), dI.getMonth(), 1);
-    while (c <= dF) { nMeses++; c = new Date(c.getFullYear(), c.getMonth()+1, 1); }
-    if (nMeses === 0) return;
-    const cdMensal = num(s['C.D.']) / nMeses;
-    // Distribuir por cada mês da fase
-    c = new Date(dI.getFullYear(), dI.getMonth(), 1);
-    while (c <= dF) {
-      const k = `${c.getFullYear()}-${c.getMonth()}`;
-      saidasEstMes[k] = (saidasEstMes[k]||0) + cdMensal;
-      c = new Date(c.getFullYear(), c.getMonth()+1, 1);
-    }
+    if (codCurto) faseIndex[codCurto] = f;
   });
 
   // Saídas estimadas por fase usando 0_Orcamento (CDmes) cruzado com datas do planeamento
+  // Nota: o bloco de subempreitadas 'Ainda não' foi removido para evitar dupla contagem —
+  // o 0_Orcamento já inclui o CD de todas as fases, incluindo Caixilharia e Carpintaria.
   if (orc && orc.length > 0) {
     const orcFases = orc.filter(r => r['Fase'] && String(r['Fase']).match(/^F\d{2}$/));
     orcFases.forEach(r => {
@@ -1611,7 +1589,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
       ...m,
       entrada:       entradasMes[k]||0,
       saida:         saidasMes[k]||0,
-      saidaEst:      isReal ? 0 : (saidasEstMes[k]||0),
+      saidaEst:      (isReal || (isAtual && (saidasMes[k]||0) > 0)) ? 0 : (saidasEstMes[k]||0),
       entradaOrc:    entradaOrcMensal,   // referência orçamental mensal entradas
       saidaOrc:      saidaOrcMensal,     // referência orçamental mensal saídas
       real: isReal, atual: isAtual
