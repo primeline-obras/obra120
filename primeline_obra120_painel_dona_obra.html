@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Obra 120 · Quinta da Marinha — Acompanhamento / Project Tracking</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+
+/* ── DARK MODE (default) ── */
+:root {
+  --bg:     #080B10; --s0: #0D1118; --s1: #111622; --s2: #171E2E;
+  --s3:     #1E2840; --s4: #263050; --bd: #1E2840; --bd2: #2E3D5C; --bd3: #3D5080;
+  --tx:     #D8E4F8; --tx2: #7B90B8; --tx3: #3D4F70;
+  --grn:    #3DD68C; --grn2: #2AB870; --grn-bg: #071A10;
+  --amb:    #F5A623; --amb2: #D08800; --amb-bg: #1A1000;
+  --red:    #F56060; --red2: #C83030; --red-bg: #180808;
+  --blu:    #4D9EF5; --blu2: #2878D8; --blu-bg: #060E1C;
+  --nav-bg: rgba(8,11,16,0.92);
+  --mono: 'DM Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+  --r-sm: 8px; --r-md: 12px; --r-lg: 16px;
+}
+/* ── LIGHT MODE ── */
+html.light {
+  --bg:#F4F6FB; --s0:#ECEEF5; --s1:#FFFFFF; --s2:#F0F2F8; --s3:#E4E8F2; --s4:#D8DEED;
+  --bd:#D8DEED; --bd2:#B8C4DC; --bd3:#98AACC;
+  --tx:#1A2340; --tx2:#4A5878; --tx3:#8898B8;
+  --grn:#1A8A50; --grn2:#147840; --grn-bg:#E8F7EE;
+  --amb:#A06000; --amb2:#805000; --amb-bg:#FFF4E0;
+  --red:#C02020; --red2:#A01010; --red-bg:#FDEAEA;
+  --blu:#1A60C8; --blu2:#1050A8; --blu-bg:#EAF0FC;
+  --nav-bg:rgba(244,246,251,0.95);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--sans); background: var(--bg); color: var(--tx); min-height: 100vh; font-size: 16px; line-height: 1.5; }
+
+/* ── NAV ── */
+.nav { position: sticky; top: 0; z-index: 100; background: var(--nav-bg); backdrop-filter: blur(12px); border-bottom: 1px solid var(--bd); padding: 0 28px; display: flex; align-items: center; height: 52px; gap: 0; }
+.nav-brand { font-family: var(--mono); font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--tx3); margin-right: 24px; white-space: nowrap; }
+.nav-brand strong { color: var(--blu); font-weight: 500; }
+.nav-spacer { flex: 1; }
+.nav-date { font-family: var(--mono); font-size: 10px; color: var(--tx3); }
+.theme-toggle { background: var(--s2); border: 1px solid var(--bd2); border-radius: 20px; padding: 4px 12px 4px 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 11px; color: var(--tx2); transition: all 0.2s; margin-left: 12px; white-space: nowrap; }
+.theme-toggle:hover { border-color: var(--blu); color: var(--blu); }
+.theme-icon { font-size: 14px; line-height: 1; }
+
+/* ── LAYOUT ── */
+.page { padding: 28px 40px 60px; max-width: 1400px; margin: 0 auto; }
+
+/* ── OBRA HEADER ── */
+.obra-header { background: linear-gradient(135deg, var(--s2) 0%, var(--s1) 100%); border: 1px solid var(--bd2); border-radius: var(--r-lg); padding: 24px 28px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr auto; gap: 24px; position: relative; overflow: hidden; }
+.obra-header::before { content: ''; position: absolute; top: -40px; right: -40px; width: 180px; height: 180px; background: radial-gradient(circle, rgba(77,158,245,0.08) 0%, transparent 70%); pointer-events: none; }
+.oh-eyebrow { font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--tx3); margin-bottom: 6px; }
+.oh-title { font-size: 22px; font-weight: 600; margin-bottom: 4px; letter-spacing: -0.02em; }
+.oh-ref { font-family: var(--mono); font-size: 11px; color: var(--blu); background: var(--blu-bg); border: 1px solid var(--blu2); padding: 2px 8px; border-radius: 4px; margin-left: 8px; }
+.oh-desc { font-size: 13px; color: var(--tx2); font-weight: 300; margin-top: 2px; }
+.oh-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 28px; text-align: right; }
+.oh-item .lbl { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--tx3); display: block; margin-bottom: 2px; }
+.oh-item .val { font-size: 13px; font-weight: 500; }
+
+/* ── STATUS BAR ── */
+.sbar { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--r-md); padding: 0 20px; margin-bottom: 20px; display: flex; align-items: stretch; overflow: hidden; }
+.sbar-item { display: flex; flex-direction: column; justify-content: center; gap: 3px; padding: 12px 20px; flex: 1; min-width: 100px; }
+.sbar-item + .sbar-item { border-left: 1px solid var(--bd); }
+.sbar-lbl { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--tx3); }
+.sbar-val { font-size: 14px; font-weight: 500; }
+
+/* ── SECTION ── */
+.sec { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--tx3); margin: 28px 0 12px; display: flex; align-items: center; gap: 10px; }
+.sec::after { content: ''; flex: 1; height: 1px; background: var(--bd); }
+.sec-num { color: var(--blu); }
+
+/* ── GRIDS ── */
+.g2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
+.g3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.g4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+.span2 { grid-column: span 2; }
+.span3 { grid-column: span 3; }
+
+/* ── CARD ── */
+.card { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--r-md); padding: 16px 18px; transition: border-color 0.15s; }
+.card:hover { border-color: var(--bd2); }
+.card-title { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--tx3); margin-bottom: 14px; }
+
+/* ── KPI ── */
+.kpi { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--r-md); padding: 16px 18px; }
+.kpi.gl { border-left: 3px solid var(--grn); }
+.kpi.bl { border-left: 3px solid var(--blu); }
+.kpi.al { border-left: 3px solid var(--amb); }
+.kpi.rl { border-left: 3px solid var(--red); }
+.kpi-tag { font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--tx3); margin-bottom: 10px; line-height: 1.5; }
+.kpi-val { font-family: var(--mono); font-size: 26px; font-weight: 500; line-height: 1.1; margin-bottom: 6px; }
+.kpi-sub { font-size: 12px; color: var(--tx2); }
+
+/* ── BILINGUAL ── */
+.bi { display: flex; flex-direction: column; gap: 1px; }
+.bi-pt { font-size: inherit; color: var(--tx); }
+.bi-en { font-size: 0.82em; color: var(--tx3); font-style: italic; }
+
+/* ── DATA ROW ── */
+.dr { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--bd); font-size: 13px; }
+.dr:last-child { border-bottom: none; }
+.dr .l { color: var(--tx2); flex: 1; padding-right: 12px; }
+.dr .v { font-family: var(--mono); font-weight: 600; white-space: nowrap; }
+.dr.total { border-top: 2px solid var(--bd2); padding-top: 12px; margin-top: 4px; }
+.dr.total .l { color: var(--tx); font-weight: 600; }
+.dr.total .v { font-size: 16px; }
+
+/* ── PILLS ── */
+.pill { display: inline-block; font-family: var(--mono); font-size: 10px; padding: 2px 8px; border-radius: 20px; }
+.pill-amb { background: var(--amb-bg); color: var(--amb); border: 1px solid var(--amb2); }
+.pill-grn { background: var(--grn-bg); color: var(--grn); border: 1px solid var(--grn2); }
+.pill-blu { background: var(--blu-bg); color: var(--blu); border: 1px solid var(--blu2); }
+.pill-red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red2); }
+.ep { font-family: var(--mono); font-size: 11px; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+
+/* ── PROGRESS ── */
+.prog { margin-bottom: 16px; }
+.prog:last-child { margin-bottom: 0; }
+.prog-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13px; }
+.prog-lbl { color: var(--tx2); }
+.prog-pct { font-family: var(--mono); font-weight: 600; font-size: 14px; }
+.prog-track { background: var(--s3); border-radius: 6px; height: 8px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 6px; transition: width 0.9s ease; }
+
+/* ── TABLE ── */
+.tbl-wrap { overflow-x: auto; padding-bottom: 4px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { font-family: var(--mono); font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--tx2); padding: 10px 12px; text-align: left; background: var(--s2); border-bottom: 1px solid var(--bd2); white-space: nowrap; }
+tbody tr { border-bottom: 1px solid var(--bd); transition: background 0.1s; }
+tbody tr:hover { background: var(--s2); }
+tbody td { padding: 9px 12px; vertical-align: middle; }
+tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color: var(--grn); background: var(--s2); border-top: 1px solid var(--bd2); white-space: nowrap; }
+.td-r { text-align: right !important; }
+.td-c { text-align: center !important; }
+.td-mono { font-family: var(--mono); font-size: 12px; }
+
+/* ── ALERT BOXES ── */
+.alert-box { border-radius: var(--r-md); padding: 16px 20px; border: 1px solid; }
+.alert-box-red { background: var(--red-bg); border-color: var(--red2); }
+.alert-box-amb { background: var(--amb-bg); border-color: var(--amb2); }
+.alert-box-blu { background: var(--blu-bg); border-color: var(--blu2); }
+.alert-box-grn { background: var(--grn-bg); border-color: var(--grn2); }
+.alert-box-title { font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+.alert-box-red .alert-box-title { color: var(--red); }
+.alert-box-amb .alert-box-title { color: var(--amb); }
+.alert-box-blu .alert-box-title { color: var(--blu); }
+.alert-box-grn .alert-box-title { color: var(--grn); }
+.alert-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.alert-list li { font-size: 13px; line-height: 1.5; padding-left: 14px; position: relative; }
+.alert-list li::before { content: '–'; position: absolute; left: 0; color: var(--tx3); }
+
+/* ── TIMELINE ── */
+.tl-wrap { display: flex; flex-direction: column; gap: 0; }
+.tl-item { display: flex; align-items: flex-start; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--bd); }
+.tl-item:last-child { border-bottom: none; }
+.tl-dot { width: 13px; height: 13px; border-radius: 50%; margin-top: 3px; flex-shrink: 0; }
+.tl-dot.done   { background: var(--grn); }
+.tl-dot.active { background: var(--amb); box-shadow: 0 0 0 3px rgba(245,166,35,0.2); }
+.tl-dot.next   { background: var(--blu-bg); border: 2px solid var(--blu); }
+.tl-dot.future { background: var(--s3); border: 2px solid var(--bd2); }
+.tl-body { flex: 1; }
+.tl-name { font-size: 14px; font-weight: 500; margin-bottom: 1px; }
+.tl-name-en { font-size: 12px; color: var(--tx3); font-style: italic; margin-bottom: 4px; }
+.tl-meta { font-family: var(--mono); font-size: 11px; color: var(--tx3); }
+.tl-pct { font-family: var(--mono); font-size: 13px; font-weight: 600; text-align: right; min-width: 48px; flex-shrink: 0; margin-top: 2px; }
+
+/* ── EVO CARD ── */
+.evo-row { display: flex; align-items: center; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--bd); }
+.evo-row:last-child { border-bottom: none; }
+.evo-icon { font-size: 18px; width: 28px; text-align: center; flex-shrink: 0; }
+.evo-body { flex: 1; }
+.evo-label { font-size: 13px; color: var(--tx2); margin-bottom: 1px; }
+.evo-label-en { font-size: 11px; color: var(--tx3); font-style: italic; }
+.evo-val { font-family: var(--mono); font-size: 16px; font-weight: 600; text-align: right; white-space: nowrap; }
+
+/* ── INFO BOX ── */
+.info-box { padding: 12px 14px; border-radius: var(--r-sm); font-size: 13px; line-height: 1.65; }
+.info-box-amb { background: var(--amb-bg); border: 1px solid var(--amb2); color: var(--tx); }
+.info-box-grn { background: var(--grn-bg); border: 1px solid var(--grn2); color: var(--tx); }
+.info-box .en { color: var(--tx3); font-style: italic; margin-top: 6px; font-size: 12px; }
+
+/* ── FOOTER ── */
+.footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--bd); display: flex; justify-content: space-between; font-family: var(--mono); font-size: 11px; color: var(--tx3); align-items: center; gap: 12px; }
+.refresh-btn { background: var(--s2); border: 1px solid var(--bd); color: var(--tx2); font-family: var(--mono); font-size: 11px; padding: 5px 14px; border-radius: var(--r-sm); cursor: pointer; transition: all 0.15s; }
+.refresh-btn:hover { border-color: var(--blu); color: var(--blu); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1000px) { .g4 { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 760px) { .g3,.g4,.g2 { grid-template-columns: 1fr; } .obra-header { grid-template-columns: 1fr; } .oh-meta { text-align: left; } .page { padding: 16px 16px 48px; } }
+
+/* ── PRINT / PDF A4 ── */
+@media print {
+  .nav, .refresh-btn, .theme-toggle { display: none !important; }
+  .page { padding: 8mm 10mm; max-width: 100%; }
+  body { background: #fff !important; color: #111 !important; font-size: 11pt; }
+  .obra-header, .card, .kpi, .alert-box { border: 1px solid #ccc !important; background: #fff !important; break-inside: avoid; }
+  .obra-header::before { display: none; }
+  .sec::after { background: #ccc !important; }
+  .kpi-val { font-size: 20pt !important; }
+  .kpi-tag, .card-title, .sec { color: #555 !important; }
+  .dr .l { color: #555 !important; }
+  .bi-en, .tl-name-en, .info-box .en { color: #888 !important; }
+  thead th { background: #f0f0f0 !important; color: #555 !important; }
+  tfoot td { background: #f0f0f0 !important; }
+  .g4 { grid-template-columns: repeat(2,1fr) !important; }
+  .span2 { grid-column: span 2 !important; }
+  @page { size: A4; margin: 12mm 10mm; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">Primeline · <strong>Obra 120</strong> · Acompanhamento / Project Tracking</div>
+  <div class="nav-spacer"></div>
+  <div class="nav-date" id="nav-date"></div>
+  <button class="theme-toggle" onclick="toggleTheme()">
+    <span class="theme-icon" id="theme-icon">🌙</span>
+    <span id="theme-label">Escuro / Dark</span>
+  </button>
+</nav>
+
+<div class="page">
+
+  <!-- OBRA HEADER -->
+  <div class="obra-header">
+    <div>
+      <div class="oh-eyebrow">Primeline Engenharia e Construção · Project Report</div>
+      <div class="oh-title"><span id="oh-nome">Quinta da Marinha — Casa R</span> <span class="oh-ref" id="oh-ref">QM-R-001</span></div>
+      <div class="oh-desc" id="oh-desc">Remodelação Parcial de Moradia · Partial Home Renovation · Obra 120</div>
+    </div>
+    <div class="oh-meta">
+      <div class="oh-item"><span class="lbl">Dono de Obra / Owner</span><span class="val" id="oh-do">—</span></div>
+      <div class="oh-item"><span class="lbl">Início / Start date</span><span class="val" id="oh-inicio">—</span></div>
+      <div class="oh-item"><span class="lbl">Prazo / Deadline</span><span class="val" id="oh-prazo">—</span></div>
+      <div class="oh-item"><span class="lbl">Estado / Status</span><span class="val"><span class="pill pill-amb" id="oh-estado">Em execução · In progress</span></span></div>
+    </div>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div class="sbar">
+    <div class="sbar-item">
+      <span class="sbar-lbl">Obra executada / Completed</span>
+      <span class="sbar-val" style="color:var(--grn)" id="sb-exec">—</span>
+    </div>
+    <div class="sbar-item">
+      <span class="sbar-lbl">Prazo consumido / Time elapsed</span>
+      <span class="sbar-val" style="color:var(--blu)" id="sb-prazo">—</span>
+    </div>
+    <div class="sbar-item">
+      <span class="sbar-lbl">Total faturado / Total invoiced</span>
+      <span class="sbar-val" style="color:var(--amb)" id="sb-fat">—</span>
+    </div>
+    <div class="sbar-item">
+      <span class="sbar-lbl">Contrato actualizado / Updated contract</span>
+      <span class="sbar-val" id="sb-contrato">—</span>
+    </div>
+    <div class="sbar-item">
+      <span class="sbar-lbl">Previsão de conclusão / Completion</span>
+      <span class="sbar-val" id="sb-conclusao">—</span>
+    </div>
+  </div>
+
+  <!-- ─── 1. RESUMO DA OBRA ─────────────────────────── -->
+  <div class="sec"><span class="sec-num">01 ·</span> Resumo da Obra / Project Summary</div>
+  <div class="g4">
+    <div class="kpi bl">
+      <div class="kpi-tag"><span class="bi"><span class="bi-pt">Contrato original</span><span class="bi-en">Original contract value</span></span></div>
+      <div class="kpi-val" style="color:var(--blu)" id="kpi-orig">—</div>
+      <div class="kpi-sub">valor base contratado / contracted base value</div>
+    </div>
+    <div class="kpi rl">
+      <div class="kpi-tag"><span class="bi"><span class="bi-pt">Retiradas pela D.O.</span><span class="bi-en">Owner-requested removals</span></span></div>
+      <div class="kpi-val" style="color:var(--red)" id="kpi-ret">—</div>
+      <div class="kpi-sub">trabalhos removidos / works removed</div>
+    </div>
+    <div class="kpi al">
+      <div class="kpi-tag"><span class="bi"><span class="bi-pt">Compensação contratual</span><span class="bi-en">Contractual compensation</span></span></div>
+      <div class="kpi-val" style="color:var(--amb)" id="kpi-comp">—</div>
+      <div class="kpi-sub">Cláusula 5.3 / Clause 5.3</div>
+    </div>
+    <div class="kpi gl">
+      <div class="kpi-tag"><span class="bi"><span class="bi-pt">Valor contratual actualizado</span><span class="bi-en">Updated contract value</span></span></div>
+      <div class="kpi-val" style="color:var(--grn)" id="kpi-actual">—</div>
+      <div class="kpi-sub">incl. compensação / incl. compensation</div>
+    </div>
+  </div>
+
+  <!-- ─── 2. EVOLUÇÃO CONTRATUAL ────────────────────── -->
+  <div class="sec"><span class="sec-num">02 ·</span> Evolução Contratual / Contract Evolution</div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title"><span class="bi"><span class="bi-pt">Resumo das alterações ao contrato</span><span class="bi-en">Summary of contract changes</span></span></div>
+      <div class="evo-row">
+        <div class="evo-icon" style="color:var(--blu)">📋</div>
+        <div class="evo-body">
+          <div class="evo-label">Contrato inicial</div>
+          <div class="evo-label-en">Initial contract</div>
+        </div>
+        <div class="evo-val" style="color:var(--blu)" id="ev-orig">—</div>
+      </div>
+      <div class="evo-row">
+        <div class="evo-icon" style="color:var(--red)">➖</div>
+        <div class="evo-body">
+          <div class="evo-label">Trabalhos retirados pela D.O.</div>
+          <div class="evo-label-en">Works removed by owner</div>
+        </div>
+        <div class="evo-val" style="color:var(--red)" id="ev-ret">—</div>
+      </div>
+      <div class="evo-row">
+        <div class="evo-icon" style="color:var(--amb)">⚖️</div>
+        <div class="evo-body">
+          <div class="evo-label">Compensação contratual (Cl. 5.3)</div>
+          <div class="evo-label-en">Contractual compensation (Cl. 5.3)</div>
+        </div>
+        <div class="evo-val" style="color:var(--amb)" id="ev-comp">—</div>
+      </div>
+      <div class="evo-row" style="border-top: 2px solid var(--bd2); margin-top: 4px; padding-top: 14px;">
+        <div class="evo-icon" style="color:var(--grn)">✅</div>
+        <div class="evo-body">
+          <div class="evo-label" style="font-weight:600;color:var(--tx)">Valor contratual c/ compensação</div>
+          <div class="evo-label-en">Contract value incl. compensation</div>
+        </div>
+        <div class="evo-val" style="color:var(--grn);font-size:20px" id="ev-total">—</div>
+      </div>
+      <div class="info-box info-box-amb" style="margin-top:14px" id="ev-msg">
+        <div>A carregar… / Loading…</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="bi"><span class="bi-pt">Alterações de escopo — impacto financeiro</span><span class="bi-en">Scope changes — financial impact</span></span></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Ref.</th>
+              <th>Descrição / Description</th>
+              <th>Estado / Status</th>
+              <th class="td-r">Valor / Amount</th>
+            </tr>
+          </thead>
+          <tbody id="tee-resumo-tbody">
+            <tr><td colspan="4" style="color:var(--tx3);text-align:center;padding:16px">A carregar… / Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 3. ESTADO DA OBRA ─────────────────────────── -->
+  <div class="sec"><span class="sec-num">03 ·</span> Estado da Obra / Project Status</div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title"><span class="bi"><span class="bi-pt">Progresso e execução</span><span class="bi-en">Progress and execution</span></span></div>
+      <div class="prog">
+        <div class="prog-hd">
+          <span class="prog-lbl"><span class="bi"><span class="bi-pt">Obra executada</span><span class="bi-en">Work completed</span></span></span>
+          <span class="prog-pct" style="color:var(--grn)" id="pr-exec-pct">—</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill" id="pr-exec-bar" style="width:0%;background:var(--grn)"></div></div>
+      </div>
+      <div class="prog">
+        <div class="prog-hd">
+          <span class="prog-lbl"><span class="bi"><span class="bi-pt">Prazo consumido</span><span class="bi-en">Time elapsed</span></span></span>
+          <span class="prog-pct" style="color:var(--blu)" id="pr-prazo-pct">—</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill" id="pr-prazo-bar" style="width:0%;background:var(--blu)"></div></div>
+      </div>
+      <div class="prog">
+        <div class="prog-hd">
+          <span class="prog-lbl"><span class="bi"><span class="bi-pt">Faturação emitida</span><span class="bi-en">Invoices issued</span></span></span>
+          <span class="prog-pct" style="color:var(--amb)" id="pr-fat-pct">—</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill" id="pr-fat-bar" style="width:0%;background:var(--amb)"></div></div>
+      </div>
+      <div class="info-box" id="status-msg" style="margin-top:16px">A carregar… / Loading…</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="bi"><span class="bi-pt">Comparativo planeado vs executado</span><span class="bi-en">Planned vs completed breakdown</span></span></div>
+      <div class="dr"><span class="l"><span class="bi"><span class="bi-pt">Execução actual</span><span class="bi-en">Current execution</span></span></span><span class="v" style="color:var(--grn)" id="cmp-exec">—</span></div>
+      <div class="dr"><span class="l"><span class="bi"><span class="bi-pt">Prazo consumido</span><span class="bi-en">Time elapsed</span></span></span><span class="v" style="color:var(--blu)" id="cmp-prazo">—</span></div>
+      <div class="dr"><span class="l"><span class="bi"><span class="bi-pt">Diferença</span><span class="bi-en">Difference</span></span></span><span class="v" id="cmp-diff">—</span></div>
+      <div class="dr"><span class="l"><span class="bi"><span class="bi-pt">Início da obra</span><span class="bi-en">Start date</span></span></span><span class="v td-mono" id="cmp-inicio">—</span></div>
+      <div class="dr"><span class="l"><span class="bi"><span class="bi-pt">Prazo contratual</span><span class="bi-en">Contract deadline</span></span></span><span class="v td-mono" id="cmp-prazo-data">—</span></div>
+      <div class="dr"><span class="l"><span class="bi"><span class="bi-pt">Prazo c/ prorrogação</span><span class="bi-en">Deadline incl. extension</span></span></span><span class="v td-mono" id="cmp-prorrogacao">—</span></div>
+    </div>
+  </div>
+
+  <!-- ─── 8. LINHA DO TEMPO ────────────────────────── -->
+  <div class="sec"><span class="sec-num">08 ·</span> Linha do Tempo da Obra / Project Timeline</div>
+  <div class="card">
+    <div class="card-title"><span class="bi"><span class="bi-pt">Fases da obra — concluído, em execução e próximos trabalhos</span><span class="bi-en">Project phases — completed, in progress and upcoming works</span></span></div>
+    <div class="tl-wrap" id="timeline"></div>
+  </div>
+
+  <!-- ─── 4. ACOMPANHAMENTO FINANCEIRO ─────────────── -->
+  <div class="sec"><span class="sec-num">04 ·</span> Acompanhamento Financeiro / Financial Tracking</div>
+  <div class="g4">
+    <div class="kpi gl">
+      <div class="kpi-tag"><span class="bi"><span class="bi-pt">Total faturado</span><span class="bi-en">Total invoiced</span></span></div>
+      <div class="kpi-val" style="color:var(--grn)" id="fin-fat">—</div>
+      <div class="kpi-sub" id="fin-fat-sub">do contrato / of contract</div>
+    </div>
+    <div class="kpi gl">
+      <div class="kpi-tag"><span class="bi"><span class="bi-pt">Total recebido</span><span class="bi-en">Total received / paid</span></span></div>
+      <div class="kpi-val" style="color:var(--grn)" id="fin-pago">—</div>
+      <div class="kpi-sub">pagamento confirmado / confirmed payment</div>
+    </div>
+    <div class="kpi al">
+      <div class="kpi-tag"><span class="bi"><span class="bi-pt">Saldo pendente</span><span class="bi-en">Outstanding balance</span></span></div>
+      <div class="kpi-val" style="color:var(--amb)" id="fin-pend">—</div>
+      <div class="kpi-sub">faturado não pago / invoiced, unpaid</div>
+    </div>
+    <div class="kpi bl">
+      <div class="kpi-tag"><span class="bi"><span class="bi-pt">Por faturar</span><span class="bi-en">Yet to invoice</span></span></div>
+      <div class="kpi-val" style="color:var(--blu)" id="fin-restante">—</div>
+      <div class="kpi-sub">até conclusão da obra / until completion</div>
+    </div>
+  </div>
+
+  <!-- Tabela histórico de faturas -->
+  <div class="card">
+    <div class="card-title"><span class="bi"><span class="bi-pt">Histórico de faturação</span><span class="bi-en">Invoice history</span></span></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nº / Invoice #</th>
+            <th>Descrição / Description</th>
+            <th>Data emissão / Issue date</th>
+            <th>Data pagamento / Payment date</th>
+            <th class="td-r">Valor / Amount</th>
+            <th class="td-c">Estado / Status</th>
+          </tr>
+        </thead>
+        <tbody id="fat-tbody">
+          <tr><td colspan="6" style="color:var(--tx3);text-align:center;padding:16px">A carregar… / Loading…</td></tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4"><span class="bi"><span class="bi-pt">Total faturado</span><span class="bi-en">Total invoiced</span></span></td>
+            <td class="td-r" id="fat-total">—</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- ─── 5. PREVISÃO FUTURA ────────────────────────── -->
+  <div class="sec"><span class="sec-num">05 ·</span> Previsão Futura / Future Forecast</div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title"><span class="bi"><span class="bi-pt">Previsão mensal de faturação</span><span class="bi-en">Monthly billing forecast</span></span></div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Mês / Month</th>
+              <th class="td-r">Previsto / Forecast</th>
+              <th class="td-c">Estado / Status</th>
+            </tr>
+          </thead>
+          <tbody id="prev-tbody">
+            <tr><td colspan="3" style="color:var(--tx3);text-align:center;padding:16px">A calcular… / Calculating…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="bi"><span class="bi-pt">Nota sobre previsão</span><span class="bi-en">Forecast methodology</span></span></div>
+      <div style="font-size:13px;color:var(--tx2);line-height:1.75">
+        <p style="margin-bottom:12px">A previsão de faturação é calculada com base no planeamento de fases e na percentagem de execução actual. Os meses passados mostram os valores reais faturados; os meses futuros mostram a estimativa baseada no valor contratual distribuído pelo prazo restante.</p>
+        <p style="color:var(--tx3);font-style:italic;font-size:12px">The billing forecast is based on the phase schedule and current execution percentage. Past months show actual invoiced amounts; future months show estimates based on the contract value distributed over the remaining schedule.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── 6. IMPACTO DAS ALTERAÇÕES ────────────────── -->
+  <div class="sec"><span class="sec-num">06 ·</span> Impacto das Alterações / Impact of Changes</div>
+  <div class="card">
+    <div class="card-title"><span class="bi"><span class="bi-pt">Trabalhos extra e alterações de escopo</span><span class="bi-en">Extra works and scope changes</span></span></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Ref.</th>
+            <th>Descrição / Description</th>
+            <th>Tipo / Type</th>
+            <th>Estado / Status</th>
+            <th class="td-r">Valor / Amount</th>
+            <th>Impacto / Impact</th>
+          </tr>
+        </thead>
+        <tbody id="tee-impact-tbody">
+          <tr><td colspan="6" style="color:var(--tx3);text-align:center;padding:16px">A carregar… / Loading…</td></tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4"><span class="bi"><span class="bi-pt">Saldo líquido das alterações</span><span class="bi-en">Net balance of changes</span></span></td>
+            <td class="td-r" id="tee-impact-total">—</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- ─── 7. ALERTAS ────────────────────────────────── -->
+  <div class="sec"><span class="sec-num">07 ·</span> Alertas / Alerts</div>
+  <div class="g3">
+    <div class="alert-box alert-box-amb">
+      <div class="alert-box-title">⚠ Atenção / Attention</div>
+      <ul class="alert-list" id="alert-atencao">
+        <li style="color:var(--tx3);font-style:italic">A carregar… / Loading…</li>
+      </ul>
+    </div>
+    <div class="alert-box alert-box-blu">
+      <div class="alert-box-title">🔵 Pendente / Pending</div>
+      <ul class="alert-list" id="alert-pendente">
+        <li style="color:var(--tx3);font-style:italic">A carregar… / Loading…</li>
+      </ul>
+    </div>
+    <div class="alert-box alert-box-grn">
+      <div class="alert-box-title">✓ Em progresso / In progress</div>
+      <ul class="alert-list" id="alert-progresso">
+        <li style="color:var(--tx3);font-style:italic">A carregar… / Loading…</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <span>Primeline Engenharia e Construção · Alvará 90328-PUB · Obra 120 · QM-R-001</span>
+    <button class="refresh-btn" onclick="loadData()">↻ Actualizar / Refresh</button>
+    <span id="footer-time"></span>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbwER0TXxOzhGtQwH5kmAjV4qeHUfA8fTYIq05UkUl9Suw6R4ql4nc4905CJ7d7lq24/exec";
+
+// ── TEMA ────────────────────────────────────────────────
+(function() {
+  const saved = localStorage.getItem('primeline-do-theme');
+  if (saved === 'light') {
+    document.documentElement.classList.add('light');
+    document.getElementById('theme-icon').textContent  = '☀️';
+    document.getElementById('theme-label').textContent = 'Claro / Light';
+  }
+})();
+function toggleTheme() {
+  const light = document.documentElement.classList.toggle('light');
+  document.getElementById('theme-icon').textContent  = light ? '☀️' : '🌙';
+  document.getElementById('theme-label').textContent = light ? 'Claro / Light' : 'Escuro / Dark';
+  localStorage.setItem('primeline-do-theme', light ? 'light' : 'dark');
+}
+
+// ── HELPERS ─────────────────────────────────────────────
+const now = new Date();
+document.getElementById('nav-date').textContent =
+  now.toLocaleDateString('pt-PT',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+
+function eur(n)     { return (parseFloat(n)||0).toLocaleString('pt-PT',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' €'; }
+function pct(n,d=1) { return (parseFloat(n)||0).toLocaleString('pt-PT',{minimumFractionDigits:d,maximumFractionDigits:d}) + '%'; }
+function num(v) {
+  if (v===null||v===undefined||v==='') return 0;
+  if (typeof v==='number') return v;
+  const s = String(v).replace(/€/g,'').replace(/\s/g,'');
+  if (!s||s==='-') return 0;
+  if ((s.match(/\./g)||[]).length > 1) {
+    const p = s.split('.');
+    return parseFloat(p.slice(0,-1).join('')+'.'+p[p.length-1])||0;
+  }
+  if (/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) return parseFloat(s.replace(/\./g,'').replace(',','.'))||0;
+  if (/^\d+(,\d+)?$/.test(s)&&s.includes(',')) return parseFloat(s.replace(',','.'))||0;
+  return parseFloat(s)||0;
+}
+function toDate(v) {
+  if (!v||v===''||v===0) return null;
+  try { const d=new Date(v); return isNaN(d.getTime())?null:d; } catch { return null; }
+}
+function fmtDate(v, monthOnly=false) {
+  if (!v||v==='') return '—';
+  const d = v instanceof Date ? v : toDate(v);
+  if (!d||isNaN(d.getTime())) return String(v);
+  if (monthOnly) return d.toLocaleDateString('pt-PT',{month:'long',year:'numeric'});
+  return d.toLocaleDateString('pt-PT');
+}
+function ep(txt, style) { return `<span class="ep" style="${style}">${txt}</span>`; }
+
+function toKV(rows) {
+  const o = {};
+  const start = (rows.length>1 && String(rows[0][0]).includes('NÃO EDITAR')) ? 2 : 1;
+  rows.slice(start).forEach(r => { if (r[0]) o[String(r[0])] = r[1]; });
+  // normalizar chaves sem espaços
+  const norm = {
+    'VendaContratual':'Venda Contratual','CustoDirectoContratual':'Custo Directo Contratual',
+    'VendaContratualInicial':'Venda Contratual Inicial','CDContratualInicial':'CD Contratual Inicial',
+    'TrabalhosRetiradosDO':'Trabalhos Retirados DO','CompensaçãoCláusula5.3':'Compensação Cláusula 5.3',
+    'VendaContratualc/Comp':'Venda Contratual c/ Comp','TEEVenda':'TEE Venda','TEECusto':'TEE Custo',
+    'CFlowMensalContratual':'CFlow Mensal Contratual','CFlowMensalTotal':'CFlow Mensal Total',
+    'CFlowRealYTD':'CFlow Real YTD','ValorFaturado':'Valor Faturado','ValorPorFaturar':'Valor Por Faturar',
+    'CustosEstimados':'Custos Estimados','Pessoal+Viatura':'Pessoal Viatura',
+    'TotalDespesasYTD':'Total Despesas YTD','MargemRealYTD':'Margem Real YTD',
+    'MargemRealYTD%':'Margem Real YTD %','DesvioOrç%':'Desvio Orç %',
+    '%PrazoConsumido':'% Prazo Consumido','%ObraExecutada':'% Obra Executada',
+    'Iníciodaobra':'Início da obra','Prazocontratual':'Prazo contratual',
+    'Prorrogaçãoativa':'Prorrogação activa','Prazoc/prorrogação':'Prazo c/ prorrogação',
+    'Duraçãocontratual(M)':'Duração contratual (M)','DonodeObra':'Dono de Obra',
+    'DiretordeObra':'Diretor de Obra','AdjuntaDO':'Adjunta DO','Nome e':'Nome',
+  };
+  Object.entries(norm).forEach(([f,t]) => { if (f in o) o[t]=o[f]; });
+  return o;
+}
+
+function toObjArray(rows) {
+  if (!rows||rows.length<2) return [];
+  let headerIdx=0;
+  const hints=['Código','Fase','Nº Fatura','Número','Data Recebimento','Valor (€)','Subempreiteiro','Descrição / Auto'];
+  for (let i=0;i<Math.min(rows.length,8);i++) {
+    const row=rows[i]||[]; const fc=String(row[0]||'');
+    const ne=row.filter(v=>v!==null&&v!==undefined&&v!=='').length;
+    const hasHint=row.some(v=>hints.includes(String(v||'').trim()));
+    if (fc&&ne>=2&&hasHint&&!fc.includes('PRIMELINE')&&!fc.includes('Obra 120')&&!fc.includes('Data:')&&!fc.includes('NÃO EDITAR')) { headerIdx=i; break; }
+  }
+  const hdrs=rows[headerIdx];
+  return rows.slice(headerIdx+1).filter(r=>{
+    if (!r.some(v=>v!==null&&v!==undefined&&v!=='')) return false;
+    const first=String(r[0]||'').trim();
+    if (first.startsWith('TOTAL')||first.startsWith('TOTAIS')) return false;
+    if (first.startsWith('Primeline Engenharia')) return false;
+    return true;
+  }).map(r=>{ const o={}; hdrs.forEach((h,i)=>{o[String(h||'')]=r[i]!==undefined?r[i]:''}); return o; });
+}
+
+// Nomes legíveis por fase (sem códigos internos para o cliente)
+const FASE_PT = {
+  'F01':'Montagem do Estaleiro e Trabalhos Preparatórios',
+  'F02':'Demolições e Remoções',
+  'F03':'Drenagem — Geodreno',
+  'F04':'Construção Interior',
+  'F05':'Instalações e Infraestruturas (Elétrica, Hidráulica, AVAC)',
+  'F06':'Revestimentos e Pavimentos',
+  'F07':'Fachadas, Tectos e Pinturas',
+  'F08':'Carpintaria',
+  'F09':'Caixilharia Exterior',
+  'F10':'Acabamentos e Entrega',
+};
+const FASE_EN = {
+  'F01':'Site Setup and Preliminary Works',
+  'F02':'Demolitions and Removals',
+  'F03':'Drainage — Geodrain',
+  'F04':'Interior Construction',
+  'F05':'MEP Installations (Electrical, Plumbing, HVAC)',
+  'F06':'Wall and Floor Coverings',
+  'F07':'Façades, Ceilings and Painting',
+  'F08':'Carpentry and Joinery',
+  'F09':'Exterior Windows and Doors',
+  'F10':'Finishing Works and Handover',
+};
+
+function fasePctCalc(f) {
+  const exec = f['% Executado']||f['%Executado'];
+  return (exec!==null&&exec!==undefined&&exec!=='') ? num(exec) : num(f['% Ponderada']||f['%Ponderada']);
+}
+
+function estadoPillDO(estado) {
+  const s = String(estado||'').trim().toLowerCase();
+  if (s==='pago') return ep('Pago / Paid','background:var(--grn-bg);color:var(--grn);border:1px solid var(--grn2)');
+  if (s.includes('aguarda')) return ep('Pendente / Pending','background:var(--amb-bg);color:var(--amb);border:1px solid var(--amb2)');
+  return ep('Emitida / Issued','background:var(--blu-bg);color:var(--blu);border:1px solid var(--blu2)');
+}
+
+function estadoTEEDO(v) {
+  const s = String(v||'').trim().toUpperCase();
+  if (s==='APROVADO'||s==='SIM') return ep('Aprovado / Approved','background:var(--grn-bg);color:var(--grn);border:1px solid var(--grn2)');
+  if (s==='REJEITADO'||s==='NÃO'||s==='NAO') return ep('Não aplicável / N/A','background:var(--s3);color:var(--tx3);border:1px solid var(--bd2)');
+  if (s.includes('AGUARDA')) return ep('Pendente / Pending','background:var(--amb-bg);color:var(--amb);border:1px solid var(--amb2)');
+  return ep('Em elaboração / In progress','background:var(--blu-bg);color:var(--blu);border:1px solid var(--blu2)');
+}
+
+// ── RENDER ──────────────────────────────────────────────
+function render(P, C, tees, fases, fat) {
+
+  // ── Header ──
+  const nome = P['Nome']||'Quinta da Marinha — Casa R';
+  const ref  = P['Referência']||'QM-R-001';
+  document.getElementById('oh-nome').textContent = nome;
+  document.getElementById('oh-ref').textContent  = ref;
+  document.getElementById('oh-do').textContent   = P['Dono de Obra']||'Marlana di Vincenti';
+  document.getElementById('oh-inicio').textContent = fmtDate(P['Início da obra']);
+  document.getElementById('oh-prazo').textContent  = fmtDate(P['Prazo c/ prorrogação'],true)||fmtDate(P['Prazo contratual'],true)||'—';
+
+  // ── Valores contratuais ──
+  const orig   = num(C['Venda Contratual Inicial']) || 553619.19;
+  const ret    = num(C['Trabalhos Retirados DO'])   || -81439.93;
+  const comp   = num(C['Compensação Cláusula 5.3']) || 8143.99;
+  const actual = num(C['Venda Contratual c/ Comp']) || (orig + ret + comp);
+  const vendaBase = num(C['Venda Contratual'])      || actual;
+
+  // ── Progressos ──
+  let pctObraRaw = num(P['% Obra Executada']);
+  if (pctObraRaw > 0 && pctObraRaw <= 1) pctObraRaw *= 100;
+  let pctPrazoRaw = num(P['% Prazo Consumido']);
+  if (pctPrazoRaw > 0 && pctPrazoRaw <= 1) pctPrazoRaw *= 100;
+  const faturado  = num(C['Valor Faturado']);
+  const porFaturar = num(C['Valor Por Faturar']);
+  const pctFatPct  = vendaBase ? faturado/vendaBase*100 : 0;
+
+  // ── Status bar ──
+  document.getElementById('sb-exec').textContent     = pct(pctObraRaw);
+  document.getElementById('sb-prazo').textContent    = pct(pctPrazoRaw);
+  document.getElementById('sb-fat').textContent      = eur(faturado);
+  document.getElementById('sb-contrato').textContent = eur(actual);
+  document.getElementById('sb-conclusao').textContent = fmtDate(P['Prazo c/ prorrogação'],true)||'—';
+
+  // ── Sec 1 — KPIs ──
+  document.getElementById('kpi-orig').textContent   = eur(orig);
+  document.getElementById('kpi-ret').textContent    = ret < 0 ? '– ' + eur(Math.abs(ret)) : eur(ret);
+  document.getElementById('kpi-comp').textContent   = '+ ' + eur(Math.abs(comp));
+  document.getElementById('kpi-actual').textContent = eur(actual);
+
+  // ── Sec 2 — Evolução ──
+  document.getElementById('ev-orig').textContent  = eur(orig);
+  document.getElementById('ev-ret').textContent   = '– ' + eur(Math.abs(ret));
+  document.getElementById('ev-comp').textContent  = '+ ' + eur(Math.abs(comp));
+  document.getElementById('ev-total').textContent = eur(actual);
+
+  const pctRet = orig ? Math.abs(ret)/orig*100 : 0;
+  const msgEl = document.getElementById('ev-msg');
+  msgEl.className = 'info-box info-box-amb';
+  msgEl.style.marginTop = '14px';
+  msgEl.innerHTML =
+    `<strong>PT:</strong> As alterações solicitadas representam uma redução de <strong>${pct(pctRet)}</strong> face ao contrato inicial. ` +
+    `A compensação contratual (Cláusula 5.3) de <strong>${eur(Math.abs(comp))}</strong> está prevista.` +
+    `<div class="en">EN: Owner-requested scope changes represent a <strong>${pct(pctRet)}</strong> reduction from the original contract. ` +
+    `The contractual compensation (Clause 5.3) of <strong>${eur(Math.abs(comp))}</strong> is foreseen.</div>`;
+
+  // TEEs — tabela resumo na Sec 2 (só com valor relevante para o cliente)
+  const teeV = t => num(t['Valor (€) s/IVA']||t['Valor (€)']||0);
+  const teesCliente = tees.filter(t => t['Número']&&t['Descrição']&&teeV(t)!==0);
+  document.getElementById('tee-resumo-tbody').innerHTML = teesCliente.map(t => {
+    const v = teeV(t);
+    const aprov = t['Aprovado\n(S/N)']||t['Aprovado (S/N)']||t['Aprovado']||'';
+    return `<tr>
+      <td class="td-mono">${t['Número']||'—'}</td>
+      <td>${String(t['Descrição']||'—').split('\n')[0]}</td>
+      <td>${estadoTEEDO(aprov)}</td>
+      <td class="td-r" style="color:${v<0?'var(--red)':v>0?'var(--grn)':'var(--tx3)'}">${eur(v)}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="4" style="color:var(--tx3);text-align:center;padding:12px">Sem alterações registadas / No changes recorded</td></tr>';
+
+  // ── Sec 3 — Estado ──
+  document.getElementById('pr-exec-pct').textContent = pct(pctObraRaw);
+  document.getElementById('pr-exec-bar').style.width  = Math.min(pctObraRaw,100)+'%';
+  document.getElementById('pr-prazo-pct').textContent = pct(pctPrazoRaw);
+  document.getElementById('pr-prazo-bar').style.width  = Math.min(pctPrazoRaw,100)+'%';
+  document.getElementById('pr-fat-pct').textContent   = pct(pctFatPct);
+  document.getElementById('pr-fat-bar').style.width    = Math.min(pctFatPct,100)+'%';
+
+  const diff = pctObraRaw - pctPrazoRaw;
+  const smEl = document.getElementById('status-msg');
+  if (diff >= -2) {
+    smEl.className = 'info-box info-box-grn';
+    smEl.innerHTML = '<strong>PT:</strong> A execução encontra-se alinhada com o planeamento previsto.' +
+      '<div class="en">EN: Execution is aligned with the planned schedule.</div>';
+  } else {
+    smEl.className = 'info-box info-box-amb';
+    smEl.innerHTML = `<strong>PT:</strong> A execução encontra-se <strong>${pct(Math.abs(diff))}</strong> abaixo do planeamento, ` +
+      'em parte devido às alterações de escopo solicitadas.' +
+      `<div class="en">EN: Execution is <strong>${pct(Math.abs(diff))}</strong> behind schedule, partly due to owner-requested scope changes.</div>`;
+  }
+
+  document.getElementById('cmp-exec').textContent        = pct(pctObraRaw);
+  document.getElementById('cmp-prazo').textContent       = pct(pctPrazoRaw);
+  const diffEl = document.getElementById('cmp-diff');
+  diffEl.textContent = (diff>=0?'+':'')+pct(diff);
+  diffEl.style.color = diff >= -2 ? 'var(--grn)' : 'var(--amb)';
+  document.getElementById('cmp-inicio').textContent       = fmtDate(P['Início da obra']);
+  document.getElementById('cmp-prazo-data').textContent   = fmtDate(P['Prazo contratual'],true)||'—';
+  document.getElementById('cmp-prorrogacao').textContent  = fmtDate(P['Prazo c/ prorrogação'],true)||'—';
+
+  // ── Sec 8 — Timeline ──
+  const fasesData = fases.filter(f => /^F\d{2}( |—|$)/.test(String(f['Código']||'')));
+  document.getElementById('timeline').innerHTML = fasesData.map(f => {
+    const cod   = String(f['Código']||'').trim().substring(0,3);
+    const p     = fasePctCalc(f);
+    const estado = String(f['Estado']||'');
+    const nomePT = FASE_PT[cod] || (f['Descrição / Trabalhos']||cod);
+    const nomeEN = FASE_EN[cod]||'';
+    let dotClass='future', pctColor='var(--tx3)';
+    if (estado==='Concluído')      { dotClass='done';   pctColor='var(--grn)'; }
+    else if (estado==='Em execução'||p>0) { dotClass='active'; pctColor='var(--amb)'; }
+    else if (fasesData.findIndex(ff=>!String(ff['Estado']||'').includes('Concluído')&&fasePctCalc(ff)===0)===fasesData.indexOf(f))
+      { dotClass='next'; pctColor='var(--blu)'; }
+    const dI=toDate(f['Data Início']); const dF=toDate(f['Data Fim Prevista']);
+    const dataMeta = dI&&dF ? fmtDate(dI)+' → '+fmtDate(dF) : dI ? 'Início: '+fmtDate(dI) : '';
+    const pctTxt = estado==='Concluído' ? '✓' : p>0 ? pct(p,0) : '—';
+    return `<div class="tl-item">
+      <div class="tl-dot ${dotClass}"></div>
+      <div class="tl-body">
+        <div class="tl-name">${nomePT}</div>
+        ${nomeEN?`<div class="tl-name-en">${nomeEN}</div>`:''}
+        <div class="tl-meta">${dataMeta}${dataMeta&&(p||estado)?'  ·  ':''}${estado==='Concluído'?'<span style="color:var(--grn)">Concluído / Completed</span>':estado==='Em execução'?'<span style="color:var(--amb)">Em execução / In progress</span>':estado||'Por iniciar / Not started'}</div>
+      </div>
+      <div class="tl-pct" style="color:${pctColor}">${pctTxt}</div>
+    </div>`;
+  }).join('') || '<div style="color:var(--tx3);padding:16px;font-size:13px">A carregar… / Loading…</div>';
+
+  // ── Sec 4 — Financeiro ──
+  const totalFat = fat.reduce((s,f)=>s+num(f['Valor (€)']||0), 0);
+  const totalPago = fat.filter(f=>String(f['Estado']||'').toLowerCase()==='pago')
+                       .reduce((s,f)=>s+num(f['Valor Recebido (€)']||f['Valor (€)']||0), 0);
+  const pendente  = totalFat - totalPago;
+  const restante  = vendaBase - totalFat;
+
+  document.getElementById('fin-fat').textContent     = eur(totalFat);
+  document.getElementById('fin-fat-sub').textContent = pct(vendaBase?totalFat/vendaBase*100:0)+' do contrato / of contract';
+  document.getElementById('fin-pago').textContent    = eur(totalPago);
+  document.getElementById('fin-pend').textContent    = eur(pendente);
+  document.getElementById('fin-restante').textContent = eur(restante);
+
+  const fatFilt = fat.filter(f => num(f['Valor (€)']||0) > 0);
+  document.getElementById('fat-tbody').innerHTML = fatFilt.map(f => {
+    const v = num(f['Valor (€)']||0);
+    const dataEmissao = f['Data de Emissão da Fatura']||f['DatadeEmissãodaFatura']||f['Data Emissão do Auto']||f['DataEmissãodoAuto']||'';
+    const dataPag    = f['Data Recebimento']||f['DataRecebimento']||'';
+    return `<tr>
+      <td class="td-mono">${f['Nº Fatura']||'—'}</td>
+      <td>${String(f['Descrição / Auto']||f['Descrição/Auto']||'—').replace(/\n.*/,'')}</td>
+      <td class="td-mono">${fmtDate(dataEmissao)}</td>
+      <td class="td-mono">${fmtDate(dataPag)||'—'}</td>
+      <td class="td-r" style="color:var(--grn)">${eur(v)}</td>
+      <td class="td-c">${estadoPillDO(f['Estado'])}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="6" style="color:var(--tx3);text-align:center;padding:16px">Sem faturas registadas / No invoices found</td></tr>';
+  document.getElementById('fat-total').textContent = eur(totalFat);
+
+  // ── Sec 5 — Previsão ──
+  const mNomes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const obraFim = fasesData.reduce((max,f)=>{ const d=toDate(f['Data Fim Prevista']); return d&&(!max||d>max)?d:max; },null) || new Date('2027-01-31');
+  const meses = [];
+  let cur = new Date(now.getFullYear(), now.getMonth(), 1);
+  while (cur <= obraFim) {
+    meses.push({y:cur.getFullYear(),m:cur.getMonth()});
+    cur = new Date(cur.getFullYear(),cur.getMonth()+1,1);
+  }
+  const mesesRestantes = meses.filter(me=>me.y>now.getFullYear()||(me.y===now.getFullYear()&&me.m>=now.getMonth())).length || 1;
+  const cflowEst = restante > 0 ? restante/mesesRestantes : 0;
+
+  document.getElementById('prev-tbody').innerHTML = meses.map(mes => {
+    const isNow  = mes.y===now.getFullYear()&&mes.m===now.getMonth();
+    const isPast = mes.y<now.getFullYear()||(mes.y===now.getFullYear()&&mes.m<now.getMonth());
+    const label  = mNomes[mes.m]+' '+mes.y;
+    const fatMes = fat.filter(f => {
+      const d = toDate(f['Data de Emissão da Fatura']||f['DatadeEmissãodaFatura']||f['Data Emissão do Auto']||f['DataEmissãodoAuto']||'');
+      return d&&d.getFullYear()===mes.y&&d.getMonth()===mes.m;
+    });
+    const vFat = fatMes.reduce((s,f)=>s+num(f['Valor (€)']||0),0);
+    const vPrev = vFat > 0 ? vFat : (!isPast ? cflowEst : 0);
+    let estadoTxt='';
+    if (isPast && vFat>0)  estadoTxt = ep('Faturado / Invoiced','background:var(--grn-bg);color:var(--grn);border:1px solid var(--grn2)');
+    else if (isPast)        estadoTxt = ep('Sem faturação / None','background:var(--s3);color:var(--tx3);border:1px solid var(--bd)');
+    else if (isNow)         estadoTxt = ep('Mês actual / Current','background:var(--blu-bg);color:var(--blu);border:1px solid var(--blu2)');
+    else                    estadoTxt = ep('Previsto / Forecast','background:var(--s3);color:var(--tx2);border:1px solid var(--bd)');
+    return `<tr${isNow?' style="background:var(--blu-bg)"':''}>
+      <td class="td-mono">${label}</td>
+      <td class="td-r" style="color:${vFat>0?'var(--grn)':isPast?'var(--tx3)':'var(--tx2)'}">${vPrev?eur(vPrev):'—'}</td>
+      <td class="td-c">${estadoTxt}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="3" style="color:var(--tx3);text-align:center;padding:12px">Sem dados / No data</td></tr>';
+
+  // ── Sec 6 — Impacto alterações ──
+  let saldoTEE = 0;
+  const teesAll = tees.filter(t => t['Número']&&t['Descrição']);
+  document.getElementById('tee-impact-tbody').innerHTML = teesAll.map(t => {
+    const v = teeV(t);
+    saldoTEE += v;
+    const aprov = t['Aprovado\n(S/N)']||t['Aprovado (S/N)']||t['Aprovado']||'';
+    const tipo  = v>0 ? ep('Trabalho extra / Extra work','background:var(--blu-bg);color:var(--blu);border:1px solid var(--blu2)')
+                      : ep('Redução / Reduction','background:var(--red-bg);color:var(--red);border:1px solid var(--red2)');
+    const impacto = v>0 ? '<span style="color:var(--grn);font-size:12px">+ Adicionado ao contrato / Added to contract</span>'
+                        : v<0 ? '<span style="color:var(--red);font-size:12px">– Redução do contrato / Contract reduction</span>'
+                        : '—';
+    return `<tr>
+      <td class="td-mono">${t['Número']||'—'}</td>
+      <td>${String(t['Descrição']||'—').split('\n')[0]}</td>
+      <td>${tipo}</td>
+      <td>${estadoTEEDO(aprov)}</td>
+      <td class="td-r" style="color:${v<0?'var(--red)':v>0?'var(--grn)':'var(--tx3)'}">${v?eur(v):'—'}</td>
+      <td>${impacto}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="6" style="color:var(--tx3);text-align:center;padding:12px">Sem alterações / No changes</td></tr>';
+  document.getElementById('tee-impact-total').innerHTML =
+    `<span style="color:${saldoTEE>=0?'var(--grn)':'var(--red)'}">${eur(saldoTEE)}</span>`;
+
+  // ── Sec 7 — Alertas ──
+  const atencao=[], pendente2=[], progresso=[];
+
+  // Compensação pendente
+  atencao.push(
+    `<span class="bi"><span class="bi-pt">Compensação contratual (Cl. 5.3) de <strong>${eur(Math.abs(comp))}</strong> pendente de aprovação formal.</span>` +
+    `<span class="bi-en">Contractual compensation (Cl. 5.3) of <strong>${eur(Math.abs(comp))}</strong> pending formal approval.</span></span>`
+  );
+
+  // Saldo pendente de pagamento
+  if (pendente > 10)
+    atencao.push(
+      `<span class="bi"><span class="bi-pt">Saldo pendente de pagamento: <strong>${eur(pendente)}</strong>.</span>` +
+      `<span class="bi-en">Outstanding payment balance: <strong>${eur(pendente)}</strong>.</span></span>`
+    );
+
+  // Retiradas de escopo
+  if (Math.abs(ret) > 0)
+    pendente2.push(
+      `<span class="bi"><span class="bi-pt">Trabalhos retirados pela D.O.: <strong>${eur(Math.abs(ret))}</strong> — impacto contratual verificado.</span>` +
+      `<span class="bi-en">Works removed by owner: <strong>${eur(Math.abs(ret))}</strong> — contractual impact noted.</span></span>`
+    );
+
+  // TEEs aguarda resposta
+  const teesAguarda = tees.filter(t => String(t['Aprovado\n(S/N)']||t['Aprovado (S/N)']||'').toUpperCase().includes('AGUARDA'));
+  if (teesAguarda.length)
+    pendente2.push(
+      `<span class="bi"><span class="bi-pt">${teesAguarda.length} alteração(ões) aguardam resposta ou aprovação.</span>` +
+      `<span class="bi-en">${teesAguarda.length} change request(s) awaiting response or approval.</span></span>`
+    );
+
+  // Fases em execução
+  const fasesAtivas = fasesData.filter(f => String(f['Estado']||'')==='Em execução'||fasePctCalc(f)>0&&String(f['Estado']||'')!=='Concluído');
+  if (fasesAtivas.length)
+    progresso.push(
+      `<span class="bi"><span class="bi-pt"><strong>${fasesAtivas.length}</strong> fase(s) activamente em execução.</span>` +
+      `<span class="bi-en"><strong>${fasesAtivas.length}</strong> phase(s) actively under execution.</span></span>`
+    );
+
+  const fasesConc = fasesData.filter(f => String(f['Estado']||'')==='Concluído');
+  if (fasesConc.length)
+    progresso.push(
+      `<span class="bi"><span class="bi-pt"><strong>${fasesConc.length}</strong> fase(s) concluída(s) de ${fasesData.length} no total.</span>` +
+      `<span class="bi-en"><strong>${fasesConc.length}</strong> phase(s) completed out of ${fasesData.length} total.</span></span>`
+    );
+
+  if (diff < -2)
+    progresso.push(
+      `<span class="bi"><span class="bi-pt">Execução ${pct(Math.abs(diff))} abaixo do prazo — monitorização em curso.</span>` +
+      `<span class="bi-en">Execution ${pct(Math.abs(diff))} behind schedule — monitoring in progress.</span></span>`
+    );
+
+  const listaHTML = (arr, fb) => arr.length
+    ? arr.map(a=>`<li>${a}</li>`).join('')
+    : `<li style="color:var(--tx3);font-style:italic">${fb}</li>`;
+  document.getElementById('alert-atencao').innerHTML   = listaHTML(atencao,  'Sem alertas / No alerts');
+  document.getElementById('alert-pendente').innerHTML  = listaHTML(pendente2,'Sem itens pendentes / No pending items');
+  document.getElementById('alert-progresso').innerHTML = listaHTML(progresso,'Sem informação / No data');
+
+  document.getElementById('footer-time').textContent = 'Actualizado / Updated: ' + now.toLocaleString('pt-PT');
+}
+
+// ── LOAD ────────────────────────────────────────────────
+async function loadData() {
+  const loading = id => {
+    const el=document.getElementById(id);
+    if (el) el.innerHTML='<tr><td colspan="10" style="color:var(--tx3);text-align:center;padding:16px">A carregar… / Loading…</td></tr>';
+  };
+  ['tee-resumo-tbody','fat-tbody','tee-impact-tbody','prev-tbody'].forEach(loading);
+  document.getElementById('timeline').innerHTML = '<div style="color:var(--tx3);padding:16px;font-size:13px">A carregar… / Loading…</div>';
+
+  try {
+    const data = await new Promise((resolve, reject) => {
+      const cb = 'doCb_' + Date.now();
+      const script = document.createElement('script');
+      const timeout = setTimeout(() => {
+        delete window[cb]; document.head.removeChild(script);
+        reject(new Error('Timeout — verifique a ligação / Check your connection'));
+      }, 15000);
+      window[cb] = d => { clearTimeout(timeout); delete window[cb]; document.head.removeChild(script); resolve(d); };
+      script.src = API_URL + '?callback=' + cb;
+      script.onerror = () => reject(new Error('Erro de rede / Network error'));
+      document.head.appendChild(script);
+    });
+
+    const P    = toKV(data['1_Painel_dados']||data['1_Painel']||[]);
+    const C    = toKV(data['2_Contratual_dados']||data['2_Contratual']||[]);
+    const tees = toObjArray(data['3_TEEs']||[]);
+    const fases= toObjArray(data['5b_Planeamento_Efectivo']||data['5_Planeamento']||[]);
+    const fat  = toObjArray(data['6_Faturação']||[]);
+
+    render(P, C, tees, fases, fat);
+
+  } catch(err) {
+    ['tee-resumo-tbody','fat-tbody','tee-impact-tbody','prev-tbody'].forEach(id => {
+      const el=document.getElementById(id);
+      if (el) el.innerHTML=`<tr><td colspan="10" style="color:var(--red);text-align:center;padding:16px">Erro: ${err.message}</td></tr>`;
+    });
+    document.getElementById('timeline').innerHTML =
+      `<div style="color:var(--red);padding:16px;font-size:13px">Erro: ${err.message}</div>`;
+  }
+}
+
+loadData();
+</script>
+</body>
+</html>
