@@ -1558,18 +1558,28 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     }
   });
 
-  // Saídas estimadas por fase usando 0_Orcamento (CDmes e datas de início/fim por fase)
+  // Saídas estimadas por fase usando 0_Orcamento (CDmes) cruzado com datas do planeamento
   if (orc && orc.length > 0) {
     const orcFases = orc.filter(r => r['Fase'] && String(r['Fase']).match(/^F\d{2}$/));
     orcFases.forEach(r => {
+      const considerar = String(r['Considerar na previsão futura']||'SIM').trim().toUpperCase();
+      if (considerar === 'NÃO' || considerar === 'NAO') return;
       const cdMes = num(r['C.D./mês\n estimd. (€)'] || r['C.D./mês\nestimd.(€)'] || r['CD/mês\nestimd.(€)'] || r['CDmes'] || 0);
-      const dI = toDate(r['Fase ativa\ninício'] || r['Fase activa\ninício'] || r['Faseativa\ninício']);
-      const dF = toDate(r['Fase ativa\nfim']    || r['Fase activa\nfim']    || r['Faseativa\nfim']);
-      if (!cdMes || !dI || !dF) return;
+      if (!cdMes) return;
+      // Tentar datas do próprio orc; se não existirem, usar faseIndex do planeamento
+      let dI = toDate(r['Fase ativa\ninício'] || r['Fase activa\ninício'] || r['Faseativa\ninício']);
+      let dF = toDate(r['Fase ativa\nfim']    || r['Fase activa\nfim']    || r['Faseativa\nfim']);
+      if (!dI || !dF) {
+        const cod = String(r['Fase']).trim();
+        const fPlano = faseIndex[cod];
+        if (!fPlano) return;
+        dI = toDate(fPlano['Data Início']);
+        dF = toDate(fPlano['Data Fim Prevista']);
+      }
+      if (!dI || !dF) return;
       let cur = new Date(dI.getFullYear(), dI.getMonth(), 1);
       while (cur <= dF) {
         const k = `${cur.getFullYear()}-${cur.getMonth()}`;
-        // só meses futuros — não sobrescrever histórico real
         const isFut = cur.getFullYear() > hojeY || (cur.getFullYear() === hojeY && cur.getMonth() >= hojeM);
         if (isFut) saidasEstMes[k] = (saidasEstMes[k]||0) + cdMes;
         cur = new Date(cur.getFullYear(), cur.getMonth()+1, 1);
