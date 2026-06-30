@@ -927,7 +927,7 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
 
   <div class="footer">
     <span>Primeline · Obra 120 · QM-R-001 · Dados fictícios para validação</span>
-    <button class="refresh-btn">↻ Actualizar</button>
+    <button class="refresh-btn" onclick="loadData()">↻ Actualizar</button>
     <span id="p2-time"></span>
   </div>
 </div>
@@ -1028,26 +1028,80 @@ function eur(n)     { return (parseFloat(n)||0).toLocaleString('pt-PT',{minimumF
 function pct(n,d=2) { return (parseFloat(n)||0).toLocaleString('pt-PT',{minimumFractionDigits:d,maximumFractionDigits:d}) + '%'; }
 function num(v) {
   if (v === null || v === undefined || v === '') return 0;
-  const s = String(v).replace(/€/g,'').replace(/\s/g,'');
-  // Formato português: "1.634,00" — vírgula é decimal, ponto é milhar
-  if (/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) {
-    return parseFloat(s.replace(/\./g,'').replace(',','.')) || 0;
+  if (typeof v === 'number') return isFinite(v) ? v : 0;
+
+  let s = String(v).trim();
+  if (!s) return 0;
+
+  // remove moeda, percentagem, espaços e caracteres invisíveis
+  s = s.replace(/€/g,'').replace(/%/g,'').replace(/\u00A0/g,' ').replace(/\s/g,'').trim();
+
+  // negativos entre parênteses
+  let neg = false;
+  if (/^\(.*\)$/.test(s)) {
+    neg = true;
+    s = s.slice(1, -1);
   }
-  // Formato "1 634,00" sem ponto — espaço era milhar, já removido
-  if (/^\d+(,\d+)?$/.test(s) && s.includes(',')) {
-    return parseFloat(s.replace(',','.')) || 0;
+
+  // Formato português: 1.234,56
+  if (/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) {
+    const val = parseFloat(s.replace(/\./g,'').replace(',','.')) || 0;
+    return neg ? -val : val;
   }
-  // Formato normal: 553619.19
-  return parseFloat(s) || 0;
+
+  // Formato português sem milhar: 1234,56
+  if (/^-?\d+(,\d+)?$/.test(s) && s.includes(',')) {
+    const val = parseFloat(s.replace(',','.')) || 0;
+    return neg ? -val : val;
+  }
+
+  // Formato normal: 1234.56
+  const val = parseFloat(s) || 0;
+  return neg ? -val : val;
+}
+
+function parseAnyDate(v) {
+  if (v === null || v === undefined || v === '') return null;
+  if (v instanceof Date) return isNaN(v.getTime()) ? null : v;
+
+  // Google Sheets / Excel serial date. 46054 = 01/02/2026.
+  if (typeof v === 'number' || /^\d+(\.\d+)?$/.test(String(v).trim())) {
+    const n = Number(String(v).trim().replace(',','.'));
+    if (n > 20000 && n < 70000) {
+      const d = new Date(Math.round((n - 25569) * 86400 * 1000));
+      return isNaN(d.getTime()) ? null : d;
+    }
+  }
+
+  const s = String(v).trim();
+  if (!s) return null;
+
+  // ISO
+  if (s.includes('T') || /^\d{4}-\d{2}-\d{2}/.test(s)) {
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  // Datas dd/mm/aaaa, usadas pelo getDisplayValues() em pt-PT
+  const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+  if (m) {
+    let a = parseInt(m[1],10), b = parseInt(m[2],10), y = parseInt(m[3],10);
+    if (y < 100) y += 2000;
+    // Por defeito assumimos dd/mm/aaaa, que é o formato do Sheets em pt-PT.
+    let day = a, month = b;
+    // Se o primeiro número for impossível como dia mas possível como mês, troca.
+    if (a <= 12 && b > 12) { month = a; day = b; }
+    const d = new Date(y, month - 1, day);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
 }
 
 function fmtDate(v, mesesOnly=false) {
-  if (!v || v === '') return '—';
-  let d;
-  if (v instanceof Date) { d = v; }
-  else if (typeof v === 'string' && (v.includes('T') || /^\d{4}-\d{2}/.test(v))) { d = new Date(v); }
-  else { return String(v); }
-  if (!d || isNaN(d.getTime())) return String(v);
+  const d = parseAnyDate(v);
+  if (!d) return v ? String(v) : '—';
   if (mesesOnly) return d.toLocaleDateString('pt-PT', {month:'long', year:'numeric'});
   return d.toLocaleDateString('pt-PT');
 }
@@ -1412,194 +1466,115 @@ function fasePct(f) {
 }
 
 // ── RENDER PAINEL 2 ───────────────────────────────────
-function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, subs, C, orc) {
-  // Calcular datas extremas da obra
-  const toDate = v => {
-    if (!v || v === '' || v === 0) return null;
-    try {
-      const d = new Date(v);
-      return isNaN(d.getTime()) ? null : d;
-    } catch { return null; }
-  };
-  const fasesData = fases.filter(f => /^F\d{2}( |—|$)/.test(String(f['Código']||'')));
+function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, subs, C, orc, previsaoRaw) {
+  const toDate = parseAnyDate;
+  const mNomes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const hojeY = now.getFullYear(), hojeM = now.getMonth();
+
+  // Fases principais para o Gantt e intervalo da obra.
+  // Ex.: "F01 — ESTALEIRO..." entra; subfases "F01.1" não entram.
+  const fasesData = (fases || []).filter(f => /^F\d{2}(\s|—|$)/.test(String(f['Código']||'')));
 
   const obraInicio = fasesData.reduce((min, f) => {
-    const d = toDate(f['Data Início']); return d && (!min || d < min) ? d : min;
+    const d = toDate(f['Data Início']);
+    return d && (!min || d < min) ? d : min;
   }, null) || new Date('2026-02-01');
 
   const obraFim = fasesData.reduce((max, f) => {
-    const d = toDate(f['Data Fim Prevista']); return d && (!max || d > max) ? d : max;
+    const d = toDate(f['Data Fim Prevista']);
+    return d && (!max || d > max) ? d : max;
   }, null) || new Date('2027-01-31');
 
-  // Gerar array de meses entre início e fim
-  const meses = [];
-  let cur = new Date(obraInicio.getFullYear(), obraInicio.getMonth(), 1);
-  const fim = new Date(obraFim.getFullYear(), obraFim.getMonth(), 1);
-  const mNomes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  while (cur <= fim) {
-    meses.push({ y: cur.getFullYear(), m: cur.getMonth(), label: mNomes[cur.getMonth()], y2: String(cur.getFullYear()).slice(2) });
-    cur = new Date(cur.getFullYear(), cur.getMonth()+1, 1);
-  }
+  // ── NOVO MOTOR DO CASH FLOW: 2b_Previsão Financeira ──
+  // A aba 2b vem do JSON como matriz, e algumas colunas B:K não têm título.
+  // Por isso a leitura é intencionalmente por posição:
+  // A mês · B entrada real · C entrada prevista · D entrada total · K saída total
+  // L saldo mensal · M saldo acumulado · N tipo.
+  function cfFromPrevisao(rows) {
+    if (!rows || rows.length < 2) return [];
+    const out = [];
 
-  const hojeY = now.getFullYear(), hojeM = now.getMonth();
+    rows.slice(1).forEach(r => {
+      if (!r || !r.length) return;
+      const d = toDate(r[0]);
+      if (!d) return;
 
-  // Mapear entradas por mês
-  // Reais: usa Data Recebimento quando existe
-  // Previsão: distribui saldo por faturar pelos meses futuros com base no planeamento
-  const entradasMes = {};
+      const entradaReal = num(r[1]);
+      const entradaPrev = num(r[2]);
+      const entradaTot  = num(r[3]) || entradaReal + entradaPrev;
 
-  faturacao.filter(f => f['Nº Fatura'] && num(f['Valor (€)']) > 0).forEach(f => {
-    const d = toDate(f['Data Recebimento']) || toDate(f['Data de Emissão da Fatura']) || toDate(f['Data Emissão do Auto']) || toDate(f['Data Emissão']) || toDate(f['Data de aprovação']);
-    if (!d) return;
-    const k = `${d.getFullYear()}-${d.getMonth()}`;
-    entradasMes[k] = (entradasMes[k]||0) + num(f['Valor (€)']);
-  });
+      const saidaTot = num(r[10]);
+      const saldoMes = num(r[11]) || (entradaTot - saidaTot);
+      const saldoAc  = num(r[12]);
+      const tipo     = String(r[13] || '').trim();
 
-  // Previsão de faturação futura baseada no planeamento
-  // Para cada fase activa/futura, distribui o valor de venda proporcional ao trabalho previsto por mês
-  const vendaTotalObra = num(C['Venda Contratual']) || 472179.26; // efectiva
-  const jaFaturado = Object.values(entradasMes).reduce((s,v) => s+v, 0);
-  const porFaturar = vendaTotalObra - jaFaturado;
+      // ignora linhas vazias/resumo que por acaso tenham 0 sem mês útil
+      if (!entradaTot && !saidaTot && !saldoMes && !saldoAc) return;
 
-  // Calcular peso de cada fase futura por mês
-  const pesos = {}; // k -> peso
-  fasesData.filter(f => num(f['% Executado']) < 100).forEach(f => {
-    const dI = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
-    if (!dI || !dF) return;
-    const duracaoMs = dF - dI;
-    if (duracaoMs <= 0) return;
-    let c = new Date(dI.getFullYear(), dI.getMonth(), 1);
-    while (c <= dF) {
-      const ky = c.getFullYear(), km = c.getMonth();
-      if (ky > hojeY || (ky === hojeY && km >= hojeM)) {
-        const k = `${ky}-${km}`;
-        pesos[k] = (pesos[k]||0) + 1;
-      }
-      c = new Date(ky, km+1, 1);
-    }
-  });
+      const isPast  = d.getFullYear() < hojeY || (d.getFullYear() === hojeY && d.getMonth() < hojeM);
+      const isAtual = d.getFullYear() === hojeY && d.getMonth() === hojeM;
+      const isReal  = tipo.toLowerCase().includes('real') || isPast;
 
-  const totalPeso = Object.values(pesos).reduce((s,v) => s+v, 0);
-  if (totalPeso > 0) {
-    Object.entries(pesos).forEach(([k, p]) => {
-      entradasMes[k] = (entradasMes[k]||0) + (p / totalPeso) * porFaturar;
-    });
-  }
-
-  // Mapear saídas por mês (custos fixos + internos + pagamentos reais)
-  const saidasMes = {};      // saídas reais
-  const saidasEstMes = {};   // saídas estimadas (subempreitadas não adjudicadas)
-
-  // Meses futuros para distribuição de linhas de previsão
-  const mesesFuturos = meses.filter(m => m.y > hojeY || (m.y === hojeY && m.m >= hojeM));
-
-  [...custosFixos, ...custosInternos].forEach(r => {
-    const d = toDate(r['Data'] || r['Mês']);
-    if (!d) return;
-    const valRaw = String(r['ValorTotal(€)']||r['Valor Total (€)']||r['Valor (€)']||r['Custo Total (€)']||'').trim();
-    if (!valRaw || valRaw.toLowerCase() === 'indefinido') return;
-    const val = num(valRaw);
-    if (!val) return;
-    let afect = num(r['%AfectaçãoObra']||r['% Afectação Obra']||1);
-    if (afect > 1) afect = afect / 100;
-    if (!afect) afect = 1;
-    const descricao = String(r['Descrição']||'').toLowerCase();
-    const isPrevisao = descricao.includes('previsão') || descricao.includes('previsao') ||
-                       descricao.includes('estimativa') || descricao.includes('estimat');
-    if (isPrevisao && mesesFuturos.length > 0) {
-      const valMensal = val * afect / mesesFuturos.length;
-      mesesFuturos.forEach(m => {
-        const k = `${m.y}-${m.m}`;
-        saidasMes[k] = (saidasMes[k]||0) + valMensal;
+      out.push({
+        y: d.getFullYear(),
+        m: d.getMonth(),
+        label: mNomes[d.getMonth()],
+        y2: String(d.getFullYear()).slice(2),
+        entrada: entradaTot,
+        saida: isReal ? saidaTot : 0,
+        saidaEst: isReal ? 0 : saidaTot,
+        entradaOrc: entradaPrev || entradaTot,
+        saidaOrc: saidaTot,
+        saldoMes,
+        saldoAcumulado: saldoAc,
+        tipo,
+        real: isReal,
+        atual: isAtual
       });
-    } else {
-      const k = `${d.getFullYear()}-${d.getMonth()}`;
-      saidasMes[k] = (saidasMes[k]||0) + val * afect;
-    }
-  });
-
-  // Pagamentos reais de subempreitadas
-  (pagamentos||[]).filter(p => {
-    const dt = p['Data Pagamento']||p['DataPagamento']||p['Data Fatura']||p['DataFatura'];
-    const vl = p['Valor Total (€)']||p['ValorTotal(€)']||p['Valor Pago (€)'];
-    return dt && num(vl);
-  }).forEach(p => {
-    const d = toDate(p['Data Pagamento']||p['DataPagamento']||p['Data Fatura']||p['DataFatura']);
-    if (!d) return;
-    const k = `${d.getFullYear()}-${d.getMonth()}`;
-    saidasMes[k] = (saidasMes[k]||0) + num(p['Valor Total (€)']||p['ValorTotal(€)']||p['Valor Pago (€)']);
-  });
-
-  // Índice de fases por código (curto e completo)
-  const faseIndex = {};
-  fasesData.forEach(f => {
-    if (!f['Código']) return;
-    const codFull = String(f['Código']);
-    faseIndex[codFull] = f;
-    const codCurto = (codFull.match(/^F\d{2}/) || [''])[0];
-    if (codCurto) faseIndex[codCurto] = f;
-  });
-
-  // Saídas estimadas por fase usando 0_Orcamento (CDmes) cruzado com datas do planeamento
-  // Nota: o bloco de subempreitadas 'Ainda não' foi removido para evitar dupla contagem —
-  // o 0_Orcamento já inclui o CD de todas as fases, incluindo Caixilharia e Carpintaria.
-  if (orc && orc.length > 0) {
-    const orcFases = orc.filter(r => r['Fase'] && String(r['Fase']).match(/^F\d{2}$/));
-    orcFases.forEach(r => {
-      const considerar = String(r['Considerar na previsão futura']||'SIM').trim().toUpperCase();
-      if (considerar === 'NÃO' || considerar === 'NAO') return;
-      const cdMes = num(r['C.D./mês\n estimd. (€)'] || r['C.D./mês\nestimd.(€)'] || r['CD/mês\nestimd.(€)'] || r['CDmes'] || 0);
-      if (!cdMes) return;
-      // Tentar datas do próprio orc; se não existirem, usar faseIndex do planeamento
-      let dI = toDate(r['Fase ativa\ninício'] || r['Fase activa\ninício'] || r['Faseativa\ninício']);
-      let dF = toDate(r['Fase ativa\nfim']    || r['Fase activa\nfim']    || r['Faseativa\nfim']);
-      if (!dI || !dF) {
-        const cod = String(r['Fase']).trim();
-        const fPlano = faseIndex[cod];
-        if (!fPlano) return;
-        dI = toDate(fPlano['Data Início']);
-        dF = toDate(fPlano['Data Fim Prevista']);
-      }
-      if (!dI || !dF) return;
-      let cur = new Date(dI.getFullYear(), dI.getMonth(), 1);
-      while (cur <= dF) {
-        const k = `${cur.getFullYear()}-${cur.getMonth()}`;
-        const isFut = cur.getFullYear() > hojeY || (cur.getFullYear() === hojeY && cur.getMonth() >= hojeM);
-        if (isFut) saidasEstMes[k] = (saidasEstMes[k]||0) + cdMes;
-        cur = new Date(cur.getFullYear(), cur.getMonth()+1, 1);
-      }
     });
+
+    out.sort((a,b) => (a.y - b.y) || (a.m - b.m));
+    return out;
   }
 
-  // Construir CF por mês — com linhas de referência orçamental
-  // Previsão orçamental de entradas: venda total distribuída linearmente pelos meses da obra
-  const vendaTotal = 553619.19;
-  const cdTotal2   = (num(C['Custo Directo Contratual']) + num(C['TEE Custo'])) || 355023.64;
-  const entradaOrcMensal = vendaTotal / meses.length;
-  const saidaOrcMensal   = cdTotal2   / meses.length;
-  let entradaOrcAcum = 0, saidaOrcAcum = 0;
+  // Plano B antigo: se a 2b não vier no JSON, cria uma grelha mensal vazia baseada no planeamento.
+  function mesesDoPlaneamento() {
+    const meses = [];
+    let cur = new Date(obraInicio.getFullYear(), obraInicio.getMonth(), 1);
+    const fim = new Date(obraFim.getFullYear(), obraFim.getMonth(), 1);
+    while (cur <= fim) {
+      meses.push({
+        y: cur.getFullYear(),
+        m: cur.getMonth(),
+        label: mNomes[cur.getMonth()],
+        y2: String(cur.getFullYear()).slice(2),
+        entrada: 0,
+        saida: 0,
+        saidaEst: 0,
+        entradaOrc: 0,
+        saidaOrc: 0,
+        real: cur.getFullYear() < hojeY || (cur.getFullYear() === hojeY && cur.getMonth() < hojeM),
+        atual: cur.getFullYear() === hojeY && cur.getMonth() === hojeM
+      });
+      cur = new Date(cur.getFullYear(), cur.getMonth()+1, 1);
+    }
+    return meses;
+  }
 
-  const CF = meses.map((m, idx) => {
-    const k = `${m.y}-${m.m}`;
-    const isReal  = m.y < hojeY || (m.y===hojeY && m.m < hojeM);
-    const isAtual = m.y===hojeY && m.m===hojeM;
-    entradaOrcAcum += entradaOrcMensal;
-    saidaOrcAcum   += saidaOrcMensal;
-    return {
-      ...m,
-      entrada:       entradasMes[k]||0,
-      saida:         saidasMes[k]||0,
-      saidaEst:      (isReal || (isAtual && (saidasMes[k]||0) > 0)) ? 0 : (saidasEstMes[k]||0),
-      entradaOrc:    entradaOrcMensal,   // referência orçamental mensal entradas
-      saidaOrc:      saidaOrcMensal,     // referência orçamental mensal saídas
-      real: isReal, atual: isAtual
-    };
-  });
+  const CF = cfFromPrevisao(previsaoRaw);
+  if (!CF.length) CF.push(...mesesDoPlaneamento());
 
   // GANTT — calcular posições relativas
-  const totalMs  = obraFim - obraInicio;
+  const totalMs  = Math.max(1, obraFim - obraInicio);
   const hojePos  = Math.max(0, Math.min(1, (now - obraInicio) / totalMs));
-  const mesesHdr = meses.map(m => m.label);
+
+  const mesesGantt = [];
+  let curG = new Date(obraInicio.getFullYear(), obraInicio.getMonth(), 1);
+  const fimG = new Date(obraFim.getFullYear(), obraFim.getMonth(), 1);
+  while (curG <= fimG) {
+    mesesGantt.push({ y: curG.getFullYear(), m: curG.getMonth(), label: mNomes[curG.getMonth()] });
+    curG = new Date(curG.getFullYear(), curG.getMonth()+1, 1);
+  }
 
   const ganttEl = document.getElementById('gantt');
   const hdrCols = 'grid-template-columns: 160px 80px 1fr 50px';
@@ -1608,9 +1583,9 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     <div style="padding:0 8px;font-size:9px">Sub.</div>
     <div style="padding:0 4px">
       <div style="display:flex">
-        ${mesesHdr.map((ml,i) => {
-          const isHoje = meses[i].y===hojeY && meses[i].m===hojeM;
-          return `<div style="flex:1;text-align:center;font-size:9px;${isHoje?'color:var(--blu)':''}">${ml}</div>`;
+        ${mesesGantt.map((ml) => {
+          const isHoje = ml.y===hojeY && ml.m===hojeM;
+          return `<div style="flex:1;text-align:center;font-size:9px;${isHoje?'color:var(--blu)':''}">${ml.label}</div>`;
         }).join('')}
       </div>
     </div>
@@ -1618,25 +1593,27 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
   </div>`;
 
   fasesData.forEach(f => {
-    const dI  = toDate(f['Data Início']),      dF  = toDate(f['Data Fim Prevista']);
-    const dIR = toDate(f['Data Fim Real']);     // data real se existir
+    const dI  = toDate(f['Data Início']), dF = toDate(f['Data Fim Prevista']);
+    const dIR = toDate(f['Data Fim Real']);
     if (!dI || !dF) return;
+
     const left  = Math.max(0, (dI - obraInicio) / totalMs * 100).toFixed(1);
-    const width = Math.max(1, (dF - dI)         / totalMs * 100).toFixed(1);
+    const width = Math.max(1, (dF - dI) / totalMs * 100).toFixed(1);
     const p     = fasePct(f);
     const faseCodKey = (String(f['Código']||'').match(/^F\d{2}/)||[''])[0];
     const cor   = FASE_CORES[faseCodKey] || '#4A6090';
     const sub   = (f['Responsável']||f['Subempreiteiro']||'').split('/')[0].trim().slice(0,8);
 
-    // Barra real (se data fim real existir)
     let barraReal = '';
     if (dIR) {
       const wR = Math.max(0.5, (dIR - dI) / totalMs * 100).toFixed(1);
       barraReal = `<div style="position:absolute;left:${left}%;width:${wR}%;top:0;height:100%;background:${cor};opacity:0.9;border-radius:3px;border:2px solid white" title="Concluído em ${fmtDate(dIR)}"></div>`;
     }
 
+    const nomeFase = (f['Descrição / Trabalhos']||f['Código']||'').split('|')[0].trim();
+
     ganttHTML += `<div class="gantt-row" style="${hdrCols};background:${cor}18;border-left:3px solid ${cor}">
-      <div class="gantt-fase" style="line-height:1.3;padding:4px 8px">${(f['Descrição / Trabalhos']||f['Código']||'').split('|')[0].trim()}</div>
+      <div class="gantt-fase" style="line-height:1.3;padding:4px 8px">${nomeFase}</div>
       <div style="padding:0 8px;font-size:10px;color:var(--tx3)">${sub}</div>
       <div style="position:relative;padding:4px">
         <div class="gantt-bar-wrap">
@@ -1644,23 +1621,23 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
           <div class="gantt-bar" style="left:${left}%;width:${width}%;background:${cor}25;border:1px solid ${cor}55">
             <div style="position:absolute;left:0;top:0;height:100%;width:${p}%;background:${cor};border-radius:3px 0 0 3px;opacity:0.75"></div>
             ${barraReal}
-            <span class="gantt-bar-label" style="position:relative;z-index:1">${(f['Descrição / Trabalhos']||f['Fase']||'').replace(/^F\d{2}\s*[—-]?\s*/,'').split('|')[0].trim()}</span>
+            <span class="gantt-bar-label" style="position:relative;z-index:1">${nomeFase.replace(/^F\d{2}\s*[—-]?\s*/,'')}</span>
           </div>
         </div>
       </div>
-      <div class="gantt-pct" style="color:${p===100?'var(--grn)':p>0?'var(--amb)':'var(--tx3)'}">${p}%</div>
+      <div class="gantt-pct" style="color:${p===100?'var(--grn)':p>0?'var(--amb)':'var(--tx3)'}">${pct(p,0)}</div>
     </div>`;
   });
   ganttEl.innerHTML = ganttHTML;
 
-  // CHART — barras com valores acima + linhas de faturação/custos expectáveis
+  // CHART — barras com valores acima + linhas de referência
   const maxVal = Math.max(...CF.flatMap(m => [m.entrada, m.saida + m.saidaEst, m.entradaOrc, m.saidaOrc]), 1);
   const chartH = 240;
 
   document.getElementById('cf-chart').innerHTML = CF.map(m => {
-    const hIn  = Math.round(m.entrada   / maxVal * chartH);
-    const hOut = Math.round(m.saida     / maxVal * chartH);
-    const hEst = Math.round(m.saidaEst  / maxVal * chartH);
+    const hIn  = Math.round(m.entrada / maxVal * chartH);
+    const hOut = Math.round(m.saida / maxVal * chartH);
+    const hEst = Math.round(m.saidaEst / maxVal * chartH);
     const totalOut = m.saida + m.saidaEst;
     const risk = totalOut > m.entrada && (m.entrada > 0 || totalOut > 0);
     return `<div class="tl-col">
@@ -1674,7 +1651,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
         <div style="position:absolute;bottom:0;right:1%;width:46%;height:${Math.max(hOut+hEst,2)}px">
           ${hEst>0?`<div style="width:100%;height:${hEst}px;background:var(--amb);opacity:0.45;
             border-radius:3px 3px 0 0;border-top:1px dashed var(--amb)"
-            title="${m.label} ${m.y}: Estimado ${eur(m.saidaEst)}"></div>`:''}
+            title="${m.label} ${m.y}: Previsto ${eur(m.saidaEst)}"></div>`:''}
           ${hOut>0?`<div style="width:100%;height:${hOut}px;background:var(--amb)"
             title="${m.label} ${m.y}: Real ${eur(m.saida)}"></div>`:''}
           ${!hOut&&!hEst?`<div style="width:100%;height:2px;background:var(--amb);opacity:0.2"></div>`:''}
@@ -1687,7 +1664,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
     </div>`;
   }).join('');
 
-  // LINHAS SVG — faturação expectável (azul) e custos orçamentais (âmbar)
+  // LINHAS SVG — entradas previstas e saídas previstas
   setTimeout(() => {
     const wrap  = document.getElementById('cf-chart-wrap');
     const chart = document.getElementById('cf-chart');
@@ -1718,72 +1695,71 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
       el.setAttribute('opacity', '0.65');
       svg.appendChild(el);
     };
-    // Linha faturação expectável por mês (entradaOrc)
-    drawLine(CF.map((m,i) => ({ x: xs[i], y: chartH - Math.round(m.entradaOrc / maxVal * chartH) })), 'var(--blu)', '6,4');
-    // Linha custos orçamentais por mês (saidaOrc)
-    drawLine(CF.map((m,i) => ({ x: xs[i], y: chartH - Math.round(m.saidaOrc / maxVal * chartH) })), 'var(--amb)', '4,4');
+    drawLine(CF.map((m,i) => ({ x: xs[i], y: chartH - Math.round((m.entradaOrc || 0) / maxVal * chartH) })), 'var(--blu)', '6,4');
+    drawLine(CF.map((m,i) => ({ x: xs[i], y: chartH - Math.round((m.saidaOrc || 0) / maxVal * chartH) })), 'var(--amb)', '4,4');
     wrap.appendChild(svg);
   }, 300);
 
-
-  // MONTH GRID — com saldo acumulado
+  // MONTH GRID — usa saldo acumulado vindo da 2b quando existir
   let saldoAcc = 0;
-  document.getElementById('month-grid').innerHTML = CF.map((m, i) => {
+  document.getElementById('month-grid').innerHTML = CF.map((m) => {
     const totalOut = m.saida + m.saidaEst;
-    const saldoMes  = m.entrada - totalOut;
+    const saldoMes = (m.saldoMes !== undefined && m.saldoMes !== null) ? m.saldoMes : (m.entrada - totalOut);
     saldoAcc += saldoMes;
+    const saldoAcMostrar = (m.saldoAcumulado !== undefined && m.saldoAcumulado !== null && m.saldoAcumulado !== 0) ? m.saldoAcumulado : saldoAcc;
     const risk     = totalOut > m.entrada && (m.entrada > 0 || totalOut > 0);
     const caution  = !risk && m.entrada > 0 && (totalOut/m.entrada > 0.85);
-    const negAcum  = saldoAcc < 0;
+    const negAcum  = saldoAcMostrar < 0;
     const cls = m.atual?'current':m.real?'past':negAcum?'risk':risk?'risk':caution?'caution':'';
     const saldoCol = saldoMes >= 0 ? 'var(--grn)' : 'var(--red)';
-    const acumCol  = saldoAcc >= 0 ? 'var(--grn)' : 'var(--red)';
+    const acumCol  = saldoAcMostrar >= 0 ? 'var(--grn)' : 'var(--red)';
     const badge = negAcum  ? '<div class="mc-badge" style="color:var(--red)">⚠ saldo acumulado negativo</div>'
                 : risk     ? '<div class="mc-badge" style="color:var(--red)">⚠ saídas > entradas</div>'
                 : caution  ? '<div class="mc-badge" style="color:var(--amb)">↑ atenção</div>'
                 : m.real   ? '<div class="mc-badge" style="color:var(--tx3)">✓ real</div>'
-                : m.atual  ? '<div class="mc-badge" style="color:var(--blu)">→ actual</div>' : '';
+                : m.atual  ? '<div class="mc-badge" style="color:var(--blu)">→ actual</div>'
+                : '<div class="mc-badge" style="color:var(--tx3)">previsão</div>';
     return `<div class="month-card ${cls}">
       <div class="mc-month">${m.label} ${m.y2}</div>
       <div class="mc-in">↑ ${eur(m.entrada)}</div>
-      <div class="mc-out">↓ ${eur(m.saida)}${m.saidaEst>0?` <span style="color:var(--amb);font-size:10px">(+${eur(m.saidaEst)} est.)</span>`:''}</div>
+      <div class="mc-out">↓ ${eur(m.saida)}${m.saidaEst>0?` <span style="color:var(--amb);font-size:10px">(+${eur(m.saidaEst)} prev.)</span>`:''}</div>
       <div class="mc-saldo" style="color:${saldoCol}">${saldoMes>=0?'+':''}${eur(saldoMes)}</div>
-      <div style="font-family:var(--mono);font-size:10px;color:${acumCol};margin-top:2px" title="Saldo acumulado">∑ ${saldoAcc>=0?'+':''}${eur(saldoAcc)}</div>
+      <div style="font-family:var(--mono);font-size:10px;color:${acumCol};margin-top:2px" title="Saldo acumulado">∑ ${saldoAcMostrar>=0?'+':''}${eur(saldoAcMostrar)}</div>
       ${badge}
     </div>`;
   }).join('');
 
   // Simulador — actualiza fases disponíveis
   const simFase = document.getElementById('sim-fase');
-  simFase.innerHTML = fasesData.filter(f=>num(f['% Executado'])<100).map(f => {
+  simFase.innerHTML = fasesData.filter(f=>fasePct(f)<100).map(f => {
     const fNomeSim = (f['Descrição / Trabalhos']||f['Fase']||'').replace(/^F\d{2}\s*[—-]?\s*/,'').split('|')[0].trim();
     const fRespSim = f['Responsável']||f['Subempreiteiro']||'Primeline';
     return `<option value="${f['Código']}">${f['Código']} — ${fNomeSim} (${fRespSim})</option>`;
   }).join('');
 
   // KPIs P2
-  const totalEnt  = CF.reduce((s,m) => s+m.entrada, 0);
-  const totalSai  = CF.reduce((s,m) => s+m.saida+m.saidaEst, 0);
-  const totalSaiReal = CF.reduce((s,m) => s+m.saida, 0);
+  const totalEnt  = CF.reduce((s,m) => s + m.entrada, 0);
+  const totalSai  = CF.reduce((s,m) => s + m.saida + m.saidaEst, 0);
   const mesesRisc = CF.filter(m => (m.saida+m.saidaEst) > m.entrada && (m.entrada > 0 || (m.saida+m.saidaEst) > 0)).length;
 
-  // Calcular saldo acumulado para encontrar o pior mês
-  let acum = 0;
-  let piorSaldo = 0, piorMes = null;
+  let piorSaldo = null, piorMes = null;
+  let acumCalc = 0;
   CF.forEach(m => {
-    acum += m.entrada - m.saida - m.saidaEst;
-    if (acum < piorSaldo) { piorSaldo = acum; piorMes = m; }
+    acumCalc += (m.saldoMes !== undefined && m.saldoMes !== null) ? m.saldoMes : (m.entrada - m.saida - m.saidaEst);
+    const sAc = (m.saldoAcumulado !== undefined && m.saldoAcumulado !== null && m.saldoAcumulado !== 0) ? m.saldoAcumulado : acumCalc;
+    if (piorSaldo === null || sAc < piorSaldo) { piorSaldo = sAc; piorMes = m; }
   });
+  if (piorSaldo === null) piorSaldo = 0;
 
   const p2kpis = document.querySelectorAll('#p2 .kpi-val');
   if (p2kpis[0]) p2kpis[0].textContent = eur(totalEnt);
   if (p2kpis[1]) p2kpis[1].textContent = eur(totalSai);
   if (p2kpis[2]) { p2kpis[2].textContent = eur(totalEnt - totalSai); p2kpis[2].style.color = (totalEnt-totalSai)>=0?'var(--grn)':'var(--red)'; }
   if (p2kpis[3]) {
-    p2kpis[3].textContent = piorMes ? eur(piorSaldo) : eur(0);
+    p2kpis[3].textContent = eur(piorSaldo);
     p2kpis[3].style.color = piorSaldo < 0 ? 'var(--red)' : 'var(--grn)';
     const sub = document.getElementById('kpi-pior-mes-sub');
-    if (sub) sub.textContent = piorMes ? `${piorMes.label} ${piorMes.y} — saldo acumulado mínimo` : 'Sem meses negativos ✓';
+    if (sub) sub.textContent = piorMes ? `${piorMes.label} ${piorMes.y} — saldo acumulado mínimo` : 'Sem dados';
     const card = document.getElementById('kpi-pior-mes');
     if (card) card.className = piorSaldo < 0 ? 'kpi rl' : 'kpi gl';
   }
@@ -1791,7 +1767,7 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
   // Header P2
   const p2metas = document.querySelectorAll('#p2 .oh-item .val');
   if (p2metas[2]) { p2metas[2].textContent = eur(totalEnt-totalSai); p2metas[2].style.color=(totalEnt-totalSai)>=0?'var(--grn)':'var(--red)'; }
-  if (p2metas[3]) { p2metas[3].innerHTML = `${mesesRisc} meses${mesesRisc>0?` <span class="pill pill-red">!</span>`:''}`;  p2metas[3].style.color=mesesRisc>0?'var(--red)':'var(--grn)'; }
+  if (p2metas[3]) { p2metas[3].innerHTML = `${mesesRisc} meses${mesesRisc>0?` <span class="pill pill-red">!</span>`:''}`; p2metas[3].style.color=mesesRisc>0?'var(--red)':'var(--grn)'; }
 
   document.getElementById('p2-time').textContent = 'Actualizado ' + now.toLocaleTimeString('pt-PT');
 }
@@ -1817,10 +1793,7 @@ function simular() {
 
 // ── RENDER PAINEL 3 — DIRECTOR DE OBRA ──────────────────
 function renderP3(fases, subs, tees, P) {
-  const toDate = v => {
-    if (!v || v === '' || v === 0) return null;
-    try { const d = new Date(v); return isNaN(d.getTime()) ? null : d; } catch { return null; }
-  };
+  const toDate = parseAnyDate;
   const hoje = new Date();
   const em60dias = new Date(hoje.getTime() + 60*24*60*60*1000);
   const fasesData = fases.filter(f => /^F\d{2}( |—|$)/.test(String(f['Código']||'')));
@@ -2041,7 +2014,7 @@ async function loadData() {
 
     document.querySelectorAll('[id^="spin-"]').forEach(e => e.remove());
 
-    let P={}, C={}, tees=[], subs=[], pags=[], fases=[], orc=[], fat=[], mat=[], cf=[];
+    let P={}, C={}, tees=[], subs=[], pags=[], fases=[], orc=[], fat=[], mat=[], cf=[], prevRaw=[];
     try { P    = toKV(data['1_Painel_dados'] || data['1_Painel'] || []); } catch(e) { console.error('P:',e); }
     try { C    = toKV(data['2_Contratual_dados'] || data['2_Contratual'] || []); } catch(e) { console.error('C:',e); }
     try { tees = toObjArray(data['3_TEEs'] || []); } catch(e) { console.error('tees:',e); }
@@ -2052,6 +2025,7 @@ async function loadData() {
     try { fat  = toObjArray(data['6_Faturação'] || []); } catch(e) { console.error('fat:',e); }
     try { mat  = toObjArray(data['7_Materiais'] || []); } catch(e) { console.error('mat:',e); }
     try { cf   = toObjArray(data['8_Custos'] || data['7_Custos_Fixos'] || []); } catch(e) { console.error('cf:',e); }
+    try { prevRaw = data['2b_Previsão Financeira'] || data['2b_Previsao Financeira'] || []; } catch(e) { console.error('prevRaw:',e); }
     const ci   = [];
 
     const todosOsCustos = [
@@ -2071,7 +2045,7 @@ async function loadData() {
     ];
 
     try { renderP1(P, C, tees, subs); } catch(e) { console.error('renderP1:', e); }
-    try { renderP2(fases, fat, todosOsCustos, [], pags, subs, C, orc); } catch(e) { console.error('renderP2:', e); }
+    try { renderP2(fases, fat, todosOsCustos, [], pags, subs, C, orc, prevRaw); } catch(e) { console.error('renderP2:', e); }
     try { renderP3(fases, subs, tees, P); } catch(e) { console.error('renderP3:', e); }
 
   } catch(err) {
