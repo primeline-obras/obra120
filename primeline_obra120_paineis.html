@@ -386,8 +386,9 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
 .timeline {
   display: flex; gap: 6px; align-items: flex-end;
   margin-bottom: 8px; padding: 0 4px; align-items: flex-end;
+  position: relative; z-index: 2;
 }
-.tl-col { flex: 1; display: flex; flex-direction: column; gap: 3px; align-items: center; justify-content: flex-end; }
+.tl-col { flex: 1; display: flex; flex-direction: column; gap: 3px; align-items: center; justify-content: flex-end; min-width:0; }
 .tl-bars { display: flex; gap: 2px; align-items: flex-end; width: 100%; }
 .bar-in { flex: 1; border-radius: 3px 3px 0 0; background: var(--blu); min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); position: relative; }
 .bar-out { flex: 1; border-radius: 0 0 3px 3px; background: var(--amb); min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); }
@@ -398,9 +399,9 @@ tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color:
 .tl-month.future { color: var(--tx3); opacity: 0.6; }
 
 /* saldo line overlay */
-.chart-wrap { position: relative; }
+.chart-wrap { position: relative; overflow: visible; }
 .saldo-line { position: absolute; bottom: 28px; left: 0; right: 0; pointer-events: none; }
-.saldo-svg { position:absolute; top:0; left:0; width:100%; pointer-events:none; overflow:visible; }
+.saldo-svg { position:absolute; top:36px; left:0; width:100%; pointer-events:none; overflow:visible; z-index:5; }
 .saldo-path { fill:none; stroke-width:2.5px; stroke-linejoin:round; stroke-linecap:round; }
 .saldo-zero-line { stroke:var(--tx3); stroke-width:1px; stroke-dasharray:4,4; opacity:0.5; }
 
@@ -943,6 +944,7 @@ function toggleTheme() {
   document.getElementById('theme-icon').textContent  = isLight ? '☀️' : '🌙';
   document.getElementById('theme-label').textContent = isLight ? 'Claro' : 'Escuro';
   localStorage.setItem('primeline-theme', isLight ? 'light' : 'dark');
+  scheduleCashFlowReferenceLines();
 }
 
 // restore saved preference
@@ -960,6 +962,11 @@ function showPage(id, btn) {
   document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
+
+  // O painel Cash Flow fica escondido no arranque. Em alguns PCs, medir o SVG
+  // enquanto a aba está com display:none faz todas as coordenadas X ficarem 0,
+  // transformando as linhas tracejadas em linhas retas/verticais.
+  if (id === 'p2') scheduleCashFlowReferenceLines();
 }
 
 // ── HELPERS ──────────────────────────────────────────
@@ -1408,6 +1415,101 @@ function fasePct(f) {
 }
 
 // ── RENDER PAINEL 2 ───────────────────────────────────
+
+// ── CASH FLOW SVG ROBUSTO ───────────────────────────
+// Guarda o último estado do gráfico para redesenhar as linhas quando a aba fica visível,
+// quando o layout muda ou quando o tema é alterado. Isto evita o bug visto nos PCs:
+// a aba Cash Flow é renderizada escondida e o browser devolve larguras/posições a zero.
+let cashFlowLineState = null;
+let cashFlowLineRaf = null;
+let cashFlowResizeObserver = null;
+
+function scheduleCashFlowReferenceLines() {
+  if (!cashFlowLineState) return;
+  if (cashFlowLineRaf) cancelAnimationFrame(cashFlowLineRaf);
+
+  cashFlowLineRaf = requestAnimationFrame(() => {
+    cashFlowLineRaf = requestAnimationFrame(drawCashFlowReferenceLines);
+  });
+}
+
+function drawCashFlowReferenceLines() {
+  cashFlowLineRaf = null;
+  if (!cashFlowLineState) return;
+
+  const { CF, maxVal, chartH } = cashFlowLineState;
+  const wrap  = document.getElementById('cf-chart-wrap');
+  const chart = document.getElementById('cf-chart');
+  const page  = document.getElementById('p2');
+  if (!wrap || !chart || !page || !page.classList.contains('active')) return;
+
+  const cols = Array.from(chart.querySelectorAll('.tl-col'));
+  const wrapRect = wrap.getBoundingClientRect();
+  const chartRect = chart.getBoundingClientRect();
+  if (!cols.length || wrapRect.width < 10 || chartRect.width < 10) return;
+
+  const old = wrap.querySelector('.saldo-svg');
+  if (old) old.remove();
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('class', 'saldo-svg');
+  svg.setAttribute('width', String(chartRect.width));
+  svg.setAttribute('height', String(chartH));
+  svg.setAttribute('viewBox', `0 0 ${chartRect.width} ${chartH}`);
+  svg.setAttribute('preserveAspectRatio', 'none');
+  svg.style.left = `${chartRect.left - wrapRect.left}px`;
+  svg.style.top = `${chartRect.top - wrapRect.top}px`;
+  svg.style.height = `${chartH}px`;
+
+  const xs = cols.map(col => {
+    const r = col.getBoundingClientRect();
+    return (r.left - chartRect.left) + r.width / 2;
+  });
+
+  const ptsFrom = (field) => CF.map((m, i) => {
+    const v = Math.max(0, num(m[field] || 0));
+    return {
+      x: xs[i],
+      y: Math.max(0, Math.min(chartH, chartH - (v / maxVal * chartH)))
+    };
+  }).filter(p => isFinite(p.x) && isFinite(p.y));
+
+  const drawLine = (pts, color, dash) => {
+    if (pts.length < 2) return;
+    const el = document.createElementNS(svgNS, 'path');
+    el.setAttribute('d', `M ${pts.map(p => `${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' L ')}`);
+    el.setAttribute('fill', 'none');
+    el.setAttribute('stroke', color);
+    el.setAttribute('stroke-width', '2');
+    el.setAttribute('stroke-dasharray', dash);
+    el.setAttribute('stroke-linecap', 'round');
+    el.setAttribute('stroke-linejoin', 'round');
+    el.setAttribute('vector-effect', 'non-scaling-stroke');
+    el.setAttribute('opacity', '0.9');
+    svg.appendChild(el);
+  };
+
+  drawLine(ptsFrom('entradaOrc'), 'var(--blu)', '7 5');
+  drawLine(ptsFrom('saidaOrc'), 'var(--amb)', '5 5');
+  wrap.appendChild(svg);
+}
+
+function setCashFlowReferenceLines(CF, maxVal, chartH) {
+  cashFlowLineState = { CF, maxVal: Math.max(maxVal || 1, 1), chartH };
+
+  const chart = document.getElementById('cf-chart');
+  if (chart && !cashFlowResizeObserver && 'ResizeObserver' in window) {
+    cashFlowResizeObserver = new ResizeObserver(() => scheduleCashFlowReferenceLines());
+    cashFlowResizeObserver.observe(chart);
+  }
+
+  scheduleCashFlowReferenceLines();
+}
+
+window.addEventListener('resize', scheduleCashFlowReferenceLines);
+window.addEventListener('orientationchange', scheduleCashFlowReferenceLines);
+
 function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, subs, C, orc, previsaoRaw) {
   const toDate = parseAnyDate;
   const mNomes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
@@ -1607,40 +1709,8 @@ function renderP2(fases, faturacao, custosFixos, custosInternos, pagamentos, sub
   }).join('');
 
   // LINHAS SVG — entradas previstas e saídas previstas
-  setTimeout(() => {
-    const wrap  = document.getElementById('cf-chart-wrap');
-    const chart = document.getElementById('cf-chart');
-    if (!wrap || !chart) return;
-    const cols = chart.querySelectorAll('.tl-col');
-    if (!cols.length) return;
-    const wW = wrap.offsetWidth || 800;
-    const svgNS = 'http://www.w3.org/2000/svg';
-    const old = wrap.querySelector('.saldo-svg');
-    if (old) old.remove();
-    const svg = document.createElementNS(svgNS, 'svg');
-    svg.setAttribute('class', 'saldo-svg');
-    svg.setAttribute('height', chartH + 28);
-    svg.setAttribute('viewBox', `0 0 ${wW} ${chartH+28}`);
-    svg.style.cssText = 'position:absolute;top:0;left:0;width:100%;pointer-events:none;overflow:visible';
-    const xs = Array.from(cols).map(col => {
-      const r = col.getBoundingClientRect();
-      const wr = wrap.getBoundingClientRect();
-      return r.left - wr.left + r.width / 2;
-    });
-    const drawLine = (pts, color, dash) => {
-      const el = document.createElementNS(svgNS, 'path');
-      el.setAttribute('d', `M${pts.map(p=>`${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L')}`);
-      el.setAttribute('fill', 'none');
-      el.setAttribute('stroke', color);
-      el.setAttribute('stroke-width', '1.5');
-      el.setAttribute('stroke-dasharray', dash || '6,4');
-      el.setAttribute('opacity', '0.65');
-      svg.appendChild(el);
-    };
-    drawLine(CF.map((m,i) => ({ x: xs[i], y: chartH - Math.round((m.entradaOrc || 0) / maxVal * chartH) })), 'var(--blu)', '6,4');
-    drawLine(CF.map((m,i) => ({ x: xs[i], y: chartH - Math.round((m.saidaOrc || 0) / maxVal * chartH) })), 'var(--amb)', '4,4');
-    wrap.appendChild(svg);
-  }, 300);
+  // O desenho é agendado e só é medido quando a aba Cash Flow está visível.
+  setCashFlowReferenceLines(CF, maxVal, chartH);
 
   // MONTH GRID — usa saldo acumulado vindo da 2b quando existir
   let saldoAcc = 0;
