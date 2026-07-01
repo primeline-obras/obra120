@@ -3,1087 +3,288 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Radar Executivo · Obra 120 · Primeline</title>
+<title>Radar Executivo — Obra 120</title>
 <style>
 :root {
-  --bg:    #0A0E14;
-  --s1:    #111620;
-  --s2:    #1A2030;
-  --s3:    #232D40;
-  --bd:    #2A3550;
-  --tx:    #D8E4F8;
-  --tx2:   #8AA0C0;
-  --tx3:   #556080;
-  --grn:   #3DD68C;
-  --grn2:  #1A5C40;
-  --grn-bg:#0D2A1E;
-  --amb:   #F5A623;
-  --amb2:  #7A5010;
-  --amb-bg:#2A1E08;
-  --red:   #F56060;
-  --red2:  #7A2020;
-  --red-bg:#2A0E0E;
-  --blu:   #4D9EF5;
-  --blu2:  #1A4A80;
-  --blu-bg:#0D1E38;
-  --mono:  'JetBrains Mono', 'Courier New', monospace;
-  --r:     10px;
+  --bg:#080B10;
+  --s0:#0D1118;
+  --s1:#111622;
+  --s2:#171E2E;
+  --s3:#1E2840;
+  --bd:#263858;
+  --bd2:#3D5080;
+  --tx:#D8E4F8;
+  --tx2:#8EA4CC;
+  --tx3:#50658D;
+  --blu:#4D9EF5;
+  --blu2:#2878D8;
+  --grn:#3DD68C;
+  --amb:#F5A623;
+  --red:#F56060;
+  --red2:#C83030;
+  --vio:#A78BFA;
+  --mono:Consolas, "SFMono-Regular", "Roboto Mono", monospace;
+  --sans:Inter, "Segoe UI", Arial, sans-serif;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  background: var(--bg);
-  color: var(--tx);
-  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-  font-size: 14px;
-  line-height: 1.5;
-  padding: 24px;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-/* ── HEADER ── */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 28px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--bd);
-}
-.header-left .eyebrow {
-  font-size: 10px;
-  font-family: var(--mono);
-  color: var(--tx3);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 6px;
-}
-.header-left h1 {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--tx);
-  letter-spacing: -0.02em;
-}
-.header-left .sub {
-  font-size: 13px;
-  color: var(--tx2);
-  margin-top: 4px;
-}
-.header-right {
-  text-align: right;
-  font-size: 12px;
-  color: var(--tx3);
-  font-family: var(--mono);
-}
-.confidential {
-  display: inline-block;
-  background: var(--red-bg);
-  border: 1px solid var(--red2);
-  color: var(--red);
-  font-size: 10px;
-  font-family: var(--mono);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  padding: 3px 10px;
-  border-radius: 20px;
-  margin-bottom: 8px;
-}
-
-/* ── GRID LAYOUT ── */
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
-.span-2 { grid-column: span 2; }
-
-/* ── CARDS ── */
-.card {
-  background: var(--s1);
-  border: 1px solid var(--bd);
-  border-radius: var(--r);
-  padding: 20px;
-}
-.card-title {
-  font-size: 10px;
-  font-family: var(--mono);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--tx3);
-  margin-bottom: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.card-title::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--bd);
-}
-
-/* ── KPI GRANDES ── */
-.kpi-big {
-  font-size: 32px;
-  font-weight: 700;
-  font-family: var(--mono);
-  letter-spacing: -0.02em;
-  line-height: 1;
-}
-.kpi-label {
-  font-size: 11px;
-  color: var(--tx2);
-  margin-top: 4px;
-}
-.kpi-delta {
-  font-size: 11px;
-  font-family: var(--mono);
-  margin-top: 6px;
-}
-
-/* ── BARRAS DE PROGRESSO ── */
-.progress-row {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 6px;
-}
-.progress-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.progress-label {
-  font-size: 11px;
-  color: var(--tx2);
-  width: 120px;
-  flex-shrink: 0;
-}
-.progress-track {
-  flex: 1;
-  height: 8px;
-  background: var(--s3);
-  border-radius: 4px;
-  overflow: hidden;
-  position: relative;
-}
-.progress-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.8s cubic-bezier(.4,0,.2,1);
-}
-.progress-val {
-  font-size: 11px;
-  font-family: var(--mono);
-  width: 42px;
-  text-align: right;
-  flex-shrink: 0;
-}
-
-/* ── VELOCIDADE GAUGE ── */
-.vel-gauge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  padding: 10px 0;
-}
-.vel-number {
-  font-size: 48px;
-  font-weight: 700;
-  font-family: var(--mono);
-  letter-spacing: -0.03em;
-  line-height: 1;
-}
-.vel-desc {
-  font-size: 12px;
-  color: var(--tx2);
-  max-width: 160px;
-}
-
-/* ── IMPACTO FINANCEIRO ── */
-.impacto-card {
-  background: var(--s2);
-  border: 1px solid var(--bd);
-  border-radius: 8px;
-  padding: 14px 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
-}
-.impacto-card:last-child { margin-bottom: 0; }
-.impacto-left { flex: 1; }
-.impacto-title { font-size: 13px; font-weight: 500; }
-.impacto-sub { font-size: 11px; color: var(--tx2); margin-top: 3px; }
-.impacto-right { text-align: right; flex-shrink: 0; }
-.impacto-val {
-  font-size: 18px;
-  font-weight: 700;
-  font-family: var(--mono);
-}
-.impacto-tag {
-  font-size: 10px;
-  color: var(--tx3);
-  font-family: var(--mono);
-  margin-top: 2px;
-}
-
-/* ── DECISÕES ── */
-.decisao-item {
-  background: var(--s2);
-  border-radius: 8px;
-  padding: 14px 16px;
-  margin-bottom: 8px;
-  border-left: 3px solid transparent;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
-  align-items: start;
-}
-.decisao-item:last-child { margin-bottom: 0; }
-.decisao-item.urgente { border-left-color: var(--red); background: #1A0E0E; }
-.decisao-item.atencao { border-left-color: var(--amb); background: #1A150A; }
-.decisao-item.pendente { border-left-color: var(--blu); }
-.decisao-titulo { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
-.decisao-sub { font-size: 12px; color: var(--tx2); line-height: 1.5; }
-.decisao-acao {
-  font-size: 11px;
-  color: var(--amb);
-  font-family: var(--mono);
-  margin-top: 6px;
-}
-.decisao-impacto {
-  text-align: right;
-  flex-shrink: 0;
-}
-.decisao-euro {
-  font-size: 16px;
-  font-weight: 700;
-  font-family: var(--mono);
-}
-.decisao-prazo {
-  font-size: 10px;
-  color: var(--tx3);
-  font-family: var(--mono);
-  margin-top: 3px;
-}
-.prio-pill {
-  display: inline-block;
-  font-size: 9px;
-  font-family: var(--mono);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 2px 8px;
-  border-radius: 20px;
-  margin-right: 8px;
-}
-.prio-pill.urgente { background: var(--red-bg); color: var(--red); border: 1px solid var(--red2); }
-.prio-pill.atencao { background: var(--amb-bg); color: var(--amb); border: 1px solid var(--amb2); }
-.prio-pill.pendente { background: var(--blu-bg); color: var(--blu); border: 1px solid var(--blu2); }
-
-/* ── SIMULADOR ── */
-.sim-slider {
-  width: 100%;
-  margin: 12px 0;
-  accent-color: var(--blu);
-}
-.sim-result {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-top: 12px;
-}
-.sim-box {
-  background: var(--s2);
-  border: 1px solid var(--bd);
-  border-radius: 8px;
-  padding: 12px;
-  text-align: center;
-}
-.sim-box-val {
-  font-size: 20px;
-  font-weight: 700;
-  font-family: var(--mono);
-}
-.sim-box-lbl {
-  font-size: 10px;
-  color: var(--tx3);
-  margin-top: 4px;
-  font-family: var(--mono);
-}
-.sim-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 12px;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--bd);
-}
-.sim-row:last-child { border-bottom: none; }
-.sim-row-val { font-family: var(--mono); font-weight: 600; }
-
-/* ── CENÁRIOS ── */
-.cenario-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-.cenario-box {
-  background: var(--s2);
-  border: 1px solid var(--bd);
-  border-radius: 8px;
-  padding: 14px;
-  text-align: center;
-}
-.cenario-box.activo {
-  border-color: var(--grn);
-  background: var(--grn-bg);
-}
-.cenario-box.risco {
-  border-color: var(--red);
-  background: var(--red-bg);
-}
-.cenario-titulo {
-  font-size: 11px;
-  color: var(--tx3);
-  font-family: var(--mono);
-  margin-bottom: 8px;
-  text-transform: uppercase;
-}
-.cenario-val {
-  font-size: 22px;
-  font-weight: 700;
-  font-family: var(--mono);
-}
-.cenario-sub {
-  font-size: 11px;
-  color: var(--tx2);
-  margin-top: 6px;
-  line-height: 1.4;
-}
-
-/* ── TABELA FATURAÇÃO ── */
-.fat-table { width: 100%; border-collapse: collapse; }
-.fat-table th {
-  font-size: 10px;
-  font-family: var(--mono);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--tx3);
-  text-align: left;
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--bd);
-}
-.fat-table th:not(:first-child) { text-align: right; }
-.fat-table td {
-  padding: 10px 12px;
-  font-size: 13px;
-  border-bottom: 1px solid var(--s2);
-}
-.fat-table td:not(:first-child) { text-align: right; font-family: var(--mono); }
-.fat-table tr:last-child td { border-bottom: none; }
-.fat-bar {
-  height: 4px;
-  background: var(--grn);
-  border-radius: 2px;
-  margin-top: 4px;
-}
-.alerta-tag {
-  font-size: 10px;
-  font-family: var(--mono);
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-/* ── SEÇÃO HEADER ── */
-.sec-header {
-  font-size: 11px;
-  font-family: var(--mono);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--blu);
-  margin-bottom: 16px;
-  margin-top: 24px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.sec-header::before {
-  content: '';
-  width: 4px;
-  height: 14px;
-  background: var(--blu);
-  border-radius: 2px;
-}
-.sec-header:first-child { margin-top: 0; }
-
-/* ── POSIÇÃO NEGOCIAL ── */
-.negocial-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--bd);
-}
-.negocial-row:last-child { border-bottom: none; }
-.negocial-label { font-size: 13px; color: var(--tx2); }
-.negocial-val { font-size: 15px; font-weight: 700; font-family: var(--mono); }
-.negocial-total {
-  background: var(--s2);
-  border: 1px solid var(--bd);
-  border-radius: 8px;
-  padding: 14px 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 12px;
-}
-.negocial-total-label { font-size: 13px; font-weight: 600; }
-.negocial-total-val { font-size: 22px; font-weight: 700; font-family: var(--mono); }
-
-/* ── DIVIDER ── */
-.divider { height: 1px; background: var(--bd); margin: 24px 0; }
-
-/* ── FOOTER ── */
-.footer {
-  margin-top: 32px;
-  padding-top: 16px;
-  border-top: 1px solid var(--bd);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 11px;
-  color: var(--tx3);
-  font-family: var(--mono);
+* { box-sizing:border-box; }
+html, body { margin:0; padding:0; background:var(--bg); color:var(--tx); font-family:var(--sans); }
+body { padding:28px 42px 60px; font-size:13px; line-height:1.45; }
+.page { max-width:1180px; margin:0 auto; }
+.header { display:grid; grid-template-columns:1fr auto; gap:20px; border-bottom:1px solid var(--bd2); padding-bottom:18px; margin-bottom:22px; }
+.brand { font-family:var(--mono); color:var(--tx3); text-transform:uppercase; letter-spacing:.12em; font-size:10px; margin-bottom:8px; }
+h1 { margin:0 0 2px; font-size:19px; letter-spacing:-.03em; font-weight:700; color:#fff; }
+.subtitle { color:var(--blu); font-size:12px; }
+.meta { text-align:right; font-family:var(--mono); color:var(--tx2); font-size:10px; }
+.badge { display:inline-block; border:1px solid var(--red2); color:var(--red); border-radius:999px; padding:2px 10px; font-family:var(--mono); font-size:10px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; margin-bottom:8px; }
+.zone-title { display:flex; align-items:center; gap:10px; margin:22px 0 12px; font-family:var(--mono); color:var(--blu); font-size:11px; text-transform:uppercase; letter-spacing:.12em; font-weight:700; }
+.zone-title::before { content:""; display:block; width:3px; height:13px; background:var(--blu); border-radius:2px; }
+.grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.grid-3 { display:grid; grid-template-columns:1.1fr 1fr 1fr; gap:14px; }
+.card { background:var(--s1); border:1px solid var(--bd); border-radius:8px; padding:16px; }
+.card:hover { border-color:var(--bd2); }
+.card-title { display:flex; align-items:center; gap:10px; color:var(--tx3); font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.12em; margin-bottom:13px; }
+.card-title::after { content:""; height:1px; background:var(--bd2); flex:1; opacity:.7; }
+.kpi .value { font-family:var(--mono); font-size:28px; letter-spacing:.02em; font-weight:700; line-height:1; margin-bottom:7px; }
+.value.blue { color:var(--blu); } .value.green { color:var(--grn); } .value.amber { color:var(--amb); } .value.red { color:var(--red); }
+.kpi .sub { color:var(--tx2); font-size:11px; }
+.kpi .warn { color:var(--red); font-family:var(--mono); font-size:10px; margin-top:7px; }
+.bars { display:grid; gap:10px; }
+.bar-row { display:grid; grid-template-columns:110px 1fr 48px; gap:12px; align-items:center; font-family:var(--mono); font-size:10px; }
+.track { height:7px; background:var(--s3); border-radius:20px; overflow:hidden; }
+.fill { height:100%; border-radius:20px; }
+.fill.amber { background:var(--amb); } .fill.blue { background:var(--blu); } .fill.green { background:var(--grn); }
+.alert { margin-top:14px; padding:10px 12px; border:1px solid rgba(245,166,35,.55); background:rgba(245,166,35,.11); color:var(--amb); border-radius:6px; font-size:11px; }
+.alert.red { border-color:rgba(245,96,96,.60); background:rgba(245,96,96,.12); color:var(--red); }
+.velocity { min-height:185px; display:grid; grid-template-columns:190px 1fr; gap:16px; align-items:center; }
+.big-speed { font-family:var(--mono); color:var(--red); font-weight:800; font-size:42px; text-align:center; }
+.speed-sub { text-align:center; font-family:var(--mono); color:var(--tx3); font-size:10px; }
+.speed-copy b { color:var(--red); }
+.speed-copy { color:var(--tx2); font-size:12px; }
+.table { width:100%; border-collapse:collapse; font-family:var(--mono); font-size:11px; }
+.table th { color:var(--tx3); text-transform:uppercase; letter-spacing:.08em; text-align:left; padding:7px 8px; border-bottom:1px solid var(--bd2); }
+.table td { padding:8px; border-bottom:1px solid var(--bd); }
+.table tr.focus { background:rgba(245,166,35,.12); }
+.tag { font-size:10px; font-weight:700; }
+.tag.good { color:var(--grn); } .tag.bad { color:var(--red); } .tag.warn { color:var(--amb); } .tag.neutral { color:var(--blu); }
+.line-list { display:grid; gap:8px; }
+.line { display:grid; grid-template-columns:1fr auto; gap:12px; border-bottom:1px solid var(--bd); padding:7px 0; }
+.line .label { color:var(--tx2); }
+.line .num { font-family:var(--mono); }
+.num.green { color:var(--grn); } .num.red { color:var(--red); } .num.amber { color:var(--amb); } .num.blue { color:var(--blu); }
+ul.clean { list-style:none; padding:0; margin:0; display:grid; gap:8px; }
+ul.clean li { color:var(--tx2); font-size:12px; padding-left:12px; position:relative; }
+ul.clean li::before { content:"•"; position:absolute; left:0; color:var(--blu); }
+.note { color:var(--tx2); font-size:12px; }
+.footer { margin-top:26px; border-top:1px solid var(--bd); padding-top:12px; color:var(--tx3); font-family:var(--mono); font-size:10px; display:flex; justify-content:space-between; }
+@media(max-width:900px) {
+  body { padding:20px; }
+  .grid-4, .grid-3, .grid-2 { grid-template-columns:1fr; }
+  .header { grid-template-columns:1fr; }
+  .meta { text-align:left; }
+  .velocity { grid-template-columns:1fr; }
 }
 </style>
 </head>
 <body>
+<div class="page">
 
-<!-- ════════════════════════════════════
-     HEADER
-════════════════════════════════════ -->
-<div class="header">
-  <div class="header-left">
-    <div class="eyebrow">Primeline Engenharia e Construção · Alvará 90328-PUB</div>
-    <h1>Radar Executivo — Obra 120</h1>
-    <div class="sub">Quinta da Marinha — Casa R · QM-R-001 · Marlana di Vincenti</div>
-  </div>
-  <div class="header-right">
-    <div class="confidential">⚑ Uso interno — confidencial</div>
-    <div id="data-header">—</div>
-    <div style="margin-top:4px">Dir.: Henrique Bogéa &nbsp;|&nbsp; Adj.: Jordane Silvestre</div>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════
-     ZONA 1 — POSIÇÃO ACTUAL
-════════════════════════════════════ -->
-<div class="sec-header">Zona 1 — Posição actual da obra</div>
-
-<div class="grid-4">
-  <!-- KPI 1 -->
-  <div class="card">
-    <div class="card-title">Venda efectiva</div>
-    <div class="kpi-big" style="color:var(--blu)">472 179 €</div>
-    <div class="kpi-label">após retiradas DO</div>
-    <div class="kpi-delta" style="color:var(--red)">▼ 81 440 € vs contrato inicial</div>
-  </div>
-  <!-- KPI 2 -->
-  <div class="card">
-    <div class="card-title">Faturado até hoje</div>
-    <div class="kpi-big" style="color:var(--grn)" id="kpi-faturado">153 449 €</div>
-    <div class="kpi-label">6 faturas emitidas</div>
-    <div class="kpi-delta" style="color:var(--tx2)" id="kpi-pct-fat">32,5% da venda efectiva</div>
-  </div>
-  <!-- KPI 3 -->
-  <div class="card">
-    <div class="card-title">Por faturar</div>
-    <div class="kpi-big" style="color:var(--amb)" id="kpi-por-faturar">318 730 €</div>
-    <div class="kpi-label">até Jan 2027</div>
-    <div class="kpi-delta" style="color:var(--tx2)" id="kpi-meses-restantes">7 meses restantes</div>
-  </div>
-  <!-- KPI 4 -->
-  <div class="card">
-    <div class="card-title">Margem real estimada</div>
-    <div class="kpi-big" style="color:var(--grn)">133 291 €</div>
-    <div class="kpi-label">27,74% YTD</div>
-    <div class="kpi-delta" style="color:var(--tx2)">sobre 472k efectivo: 28,2% esperado</div>
-  </div>
-</div>
-
-<!-- Barras de progresso comparativas -->
-<div class="card" style="margin-bottom:16px">
-  <div class="card-title">Sincronização Prazo · Obra · Faturação</div>
-  <div class="progress-row">
-    <div class="progress-item">
-      <div class="progress-label">% Prazo consumido</div>
-      <div class="progress-track">
-        <div class="progress-fill" style="width:41.4%;background:var(--amb)"></div>
-      </div>
-      <div class="progress-val" style="color:var(--amb)">41,4%</div>
+  <header class="header">
+    <div>
+      <div class="brand">Primeline Engenharia e Construção · Alvará 90328-PUB</div>
+      <h1>Radar Executivo — Obra 120</h1>
+      <div class="subtitle">Quinta da Marinha — Casa R · QM-R-001 · Marlana di Vincenti</div>
     </div>
-    <div class="progress-item">
-      <div class="progress-label">% Obra executada</div>
-      <div class="progress-track">
-        <div class="progress-fill" style="width:31.4%;background:var(--blu)"></div>
-      </div>
-      <div class="progress-val" style="color:var(--blu)">31,4%</div>
+    <div class="meta">
+      <div class="badge">Uso interno — confidencial</div><br>
+      quarta-feira, 1 de julho de 2026<br>
+      Dir.: Henrique Bogéa &nbsp;|&nbsp; Adj.: Jordane Silvestre
     </div>
-    <div class="progress-item">
-      <div class="progress-label">% Faturado</div>
-      <div class="progress-track">
-        <div class="progress-fill" style="width:32.5%;background:var(--grn)"></div>
-      </div>
-      <div class="progress-val" style="color:var(--grn)">32,5%</div>
-    </div>
-  </div>
-  <div style="margin-top:14px;padding:12px 14px;background:var(--amb-bg);border:1px solid var(--amb2);border-radius:8px;font-size:12px;color:var(--amb)">
-    ⚠ A obra está 10 pontos percentuais atrás do prazo. A faturação está relativamente alinhada com a execução mas ambas estão abaixo do esperado para a fase do contrato.
-  </div>
-</div>
+  </header>
 
-<!-- Velocidade de execução -->
-<div class="grid-2" style="margin-bottom:16px">
-  <div class="card">
-    <div class="card-title">Velocidade de execução</div>
-    <div class="vel-gauge">
-      <div>
-        <div class="vel-number" style="color:var(--red)" id="vel-number">0.76x</div>
-        <div style="font-size:11px;color:var(--tx3);font-family:var(--mono);margin-top:4px">obra / prazo</div>
+  <section>
+    <div class="zone-title">Zona 1 — Posição atual da obra</div>
+
+    <div class="grid-4">
+      <div class="card kpi">
+        <div class="card-title">Venda efetiva</div>
+        <div class="value blue">472 179 €</div>
+        <div class="sub">após retiradas da Dono de Obra</div>
+        <div class="warn">− 81 440 € vs contrato inicial</div>
       </div>
-      <div class="vel-desc">
-        <div style="font-size:13px;color:var(--tx);margin-bottom:6px">A obra está a executar a <strong style="color:var(--red)">76% da velocidade necessária</strong> para cumprir o prazo.</div>
-        <div style="font-size:12px;color:var(--tx2)">Para recuperar até Jan 2027, a execução precisa de acelerar para pelo menos 1.0x nos próximos meses.</div>
+      <div class="card kpi">
+        <div class="card-title">Faturado emitido</div>
+        <div class="value green">214 309 €</div>
+        <div class="sub">7 registos de faturação</div>
+        <div class="sub">45,4% da venda efetiva</div>
+      </div>
+      <div class="card kpi">
+        <div class="card-title">Por faturar</div>
+        <div class="value amber">257 871 €</div>
+        <div class="sub">até Jan 2027</div>
+        <div class="sub">7 meses restantes</div>
+      </div>
+      <div class="card kpi">
+        <div class="card-title">Margem real estimada</div>
+        <div class="value green">133 291 €</div>
+        <div class="sub">27,7% YTD</div>
+        <div class="sub">margem será revista após PE/TEE dos itens retirados</div>
       </div>
     </div>
-  </div>
-  <div class="card">
-    <div class="card-title">Ritmo de faturação — histórico autos</div>
-    <table class="fat-table">
-      <thead>
-        <tr>
-          <th>Auto</th>
-          <th>Data</th>
-          <th>Valor</th>
-          <th>vs Média</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td style="color:var(--tx3)">Adjudicação</td>
-          <td style="color:var(--tx3)">Fev/Mar</td>
-          <td style="color:var(--tx3)">110 724 €</td>
-          <td><span class="alerta-tag" style="background:var(--blu-bg);color:var(--blu)">início</span></td>
-        </tr>
-        <tr>
-          <td>1º Auto</td>
-          <td>Mar 26</td>
-          <td>10 805 €</td>
-          <td style="color:var(--red)">−29%</td>
-        </tr>
-        <tr>
-          <td>2º Auto</td>
-          <td>Abr 26</td>
-          <td>16 273 €</td>
-          <td style="color:var(--grn)">+7%</td>
-        </tr>
-        <tr>
-          <td>3º Auto</td>
-          <td>Mai 26</td>
-          <td>15 647 €</td>
-          <td style="color:var(--amb)">+3%</td>
-        </tr>
-        <tr>
-          <td>4º Auto</td>
-          <td>Jun 26</td>
-          <td>17 981 €</td>
-          <td style="color:var(--grn)">+18%</td>
-        </tr>
-        <tr style="background:var(--amb-bg)">
-          <td style="color:var(--amb)">Média autos</td>
-          <td style="color:var(--tx3)">—</td>
-          <td style="color:var(--amb);font-weight:700">15 177 €</td>
-          <td style="color:var(--tx3)">referência</td>
-        </tr>
-        <tr style="background:var(--red-bg)">
-          <td style="color:var(--red)">⚠ Jun previsto</td>
-          <td style="color:var(--tx3)">Jun 26</td>
-          <td style="color:var(--red);font-weight:700">~40 000 €</td>
-          <td style="color:var(--red)">irrealista</td>
-        </tr>
-      </tbody>
-    </table>
-    <div style="margin-top:10px;padding:10px 12px;background:var(--red-bg);border:1px solid var(--red2);border-radius:6px;font-size:12px;color:var(--red)">
-      O painel financeiro prevê ~64k para Jun baseado no planeamento. Face ao histórico de 10-18k por auto e ao padrão de atraso de pagamento da DO, o valor realista é 15-20k. Recomenda-se não contar com mais de 40k este mês.
-    </div>
-  </div>
-</div>
 
-<!-- ════════════════════════════════════
-     ZONA 2 — POSIÇÃO NEGOCIAL vs MARLANA
-════════════════════════════════════ -->
-<div class="sec-header">Zona 2 — Posição negocial vs Marlana di Vincenti</div>
+    <div class="card" style="margin-top:14px">
+      <div class="card-title">Sincronização prazo · obra · faturação</div>
+      <div class="bars">
+        <div class="bar-row"><div>% Prazo consumido</div><div class="track"><div class="fill amber" style="width:43.21%"></div></div><div class="num amber">43,2%</div></div>
+        <div class="bar-row"><div>% Obra executada</div><div class="track"><div class="fill blue" style="width:32.39%"></div></div><div class="num blue">32,4%</div></div>
+        <div class="bar-row"><div>% Faturado</div><div class="track"><div class="fill green" style="width:45.39%"></div></div><div class="num green">45,4%</div></div>
+      </div>
+      <div class="alert">⚠ A obra está 10,8% pontos percentuais atrás do prazo. A faturação emitida está acima da execução, mas junho ainda deve ser tratado como mês provisório até fecho/revisão do Auto.</div>
+    </div>
 
-<div class="grid-2" style="margin-bottom:16px">
-  <div class="card">
-    <div class="card-title">Impacto das retiradas no contrato</div>
-    <div class="negocial-row">
-      <div class="negocial-label">Contrato original</div>
-      <div class="negocial-val" style="color:var(--tx2)">553 619 €</div>
-    </div>
-    <div class="negocial-row">
-      <div class="negocial-label">Trabalhos retirados pela DO</div>
-      <div class="negocial-val" style="color:var(--red)">−81 440 €</div>
-    </div>
-    <div class="negocial-row">
-      <div class="negocial-label" style="font-size:12px;color:var(--tx3)">↳ Fornecimento DO assumido</div>
-      <div class="negocial-val" style="font-size:13px;color:var(--tx3)">cozinha, pedras, AC, VMC</div>
-    </div>
-    <div class="negocial-row">
-      <div class="negocial-label">Compensação devida (Cláusula 5.3)</div>
-      <div class="negocial-val" style="color:var(--grn)">+8 144 €</div>
-    </div>
-    <div class="negocial-total">
-      <div class="negocial-total-label">Venda efectiva c/ compensação</div>
-      <div class="negocial-total-val" style="color:var(--blu)">480 323 €</div>
-    </div>
-    <div style="margin-top:10px;padding:10px 12px;background:var(--grn-bg);border:1px solid var(--grn2);border-radius:6px;font-size:12px;color:var(--grn)">
-      A compensação de 8 144 € pela Cláusula 5.3 ainda não está aprovada. É um direito contratual — deve ser formalizado como TEE positivo e apresentado à DO.
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">O que a DO nos deve agora</div>
-    <div class="negocial-row">
-      <div class="negocial-label">Faturado e pago</div>
-      <div class="negocial-val" style="color:var(--grn)">153 449 €</div>
-    </div>
-    <div class="negocial-row">
-      <div class="negocial-label">5º Auto (emitido, por pagar)</div>
-      <div class="negocial-val" style="color:var(--amb)">~40 000 €</div>
-    </div>
-    <div class="negocial-row">
-      <div class="negocial-label">TEEs aprovados (Prim. receber)</div>
-      <div class="negocial-val" style="color:var(--blu)">13 166 €</div>
-    </div>
-    <div class="negocial-row">
-      <div class="negocial-label">Compensação Cláusula 5.3</div>
-      <div class="negocial-val" style="color:var(--amb)">8 144 €</div>
-    </div>
-    <div class="negocial-total" style="background:var(--amb-bg);border-color:var(--amb2)">
-      <div class="negocial-total-label">Total a receber / exigir</div>
-      <div class="negocial-total-val" style="color:var(--amb)">~61 310 €</div>
-    </div>
-    <div style="margin-top:10px;padding:10px 12px;background:var(--s2);border:1px solid var(--bd);border-radius:6px;font-size:12px;color:var(--tx2)">
-      Histórico de atraso: cada auto demora ~30 dias a ser pago. Com o padrão actual da DO, o 5º auto pode não ser recebido antes de Agosto.
-    </div>
-  </div>
-</div>
-
-<!-- TEEs com impacto financeiro real -->
-<div class="card" style="margin-bottom:16px">
-  <div class="card-title">TEEs pendentes — impacto real se aprovados ou rejeitados</div>
-  <table class="fat-table">
-    <thead>
-      <tr>
-        <th>TEE</th>
-        <th>Descrição</th>
-        <th>Estado</th>
-        <th style="text-align:right">Valor</th>
-        <th style="text-align:right">Se aprovado</th>
-        <th style="text-align:right">Se rejeitado</th>
-        <th>Nota</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td style="font-family:var(--mono);color:var(--tx3)">TEE 10</td>
-        <td>Estaleiro adicional</td>
-        <td><span class="alerta-tag" style="background:var(--amb-bg);color:var(--amb)">sem estado</span></td>
-        <td style="color:var(--grn)">3 265 €</td>
-        <td style="color:var(--grn)">+3 265 €</td>
-        <td style="color:var(--red)">perda coberta</td>
-        <td style="font-size:11px;color:var(--tx3)">Custo já incorrido</td>
-      </tr>
-      <tr>
-        <td style="font-family:var(--mono);color:var(--tx3)">TEE 11</td>
-        <td>XPS em pavimento</td>
-        <td><span class="alerta-tag" style="background:var(--amb-bg);color:var(--amb)">Aguarda DO</span></td>
-        <td style="color:var(--grn)">4 085 €</td>
-        <td style="color:var(--grn)">+4 085 €</td>
-        <td style="color:var(--red)">−4 085 €</td>
-        <td style="font-size:11px;color:var(--tx3)">Fazer nova revisão</td>
-      </tr>
-      <tr>
-        <td style="font-family:var(--mono);color:var(--tx3)">TEE 12</td>
-        <td>Trabalhos removidos</td>
-        <td><span class="alerta-tag" style="background:var(--amb-bg);color:var(--amb)">Aguarda DO</span></td>
-        <td style="color:var(--grn)">7 916 €</td>
-        <td style="color:var(--grn)">+7 916 €</td>
-        <td style="color:var(--red)">−7 916 €</td>
-        <td style="font-size:11px;color:var(--tx3)">Directamente ligado às retiradas</td>
-      </tr>
-      <tr>
-        <td style="font-family:var(--mono);color:var(--tx3)">TEE 14</td>
-        <td>Ar condicionado</td>
-        <td><span class="alerta-tag" style="background:var(--blu-bg);color:var(--blu)">Em elaboração</span></td>
-        <td style="color:var(--red)">−4 335 €</td>
-        <td style="color:var(--red)">−4 335 €</td>
-        <td style="color:var(--tx3)">sem impacto</td>
-        <td style="font-size:11px;color:var(--tx3)">TEE negativo — retirada DO</td>
-      </tr>
-      <tr>
-        <td style="font-family:var(--mono);color:var(--tx3)">TEE 15</td>
-        <td>Bombas de calor</td>
-        <td><span class="alerta-tag" style="background:var(--amb-bg);color:var(--amb)">Aguarda DO</span></td>
-        <td style="color:var(--red)">−6 399 €</td>
-        <td style="color:var(--red)">−6 399 €</td>
-        <td style="color:var(--tx3)">sem impacto</td>
-        <td style="font-size:11px;color:var(--tx3)">TEE negativo — retirada DO</td>
-      </tr>
-      <tr style="background:var(--s2)">
-        <td colspan="3" style="font-weight:600;color:var(--tx2)">Saldo líquido se todos aprovados</td>
-        <td></td>
-        <td style="color:var(--grn);font-weight:700">+4 532 €</td>
-        <td style="color:var(--tx3)">—</td>
-        <td style="font-size:11px;color:var(--tx3)">TEEs 10+11+12 menos 14+15</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- ════════════════════════════════════
-     ZONA 3 — SUBEMPREITADAS EM RISCO
-════════════════════════════════════ -->
-<div class="sec-header">Zona 3 — Subempreitadas em risco de não adjudicação</div>
-
-<div class="grid-2" style="margin-bottom:16px">
-  <div class="card">
-    <div class="card-title">Caixilharia — situação crítica</div>
-    <div class="impacto-card" style="border-color:var(--red2);background:var(--red-bg)">
-      <div class="impacto-left">
-        <div class="impacto-title" style="color:var(--red)">Não adjudicada — decisão pendente da DO</div>
-        <div class="impacto-sub">A Marlana equacionou fornecer ela própria. O modelo de restauração está feito mas sem decisão.</div>
-        <div style="margin-top:8px;font-size:12px">
-          <span style="color:var(--tx2)">Fase arranca:</span> <span style="color:var(--amb);font-family:var(--mono)">Set/Out 2026</span> &nbsp;·&nbsp;
-          <span style="color:var(--tx2)">F09.1 concluído:</span> <span style="color:var(--grn);font-family:var(--mono)">✓ desenhos feitos</span>
+    <div class="grid-2" style="margin-top:14px">
+      <div class="card velocity">
+        <div>
+          <div class="card-title">Velocidade de execução</div>
+          <div class="big-speed">0.75x</div>
+          <div class="speed-sub">obra / prazo</div>
+        </div>
+        <div class="speed-copy">
+          <p>A obra está a executar a <b>75% da velocidade necessária</b> para acompanhar o prazo consumido.</p>
+          <p>Para recuperar até Jan 2027, a execução precisa manter aproximadamente <b>1.19x</b> sobre o ritmo contratual nos próximos meses.</p>
         </div>
       </div>
-      <div class="impacto-right">
-        <div class="impacto-val" style="color:var(--red)">19 068 €</div>
-        <div class="impacto-tag">C.D. em risco</div>
-      </div>
-    </div>
-    <div class="cenario-grid" style="margin-top:10px">
-      <div class="cenario-box activo">
-        <div class="cenario-titulo">Se adjudicamos</div>
-        <div class="cenario-val" style="color:var(--grn)">+19k €</div>
-        <div class="cenario-sub">CD mantido. Margem preservada. Controlo total da qualidade.</div>
-      </div>
-      <div class="cenario-box">
-        <div class="cenario-titulo">Se DO fornece</div>
-        <div class="cenario-val" style="color:var(--amb)">−19k €</div>
-        <div class="cenario-sub">Mais um TEE negativo. Perdemos coordenação e responsabilidade fica difusa.</div>
-      </div>
-      <div class="cenario-box risco">
-        <div class="cenario-titulo">Se arrastar até Nov</div>
-        <div class="cenario-val" style="color:var(--red)">atraso</div>
-        <div class="cenario-sub">F09 bloqueia F10. Risco de não cumprir Jan 2027 mesmo com prorrogação.</div>
-      </div>
-    </div>
-  </div>
 
-  <div class="card">
-    <div class="card-title">Carpintaria — maior risco financeiro da obra</div>
-    <div class="impacto-card" style="border-color:var(--red2);background:var(--red-bg)">
-      <div class="impacto-left">
-        <div class="impacto-title" style="color:var(--red)">Não adjudicada — cozinha retirada pela DO</div>
-        <div class="impacto-sub">A DO retirou a cozinha Bulthaup do nosso escopo. O que resta (portas, roupeiros, lacagem) ainda não tem adjudicação.</div>
-        <div style="margin-top:8px;font-size:12px">
-          <span style="color:var(--tx2)">Fase arranca:</span> <span style="color:var(--amb);font-family:var(--mono)">Nov 2026</span> &nbsp;·&nbsp;
-          <span style="color:var(--tx2)">CD restante:</span> <span style="color:var(--amb);font-family:var(--mono)">a calcular</span>
+      <div class="card">
+        <div class="card-title">Ritmo de faturação — histórico autos</div>
+        <table class="table">
+          <thead><tr><th>Auto</th><th>Data</th><th>Valor</th><th>Vs média</th></tr></thead>
+          <tbody>
+            
+      <tr>
+        <td>Adjudicação</td>
+        <td>Fev/Mar 26</td>
+        <td>110 724 €</td>
+        <td><span class="tag neutral">início</span></td>
+      </tr>
+      <tr>
+        <td>1º Auto</td>
+        <td>Mar 26</td>
+        <td>10 805 €</td>
+        <td><span class="tag bad">-29%</span></td>
+      </tr>
+      <tr>
+        <td>2º Auto</td>
+        <td>Abr 26</td>
+        <td>16 273 €</td>
+        <td><span class="tag good">+7%</span></td>
+      </tr>
+      <tr>
+        <td>3º Auto</td>
+        <td>Abr 26</td>
+        <td>15 647 €</td>
+        <td><span class="tag good">+3%</span></td>
+      </tr>
+      <tr>
+        <td>4º Auto</td>
+        <td>Mai 26</td>
+        <td>17 981 €</td>
+        <td><span class="tag good">+18%</span></td>
+      </tr>
+      <tr>
+        <td>5º Auto</td>
+        <td>Jun 26</td>
+        <td>42 879 €</td>
+        <td><span class="tag warn">em revisão</span></td>
+      </tr>
+          </tbody>
+        </table>
+        <div class="alert red">O 5.º Auto de junho encontra-se em revisão. Até consolidação do fecho mensal, não considerar junho como valor final de entradas/saídas.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="zone-title">Zona 2 — Posição negocial vs Marlana di Vincenti</div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Impacto das retiradas no contrato</div>
+        <div class="line-list">
+          <div class="line"><div class="label">Contrato original</div><div class="num">553 619 €</div></div>
+          <div class="line"><div class="label">Trabalhos retirados pela DO</div><div class="num red">-81 440 €</div></div>
+          <div class="line"><div class="label">Venda contratual efetiva</div><div class="num blue">472 179 €</div></div>
+          <div class="line"><div class="label">Compensação Cláusula 5.3</div><div class="num amber">8 144 €</div></div>
+          <div class="line"><div class="label">TEEs aprovados</div><div class="num green">15 191 €</div></div>
         </div>
       </div>
-      <div class="impacto-right">
-        <div class="impacto-val" style="color:var(--red)">48 647 €</div>
-        <div class="impacto-tag">CD original</div>
+
+      <div class="card">
+        <div class="card-title">O que a DO nos deve agora</div>
+        <div class="line-list">
+          <div class="line"><div class="label">Faturado e pago</div><div class="num green">171 430 €</div></div>
+          <div class="line"><div class="label">Emitido / aguarda pagamento ou revisão</div><div class="num amber">42 879 €</div></div>
+          <div class="line"><div class="label">Por faturar contratual</div><div class="num blue">257 871 €</div></div>
+          <div class="line"><div class="label">TEEs aprovados, se não incluídos em autos</div><div class="num green">15 191 €</div></div>
+        </div>
       </div>
     </div>
-    <div style="padding:12px 14px;background:var(--amb-bg);border:1px solid var(--amb2);border-radius:8px;font-size:12px;color:var(--amb);margin-top:10px">
-      <strong>Acção prioritária:</strong> Definir com a DO o escopo exacto da carpintaria que permanece (vãos interiores, roupeiros, lacagem). Só depois avançar com consultas a subempreiteiros. Sem esta definição, qualquer proposta é prematura.
+  </section>
+
+  <section>
+    <div class="zone-title">Zona 3 — Regularização de margem e PE/TEE</div>
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-title">Diagnóstico</div>
+        <p class="note">Alguns artigos do orçamento original tinham aplicação, mão de obra e materiais auxiliares subvalorizados, porque parte relevante do valor estava concentrada no fornecimento dos materiais.</p>
+        <p class="note">Como alguns fornecimentos foram retirados pela Dono de Obra, os artigos originais deverão ser anulados/zerados e substituídos, quando aplicável, por PE/TEE específicos da execução que permanece a cargo da Primeline.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">Princípio de correção</div>
+        <ul class="clean">
+          <li>Não tratar a diferença como “custo diluído”.</li>
+          <li>Não inflacionar saídas futuras sem custo real formalizado.</li>
+          <li>Formalizar PE/TEE com aplicação, mão de obra e materiais auxiliares.</li>
+          <li>Depois de aprovado, refletir nas entradas e saídas futuras.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title">Efeito esperado</div>
+        <div class="line-list">
+          <div class="line"><div class="label">Revisão da faturação prevista</div><div class="num amber">após PE/TEE</div></div>
+          <div class="line"><div class="label">Revisão do custo direto</div><div class="num amber">após PE/TEE</div></div>
+          <div class="line"><div class="label">Margem real</div><div class="num green">mais precisa</div></div>
+        </div>
+      </div>
     </div>
-    <div style="margin-top:10px;padding:12px 14px;background:var(--s2);border:1px solid var(--bd);border-radius:8px;font-size:12px;color:var(--tx2)">
-      Cada subempreiteiro consultado sem escopo definido é uma consulta que vai ter de ser repetida. Recomenda-se reunião de definição de escopo com a DO antes de qualquer contacto a subempreiteiros.
+  </section>
+
+  <section>
+    <div class="zone-title">Zona 4 — Alertas executivos</div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Pontos de atenção imediatos</div>
+        <ul class="clean">
+          <li>Fecho de junho ainda provisório: materiais lançados até aos registos disponíveis, pessoal ainda por atualizar e Auto em revisão.</li>
+          <li>Executar revisão dos artigos retirados pela DO antes de fechar previsão de margem.</li>
+          <li>Formalizar PE/TEE dos trabalhos de aplicação que permanecem a cargo da Primeline.</li>
+          <li>Reforçar acompanhamento das fases em curso para recuperar desvio de prazo.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title">TEEs em leitura executiva</div>
+        <p class="note"><b>Aprovados:</b></p>
+        <ul class="clean"><li><b>TEE 01</b> · Dem. Extra · 1 390 €</li><li><b>TEE 02</b> · Nova Janela · 2 400 €</li><li><b>TEE 05</b> · Pladur · 2 025 €</li><li><b>TEE 06</b> · Demolição extra - Escada · 2 422 €</li><li><b>TEE 09</b> · Alterações na elétrica · 6 954 €</li></ul>
+        <p class="note" style="margin-top:12px"><b>Pendentes / em elaboração:</b></p>
+        <ul class="clean"><li><b>TEE 11</b> · XPS em pavimento · 3 156 €</li><li><b>TEE 12</b> · Trabalhos removidos do escopo · 8 144 €</li><li><b>TEE 13</b> · Nichos · 1 152 €</li><li><b>TEE 14</b> · Ar condicionado · -4 335 €</li><li><b>TEE 16</b> · Trabalhos extra de construção civil · 0 €</li><li><b>TEE 18</b> · Caixilharia · -1 360 €</li></ul>
+      </div>
     </div>
-  </div>
+  </section>
+
+  <footer class="footer">
+    <div>Documento de uso interno · Primeline Engenharia e Construção</div>
+    <div>Fonte: Sheets Obra 120 · atualização manual/consolidada</div>
+  </footer>
+
 </div>
-
-<!-- Outras subempreitadas por adjudicar -->
-<div class="card" style="margin-bottom:16px">
-  <div class="card-title">Outras subempreitadas por fechar</div>
-  <table class="fat-table">
-    <thead>
-      <tr>
-        <th>Especialidade</th>
-        <th>Fase</th>
-        <th>Estado</th>
-        <th style="text-align:right">CD (€)</th>
-        <th>Arranque previsto</th>
-        <th>Risco se não fechar</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><strong>Gás</strong></td>
-        <td style="font-family:var(--mono);color:var(--tx3)">F05</td>
-        <td><span class="alerta-tag" style="background:var(--amb-bg);color:var(--amb)">Fase consultas</span></td>
-        <td>1 045 €</td>
-        <td style="font-family:var(--mono)">Ago 2026</td>
-        <td style="font-size:12px;color:var(--amb)">Bloqueia instalação hidráulica final</td>
-      </tr>
-      <tr>
-        <td><strong>AQS (Águas Quentes)</strong></td>
-        <td style="font-family:var(--mono);color:var(--tx3)">F05</td>
-        <td><span class="alerta-tag" style="background:var(--red-bg);color:var(--red)">Ainda não</span></td>
-        <td>2 730 €</td>
-        <td style="font-family:var(--mono)">Out 2026</td>
-        <td style="font-size:12px;color:var(--amb)">Bloqueia F10 (acabamentos)</td>
-      </tr>
-      <tr>
-        <td><strong>Piso Radiante</strong></td>
-        <td style="font-family:var(--mono);color:var(--tx3)">F05</td>
-        <td><span class="alerta-tag" style="background:var(--amb-bg);color:var(--amb)">Fase consultas</span></td>
-        <td>0 €</td>
-        <td style="font-family:var(--mono)">a definir</td>
-        <td style="font-size:12px;color:var(--tx3)">Verificar se DO vai fornecer</td>
-      </tr>
-      <tr>
-        <td><strong>Serralharia</strong></td>
-        <td style="font-family:var(--mono);color:var(--tx3)">F07</td>
-        <td><span class="alerta-tag" style="background:var(--s3);color:var(--tx3)">Sem estado</span></td>
-        <td>0 €</td>
-        <td style="font-family:var(--mono)">—</td>
-        <td style="font-size:12px;color:var(--tx3)">Verificar se incluído no escopo</td>
-      </tr>
-      <tr>
-        <td><strong>Cantaria / Pedra</strong></td>
-        <td style="font-family:var(--mono);color:var(--tx3)">F06</td>
-        <td><span class="alerta-tag" style="background:var(--red-bg);color:var(--red)">Ainda não</span></td>
-        <td>0 €</td>
-        <td style="font-family:var(--mono)">Set 2026</td>
-        <td style="font-size:12px;color:var(--red)">DO a considerar fornecer — confirmar</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- ════════════════════════════════════
-     ZONA 4 — DECISÕES E SIMULADOR
-════════════════════════════════════ -->
-<div class="sec-header">Zona 4 — Decisões desta semana</div>
-
-<div class="grid-2" style="margin-bottom:16px">
-  <div class="card">
-    <div class="card-title">Fila de acções — por impacto financeiro</div>
-
-    <div class="decisao-item urgente">
-      <div>
-        <div class="decisao-titulo"><span class="prio-pill urgente">Urgente</span>Formalizar compensação Cláusula 5.3</div>
-        <div class="decisao-sub">A DO retirou 81 440 € do contrato. O direito à compensação de 8 144 € existe mas não está formalizado. Emitir TEE positivo e apresentar com base contratual.</div>
-        <div class="decisao-acao">→ Criar TEE de compensação e enviar ao Kevin (Fiscalização)</div>
-      </div>
-      <div class="decisao-impacto">
-        <div class="decisao-euro" style="color:var(--grn)">8 144 €</div>
-        <div class="decisao-prazo">direito a receber</div>
-      </div>
-    </div>
-
-    <div class="decisao-item urgente">
-      <div>
-        <div class="decisao-titulo"><span class="prio-pill urgente">Urgente</span>Reunião de escopo — Caixilharia</div>
-        <div class="decisao-sub">F09.1 (desenhos técnicos) está concluído. A DO ainda não decidiu se fornece ou adjudicamos. Cada semana sem decisão aproxima o arranque da fase sem subempreiteiro fechado.</div>
-        <div class="decisao-acao">→ Solicitar reunião com DO para definir fornecedor até fim de Julho</div>
-      </div>
-      <div class="decisao-impacto">
-        <div class="decisao-euro" style="color:var(--red)">19 068 €</div>
-        <div class="decisao-prazo">CD em risco</div>
-      </div>
-    </div>
-
-    <div class="decisao-item atencao">
-      <div>
-        <div class="decisao-titulo"><span class="prio-pill atencao">Atenção</span>Fechar resposta TEE 12 — Trabalhos removidos</div>
-        <div class="decisao-sub">7 916 € de trabalhos retirados pela DO aguardam formalização. Está directamente ligado às retiradas de escopo. Quanto mais tempo passa, mais difícil é o argumento.</div>
-        <div class="decisao-acao">→ Pressionar Kevin para resposta até próxima ATA</div>
-      </div>
-      <div class="decisao-impacto">
-        <div class="decisao-euro" style="color:var(--amb)">7 916 €</div>
-        <div class="decisao-prazo">aguarda DO</div>
-      </div>
-    </div>
-
-    <div class="decisao-item atencao">
-      <div>
-        <div class="decisao-titulo"><span class="prio-pill atencao">Atenção</span>TEE 10 — Estaleiro adicional sem estado</div>
-        <div class="decisao-sub">3 265 € de custo já incorrido com estaleiro adicional. Não tem estado definido. Se não for formalizado agora, perde-se o argumento contratual para cobrança.</div>
-        <div class="decisao-acao">→ Definir estado e enviar ao Kevin com documentação de suporte</div>
-      </div>
-      <div class="decisao-impacto">
-        <div class="decisao-euro" style="color:var(--amb)">3 265 €</div>
-        <div class="decisao-prazo">custo incorrido</div>
-      </div>
-    </div>
-
-    <div class="decisao-item atencao">
-      <div>
-        <div class="decisao-titulo"><span class="prio-pill atencao">Atenção</span>Definir escopo real da Carpintaria</div>
-        <div class="decisao-sub">Com a cozinha Bulthaup retirada, o escopo mudou. Antes de consultar subempreiteiros, confirmar com DO quais itens ficam (vãos, roupeiros, lacagem, porta de correr).</div>
-        <div class="decisao-acao">→ Reunião de definição de escopo com DO antes de avançar</div>
-      </div>
-      <div class="decisao-impacto">
-        <div class="decisao-euro" style="color:var(--tx2)">escopo</div>
-        <div class="decisao-prazo">a definir</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Simulador de faturação -->
-  <div class="card">
-    <div class="card-title">Simulador — se faturarmos X este mês</div>
-    <div style="font-size:12px;color:var(--tx2);margin-bottom:12px">
-      Arrasta o slider para ver o impacto na posição até ao fim da obra.
-    </div>
-
-    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--tx3);font-family:var(--mono);margin-bottom:4px">
-      <span>10 000 €</span>
-      <span>Faturação este mês</span>
-      <span>80 000 €</span>
-    </div>
-    <input type="range" class="sim-slider" id="sim-fat" min="10000" max="80000" step="1000" value="40000">
-    <div style="text-align:center;margin-bottom:12px">
-      <span style="font-size:28px;font-weight:700;font-family:var(--mono);color:var(--blu)" id="sim-fat-val">40 000 €</span>
-    </div>
-
-    <div class="sim-row">
-      <span>Faturado até agora</span>
-      <span class="sim-row-val" style="color:var(--grn)">153 449 €</span>
-    </div>
-    <div class="sim-row">
-      <span>+ Este mês</span>
-      <span class="sim-row-val" style="color:var(--blu)" id="sim-mes">40 000 €</span>
-    </div>
-    <div class="sim-row">
-      <span>= Total faturado</span>
-      <span class="sim-row-val" id="sim-total">193 449 €</span>
-    </div>
-    <div class="sim-row">
-      <span>Ainda por faturar</span>
-      <span class="sim-row-val" style="color:var(--amb)" id="sim-restante">278 730 €</span>
-    </div>
-    <div class="sim-row">
-      <span>Meses restantes</span>
-      <span class="sim-row-val" style="color:var(--tx2)">~7 meses</span>
-    </div>
-    <div class="sim-row">
-      <span>Ritmo necessário / mês</span>
-      <span class="sim-row-val" style="color:var(--red)" id="sim-ritmo">39 819 €/mês</span>
-    </div>
-
-    <div style="margin-top:14px;padding:12px 14px;border-radius:8px;border:1px solid var(--bd)" id="sim-alerta">
-    </div>
-
-    <div style="margin-top:12px;border-top:1px solid var(--bd);padding-top:12px">
-      <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;font-family:var(--mono)">REFERÊNCIAS</div>
-      <div class="sim-row">
-        <span style="color:var(--tx3)">Média histórica autos</span>
-        <span class="sim-row-val" style="color:var(--tx3)">15 177 €</span>
-      </div>
-      <div class="sim-row">
-        <span style="color:var(--tx3)">Máximo auto real</span>
-        <span class="sim-row-val" style="color:var(--tx3)">17 981 €</span>
-      </div>
-      <div class="sim-row">
-        <span style="color:var(--amb)">Ritmo necessário (base actual)</span>
-        <span class="sim-row-val" style="color:var(--amb)">~45 000 €/mês</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════
-     FOOTER
-════════════════════════════════════ -->
-<div class="footer">
-  <span>Primeline Engenharia e Construção · Alvará 90328-PUB · Documento de uso interno · Confidencial</span>
-  <span id="footer-data">—</span>
-</div>
-
-<script>
-// ── DATA ──
-const hoje = new Date();
-const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
-const dataStr = hoje.toLocaleDateString('pt-PT', opts);
-document.getElementById('data-header').textContent = dataStr;
-document.getElementById('footer-data').textContent = 'Actualizado: ' + hoje.toLocaleString('pt-PT');
-
-// ── SIMULADOR ──
-const vendaEfectiva = 472179.26;
-const faturado = 153449.25;
-const mesesRestantes = 7;
-
-const slider = document.getElementById('sim-fat');
-const simFatVal = document.getElementById('sim-fat-val');
-const simMes = document.getElementById('sim-mes');
-const simTotal = document.getElementById('sim-total');
-const simRestante = document.getElementById('sim-restante');
-const simRitmo = document.getElementById('sim-ritmo');
-const simAlerta = document.getElementById('sim-alerta');
-
-function eur(n) {
-  return n.toLocaleString('pt-PT', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €';
-}
-
-function updateSim() {
-  const val = parseInt(slider.value);
-  const totalFat = faturado + val;
-  const restante = vendaEfectiva - totalFat;
-  const ritmo = restante / (mesesRestantes - 1);
-
-  simFatVal.textContent = eur(val);
-  simMes.textContent = eur(val);
-  simTotal.textContent = eur(totalFat);
-  simRestante.textContent = eur(restante);
-  simRitmo.textContent = eur(ritmo) + '/mês';
-
-  const mediaAutos = 15177;
-  let alertaBg, alertaBd, alertaCor, alertaTxt;
-
-  if (ritmo > 40000) {
-    alertaBg = 'var(--red-bg)'; alertaBd = 'var(--red2)'; alertaCor = 'var(--red)';
-    alertaTxt = `⚠ Para faturar o restante em ${mesesRestantes-1} meses precisas de ${eur(ritmo)}/mês — ${Math.round(ritmo/mediaAutos)}× a média histórica dos autos. Irrealista com o padrão actual da DO.`;
-    simRitmo.style.color = 'var(--red)';
-  } else if (ritmo > 25000) {
-    alertaBg = 'var(--amb-bg)'; alertaBd = 'var(--amb2)'; alertaCor = 'var(--amb)';
-    alertaTxt = `⚠ Ritmo necessário de ${eur(ritmo)}/mês é ${Math.round(ritmo/mediaAutos)}× a média histórica. Possível mas exige autos maiores e pagamento atempado da DO.`;
-    simRitmo.style.color = 'var(--amb)';
-  } else {
-    alertaBg = 'var(--grn-bg)'; alertaBd = 'var(--grn2)'; alertaCor = 'var(--grn)';
-    alertaTxt = `✓ Ritmo de ${eur(ritmo)}/mês é próximo da média histórica. Atingível se a DO mantiver os pagamentos em dia.`;
-    simRitmo.style.color = 'var(--grn)';
-  }
-
-  simAlerta.style.background = alertaBg;
-  simAlerta.style.border = `1px solid ${alertaBd}`;
-  simAlerta.style.color = alertaCor;
-  simAlerta.style.fontSize = '12px';
-  simAlerta.style.padding = '10px 12px';
-  simAlerta.textContent = alertaTxt;
-}
-
-slider.addEventListener('input', updateSim);
-updateSim();
-</script>
-
 </body>
 </html>
