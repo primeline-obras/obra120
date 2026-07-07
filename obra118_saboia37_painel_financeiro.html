@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Primeline — Obra 118 SABÓIA 37</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+
+/* ── ALERT BOXES ── */
+.alert-box { border-radius: var(--r-md); padding: 16px 20px; border: 1px solid; }
+.alert-box-red { background: var(--red-bg); border-color: var(--red2); }
+.alert-box-amb { background: var(--amb-bg); border-color: var(--amb2); }
+.alert-box-blu { background: var(--blu-bg); border-color: var(--blu2); }
+.alert-box-title { font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+.alert-box-red .alert-box-title { color: var(--red); }
+.alert-box-amb .alert-box-title { color: var(--amb); }
+.alert-box-blu .alert-box-title { color: var(--blu); }
+.alert-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.alert-list li { font-size: 14px; line-height: 1.4; padding-left: 12px; position: relative; }
+.alert-list li::before { content: '–'; position: absolute; left: 0; color: var(--tx3); }
+.alert-box-red .alert-list li { color: var(--tx); }
+.alert-box-amb .alert-list li { color: var(--tx); }
+.alert-box-blu .alert-list li { color: var(--tx2); }
+
+/* ── TABLE IMPROVEMENTS ── */
+thead th { font-size: 12px !important; white-space: normal; word-break: break-word; max-width: 120px; }
+tbody td { font-size: 14px; white-space: normal; }
+.td-r { text-align: right !important; }
+.td-c { text-align: center !important; }
+.td-l { text-align: left !important; }
+tfoot td { font-size: 13px; }
+
+/* ── KPI larger ── */
+.kpi-val { font-size: 28px !important; }
+.kpi-tag { font-size: 13px !important; }
+.sec { font-size: 14px !important; }
+.sbar-val { font-size: 16px !important; }
+.sbar-lbl { font-size: 12px !important; }
+
+/* ── DARK MODE (default) ── */
+:root {
+  --bg:       #080B10;
+  --s0:       #0D1118;
+  --s1:       #111622;
+  --s2:       #171E2E;
+  --s3:       #1E2840;
+  --s4:       #263050;
+  --bd:       #1E2840;
+  --bd2:      #2E3D5C;
+  --bd3:      #3D5080;
+  --tx:       #D8E4F8;
+  --tx2:      #7B90B8;
+  --tx3:      #3D4F70;
+  --grn:      #3DD68C;
+  --grn2:     #2AB870;
+  --grn-bg:   #071A10;
+  --amb:      #F5A623;
+  --amb2:     #D08800;
+  --amb-bg:   #1A1000;
+  --red:      #F56060;
+  --red2:     #C83030;
+  --red-bg:   #180808;
+  --blu:      #4D9EF5;
+  --blu2:     #2878D8;
+  --blu-bg:   #060E1C;
+  --vio:      #A78BFA;
+  --vio-bg:   #0D0818;
+  --nav-bg:   rgba(8,11,16,0.92);
+  --mono: 'DM Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+}
+
+/* ── LIGHT MODE ── */
+html.light {
+  --bg:       #F4F6FB;
+  --s0:       #ECEEF5;
+  --s1:       #FFFFFF;
+  --s2:       #F0F2F8;
+  --s3:       #E4E8F2;
+  --s4:       #D8DEED;
+  --bd:       #D8DEED;
+  --bd2:      #B8C4DC;
+  --bd3:      #98AACC;
+  --tx:       #1A2340;
+  --tx2:      #4A5878;
+  --tx3:      #8898B8;
+  --grn:      #1A8A50;
+  --grn2:     #147840;
+  --grn-bg:   #E8F7EE;
+  --amb:      #A06000;
+  --amb2:     #805000;
+  --amb-bg:   #FFF4E0;
+  --red:      #C02020;
+  --red2:     #A01010;
+  --red-bg:   #FDEAEA;
+  --blu:      #1A60C8;
+  --blu2:     #1050A8;
+  --blu-bg:   #EAF0FC;
+  --vio:      #6040C0;
+  --vio-bg:   #F0ECFC;
+  --nav-bg:   rgba(244,246,251,0.95);
+}
+
+/* ── THEME TOGGLE BUTTON ── */
+.theme-toggle {
+  background: var(--s2);
+  border: 1px solid var(--bd2);
+  border-radius: 20px;
+  padding: 4px 12px 4px 8px;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--mono); font-size: 11px;
+  color: var(--tx2);
+  transition: all 0.2s;
+  margin-left: 12px;
+  white-space: nowrap;
+}
+.theme-toggle:hover { border-color: var(--blu); color: var(--blu); }
+.theme-icon { font-size: 14px; line-height: 1; transition: transform 0.3s; }
+.theme-toggle:hover .theme-icon { transform: rotate(20deg); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--tx);
+  min-height: 100vh;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* ── NAV ── */
+.nav {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--nav-bg);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--bd);
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 52px;
+}
+.nav-brand {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--tx3);
+  margin-right: 32px;
+  white-space: nowrap;
+}
+.nav-brand strong { color: var(--blu); font-weight: 500; }
+.nav-tabs { display: flex; gap: 2px; }
+.nav-tab {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  padding: 6px 16px;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  color: var(--tx2);
+  border: none; background: none;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.nav-tab:hover { color: var(--tx); background: var(--s2); }
+.nav-tab.active { color: var(--blu); background: var(--blu-bg); border: 1px solid var(--blu2); }
+.nav-spacer { flex: 1; }
+.nav-date {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--tx3);
+}
+
+/* ── PAGES ── */
+.page { display: none; padding: 28px 40px 60px; max-width: 1600px; margin: 0 auto; }
+.page.active { display: block; }
+
+/* ── HEADER OBRA ── */
+.obra-header {
+  background: linear-gradient(135deg, var(--s2) 0%, var(--s1) 100%);
+  border: 1px solid var(--bd2);
+  border-radius: var(--r-lg);
+  padding: 24px 28px;
+  margin-bottom: 16px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.obra-header::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 180px; height: 180px;
+  background: radial-gradient(circle, rgba(77,158,245,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.oh-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--tx3);
+  margin-bottom: 6px;
+}
+.oh-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  letter-spacing: -0.02em;
+}
+.oh-ref {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--blu);
+  background: var(--blu-bg);
+  border: 1px solid var(--blu2);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-left: 8px;
+}
+.oh-desc { font-size: 13px; color: var(--tx2); font-weight: 300; margin-top: 2px; }
+.oh-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 28px; text-align: right; }
+.oh-item .lbl {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--tx3); display: block; margin-bottom: 2px;
+}
+.oh-item .val { font-size: 13px; font-weight: 500; }
+.pill {
+  display: inline-block; font-family: var(--mono);
+  font-size: 10px; padding: 2px 8px; border-radius: 20px;
+}
+.pill-amb { background: var(--amb-bg); color: var(--amb); border: 1px solid var(--amb2); }
+.pill-grn { background: var(--grn-bg); color: var(--grn); border: 1px solid var(--grn2); }
+.pill-blu { background: var(--blu-bg); color: var(--blu); border: 1px solid var(--blu2); }
+.pill-red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red2); }
+.pill-vio { background: var(--vio-bg); color: var(--vio); }
+
+/* ── STATUS BAR ── */
+.sbar {
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  padding: 0 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+}
+.sbar-item {
+  display: flex; flex-direction: column; justify-content: center;
+  gap: 3px; padding: 12px 20px; flex: 1; min-width: 100px;
+}
+.sbar-item + .sbar-item { border-left: 1px solid var(--bd); }
+.sbar-lbl { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--tx3); }
+.sbar-val { font-size: 13px; font-weight: 500; }
+
+/* ── SECTION ── */
+.sec {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--tx3); margin: 24px 0 10px;
+  display: flex; align-items: center; gap: 10px;
+}
+.sec::after { content: ''; flex: 1; height: 1px; background: var(--bd); }
+
+/* ── GRID LAYOUTS ── */
+.g3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.g2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
+.g4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+.span2 { grid-column: span 2; }
+.span3 { grid-column: span 3; }
+
+/* ── CARD ── */
+.card {
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: var(--r-md);
+  padding: 16px 18px;
+  transition: border-color 0.15s;
+}
+.card:hover { border-color: var(--bd2); }
+.card-title {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--tx3); margin-bottom: 12px;
+}
+
+/* ── KPI ── */
+.kpi { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--r-md); padding: 16px 18px; }
+.kpi.gl { border-left: 3px solid var(--grn); }
+.kpi.bl { border-left: 3px solid var(--blu); }
+.kpi.al { border-left: 3px solid var(--amb); }
+.kpi.rl { border-left: 3px solid var(--red); }
+.kpi.vl { border-left: 3px solid var(--vio); }
+.kpi-tag { font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--tx3); margin-bottom: 8px; }
+.kpi-val { font-family: var(--mono); font-size: 22px; font-weight: 500; line-height: 1.1; margin-bottom: 4px; }
+.kpi-sub { font-size: 12px; color: var(--tx2); }
+.kpi-pct { font-family: var(--mono); font-weight: 500; font-size: 12px; }
+.kpi-real { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--bd); }
+.kpi-rl { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--tx3); margin-bottom: 3px; }
+.kpi-rv { font-family: var(--mono); font-size: 15px; font-weight: 600; color: var(--grn); }
+.kpi-rp { font-family: var(--mono); font-size: 11px; color: var(--grn); opacity: 0.75; }
+
+/* ── DIVIDER LABEL ── */
+.div-label {
+  grid-column: 1/-1;
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--tx3);
+  margin: 4px 0;
+}
+.div-label::before,.div-label::after { content:''; flex:1; height:1px; background:var(--bd); }
+
+/* ── SCENARIO ── */
+.sc { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--r-md); padding: 16px 18px; }
+.sc.active { border: 2px solid var(--blu); background: #060E1C; }
+.sc-tag { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--tx3); margin-bottom: 12px; display: flex; align-items: center; gap: 7px; }
+.sc.active .sc-tag { color: var(--blu); }
+.sc-row { display: flex; justify-content: space-between; align-items: baseline; padding: 5px 0; border-bottom: 1px solid var(--bd); font-size: 12px; }
+.sc-row:last-child { border-bottom: none; }
+.sc-row .l { color: var(--tx2); }
+.sc-row .v { font-family: var(--mono); font-weight: 600; font-size: 13px; }
+
+/* ── DATA ROWS ── */
+.dr { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--bd); font-size: 13px; }
+.dr:last-child { border-bottom: none; }
+.dr .l { color: var(--tx2); }
+.dr .v { font-family: var(--mono); font-weight: 600; }
+
+/* ── RESUMO CONTRATUAL E TEEs ── */
+.sec-main { color: var(--blu); }
+.adm-card { padding: 0; overflow: hidden; }
+.adm-main {
+  border-color: var(--blu2);
+  background: linear-gradient(135deg, var(--s1) 0%, var(--s2) 100%);
+  box-shadow: 0 0 0 1px rgba(77,158,245,0.08) inset;
+  margin-bottom: 20px;
+}
+.adm-head {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+  padding: 18px 20px; border-bottom: 1px solid var(--bd2); background: var(--blu-bg);
+}
+.adm-title {
+  font-family: var(--mono); font-size: 13px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--blu); font-weight: 700;
+}
+.adm-table { width: 100%; border-collapse: collapse; }
+.adm-table th {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--tx2); background: var(--s1); padding: 12px 16px; border-bottom: 1px solid var(--bd);
+}
+.adm-table td { padding: 14px 16px; border-bottom: 1px solid var(--bd); font-size: 15px; }
+.adm-table td.adm-label { color: var(--tx); font-weight: 600; }
+.adm-table td.adm-val { font-family: var(--mono); text-align: right; font-weight: 700; white-space: nowrap; }
+.adm-table th.adm-muted, .adm-table td.adm-muted { color: var(--tx3) !important; opacity: 0.78; font-weight: 500; }
+.adm-table td.adm-muted { font-size: 14px; }
+.adm-table td:last-child { font-size: 18px; color: var(--blu); }
+.adm-table tr:last-child td { border-bottom: none; }
+.adm-table tr.adm-total-row td { background: var(--s2); color: var(--tx); }
+.adm-table tr.adm-total-row td.adm-val { color: var(--grn); }
+.adm-table tr.adm-total-row td:last-child { color: var(--grn); }
+.adm-fixed {
+  display: flex; justify-content: space-between; gap: 16px; align-items: center;
+  padding: 16px 20px; background: var(--amb-bg); border-top: 1px solid var(--amb2);
+}
+.adm-fixed .l { font-size: 15px; color: var(--tx); font-weight: 600; }
+.adm-fixed .v { font-family: var(--mono); font-size: 22px; font-weight: 800; color: var(--amb); white-space: nowrap; }
+.adm-formula { font-family: var(--mono); color: var(--tx2); font-size: 12px; margin-top: 2px; }
+
+/* ── PROGRESS ── */
+.prog { margin-bottom: 14px; }
+.prog:last-child { margin-bottom: 0; }
+.prog-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 12px; }
+.prog-lbl { color: var(--tx2); }
+.prog-pct { font-family: var(--mono); font-weight: 600; font-size: 13px; }
+.prog-track { background: var(--s3); border-radius: 6px; height: 7px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 6px; }
+
+/* ── TABLE ── */
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead th {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--tx2);
+  padding: 10px 12px; text-align: left;
+  background: var(--s2); border-bottom: 1px solid var(--bd2);
+  white-space: nowrap; min-width: 80px;
+}
+tbody tr { border-bottom: 1px solid var(--bd); transition: background 0.1s; }
+tbody tr:hover { background: var(--s2); }
+tbody td { padding: 9px 12px; vertical-align: middle; white-space: nowrap; }
+tfoot td { padding: 9px 12px; font-family: var(--mono); font-weight: 600; color: var(--grn); background: var(--s2); border-top: 1px solid var(--bd2); white-space: nowrap; }
+.td-mono { font-family: var(--mono); }
+.td-r { text-align: right; font-family: var(--mono); }
+.td-c { text-align: center; }
+
+/* ── ESTADO PILL ── */
+.ep {
+  display: inline-block; font-family: var(--mono);
+  font-size: 10px; padding: 2px 8px; border-radius: 20px; white-space: nowrap;
+}
+
+/* ── ALERTS ── */
+.alerts { display: flex; flex-direction: column; gap: 8px; }
+.alert { border-radius: var(--r-sm); padding: 12px 16px; font-size: 13px; line-height: 1.55; border-left: 3px solid transparent; }
+.alert-red    { background: var(--red-bg); color: #F4A0A0; border-left-color: var(--red); }
+.alert-orange { background: var(--amb-bg); color: #F5C878; border-left-color: var(--amb); }
+.alert-blue   { background: var(--blu-bg); color: #90C0F8; border-left-color: var(--blu); }
+.alert-green  { background: var(--grn-bg); color: #80E8B0; border-left-color: var(--grn); }
+.alert-tag { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; display: block; margin-bottom: 3px; opacity: 0.7; }
+
+/* ══════════════════════════════════════
+   PAINEL 2 — CASH FLOW
+══════════════════════════════════════ */
+
+/* ── TIMELINE ── */
+.timeline {
+  display: flex; gap: 6px; align-items: flex-end;
+  margin-bottom: 8px; padding: 0 4px; align-items: flex-end;
+  position: relative; z-index: 2;
+}
+.tl-col { flex: 1; display: flex; flex-direction: column; gap: 3px; align-items: center; justify-content: flex-end; min-width:0; }
+.tl-bars { display: flex; gap: 2px; align-items: flex-end; width: 100%; }
+.bar-in { flex: 1; border-radius: 3px 3px 0 0; background: var(--blu); min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); position: relative; }
+.bar-out { flex: 1; border-radius: 0 0 3px 3px; background: var(--amb); min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); }
+.bar-est { flex: 1; border-radius: 3px 3px 0 0; background: var(--amb); opacity: 0.35; min-height: 3px; transition: height 0.7s cubic-bezier(.4,0,.2,1); border-top: 1px dashed var(--amb); }
+.bar-in.neg { background: var(--red); }
+.tl-month { font-family: var(--mono); font-size: 9px; color: var(--tx3); margin-top: 5px; text-align: center; }
+.tl-month.current { color: var(--blu); }
+.tl-month.future { color: var(--tx3); opacity: 0.6; }
+
+/* saldo line overlay */
+.chart-wrap { position: relative; overflow: visible; }
+.saldo-line { position: absolute; bottom: 28px; left: 0; right: 0; pointer-events: none; }
+.saldo-svg { position:absolute; top:36px; left:0; width:100%; pointer-events:none; overflow:visible; z-index:5; }
+.saldo-path { fill:none; stroke-width:2.5px; stroke-linejoin:round; stroke-linecap:round; }
+.saldo-zero-line { stroke:var(--tx3); stroke-width:1px; stroke-dasharray:4,4; opacity:0.5; }
+
+.cf-legend { display: flex; gap: 20px; font-size: 11px; color: var(--tx2); margin-bottom: 14px; flex-wrap: wrap; }
+.leg-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 5px; vertical-align: middle; }
+
+/* ── MONTH DETAIL ── */
+.month-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 8px; }
+.month-card {
+  background: var(--s1); border: 1px solid var(--bd);
+  border-radius: var(--r-sm); padding: 12px;
+  cursor: pointer; transition: all 0.15s;
+}
+.month-card:hover { border-color: var(--bd2); background: var(--s2); }
+.month-card.past { opacity: 0.6; }
+.month-card.current { border-color: var(--blu); background: var(--blu-bg); }
+.month-card.risk { border-color: var(--red); background: var(--red-bg); }
+.month-card.caution { border-color: var(--amb); background: var(--amb-bg); }
+.mc-month { font-family: var(--mono); font-size: 10px; color: var(--tx3); margin-bottom: 6px; }
+.month-card.current .mc-month { color: var(--blu); }
+.month-card.risk .mc-month { color: var(--red); }
+.month-card.caution .mc-month { color: var(--amb); }
+.mc-in  { font-family: var(--mono); font-size: 12px; color: var(--blu); }
+.mc-out { font-family: var(--mono); font-size: 12px; color: var(--amb); }
+.mc-saldo { font-family: var(--mono); font-size: 11px; font-weight: 600; margin-top: 4px; }
+.mc-badge { font-family: var(--mono); font-size: 9px; margin-top: 4px; }
+
+/* ── SIMULATOR ── */
+.sim-card {
+  background: var(--s1); border: 1px solid var(--bd2);
+  border-radius: var(--r-md); padding: 18px;
+}
+.sim-title { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blu); margin-bottom: 14px; }
+.sim-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+.sim-label { font-size: 13px; color: var(--tx2); min-width: 160px; }
+.sim-select, .sim-input {
+  background: var(--s2); border: 1px solid var(--bd2);
+  color: var(--tx); font-family: var(--mono); font-size: 12px;
+  padding: 6px 10px; border-radius: var(--r-sm);
+  outline: none; transition: border-color 0.15s;
+}
+.sim-select:focus, .sim-input:focus { border-color: var(--blu); }
+.sim-select { min-width: 180px; }
+.sim-input { width: 80px; }
+.sim-btn {
+  background: var(--blu); color: #fff;
+  border: none; font-family: var(--mono); font-size: 12px;
+  padding: 7px 18px; border-radius: var(--r-sm);
+  cursor: pointer; transition: background 0.15s;
+}
+.sim-btn:hover { background: var(--blu2); }
+.sim-result {
+  margin-top: 14px; padding: 14px;
+  background: var(--s2); border-radius: var(--r-sm);
+  border: 1px solid var(--bd2); display: none;
+}
+.sim-result.show { display: block; }
+.sim-res-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; }
+.sim-res-row .l { color: var(--tx2); }
+.sim-res-row .v { font-family: var(--mono); font-weight: 600; }
+
+/* ── PLANEAMENTO GANTT MINI ── */
+.gantt-wrap { overflow-x: auto; }
+.gantt { min-width: 700px; }
+.gantt-row { display: grid; align-items: center; border-bottom: 1px solid var(--bd); padding: 6px 0; }
+.gantt-row.header { font-family: var(--mono); font-size: 10px; color: var(--tx3); text-transform: uppercase; letter-spacing: 0.07em; }
+.gantt-fase { font-size: 12px; font-weight: 500; padding: 4px 8px; white-space: normal; line-height: 1.3; }
+.gantt-bar-wrap { position: relative; height: 20px; background: var(--s2); border-radius: 3px; overflow: hidden; }
+.gantt-bar { position: absolute; top: 0; height: 100%; border-radius: 3px; display: flex; align-items: center; padding: 0 6px; }
+.gantt-bar-label { font-family: var(--mono); font-size: 9px; color: rgba(255,255,255,0.8); white-space: nowrap; overflow: hidden; }
+.gantt-today { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--blu); z-index: 2; }
+.gantt-pct { font-family: var(--mono); font-size: 11px; text-align: right; padding: 0 8px; }
+
+/* ── FOOTER ── */
+.footer {
+  margin-top: 40px; padding-top: 16px;
+  border-top: 1px solid var(--bd);
+  display: flex; justify-content: space-between;
+  font-family: var(--mono); font-size: 11px; color: var(--tx3);
+  align-items: center;
+}
+.refresh-btn {
+  background: var(--s2); border: 1px solid var(--bd);
+  color: var(--tx2); font-family: var(--mono); font-size: 11px;
+  padding: 5px 14px; border-radius: var(--r-sm);
+  cursor: pointer; transition: all 0.15s;
+}
+.refresh-btn:hover { border-color: var(--blu); color: var(--blu); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .g3,.g4 { grid-template-columns: repeat(2,1fr); }
+  .obra-header { grid-template-columns: 1fr; }
+  .oh-meta { text-align: left; }
+  .month-grid { grid-template-columns: repeat(3,1fr); }
+  .sbar { flex-wrap: wrap; }
+}
+@media (max-width: 600px) {
+  .g3,.g4,.g2 { grid-template-columns: 1fr; }
+  .month-grid { grid-template-columns: repeat(2,1fr); }
+}
+</style>
+<style>
+/* ── LOGIN ── */
+#login-screen {
+  position: fixed; inset: 0; z-index: 999;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+}
+.login-box {
+  background: var(--s1);
+  border: 1px solid var(--bd2);
+  border-radius: var(--r-lg);
+  padding: 40px 48px;
+  width: 340px;
+  text-align: center;
+}
+.login-logo {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--tx3);
+  margin-bottom: 6px;
+}
+.login-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--tx);
+  margin-bottom: 4px;
+}
+.login-sub {
+  font-size: 13px;
+  color: var(--tx2);
+  margin-bottom: 28px;
+}
+.login-input {
+  width: 100%;
+  background: var(--s2);
+  border: 1px solid var(--bd2);
+  border-radius: var(--r-sm);
+  color: var(--tx);
+  font-family: var(--mono);
+  font-size: 14px;
+  padding: 10px 14px;
+  outline: none;
+  text-align: center;
+  letter-spacing: 0.1em;
+  transition: border-color 0.15s;
+  margin-bottom: 12px;
+}
+.login-input:focus { border-color: var(--blu); }
+.login-btn {
+  width: 100%;
+  background: var(--blu);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.login-btn:hover { background: var(--blu2); }
+.login-error {
+  font-size: 12px;
+  color: var(--red);
+  margin-top: 10px;
+  min-height: 18px;
+  font-family: var(--mono);
+}
+
+/* ══════════════════════════════════════
+   PAINEL 3 — VISÃO DO DIRECTOR DE OBRA
+══════════════════════════════════════ */
+.p3-semaforo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; margin-bottom: 8px; }
+.p3-fase-card { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--r-md); padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; border-left: 4px solid transparent; }
+.p3-fase-card.verde   { border-left-color: var(--grn); }
+.p3-fase-card.ambar   { border-left-color: var(--amb); }
+.p3-fase-card.vermelho{ border-left-color: var(--red); }
+.p3-fase-card.cinza   { border-left-color: var(--tx3); }
+.p3-fase-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.p3-fase-cod  { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--tx3); }
+.p3-fase-nome { font-size: 13px; font-weight: 500; color: var(--tx); flex: 1; }
+.p3-semaforo-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.p3-fase-detail { font-size: 12px; color: var(--tx2); font-family: var(--mono); }
+.p3-fase-nota { font-size: 11px; color: var(--tx3); font-style: italic; line-height: 1.4; }
+.p3-horizon-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.p3-horizon-item { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--r-sm); padding: 10px 14px; display: flex; align-items: flex-start; gap: 10px; }
+.p3-horizon-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+.p3-horizon-text { font-size: 13px; line-height: 1.45; }
+.p3-horizon-sub  { font-size: 11px; color: var(--tx3); font-family: var(--mono); margin-top: 2px; }
+.p3-accoes-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.p3-accao-item { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--r-sm); padding: 12px 16px; display: flex; align-items: flex-start; gap: 12px; }
+.p3-accao-prio { font-family: var(--mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 8px; border-radius: 20px; white-space: nowrap; margin-top: 1px; flex-shrink: 0; }
+.p3-accao-texto { font-size: 13px; line-height: 1.5; flex: 1; }
+.p3-accao-fase  { font-size: 11px; color: var(--tx3); font-family: var(--mono); margin-top: 3px; }
+</style>
+
+<style>
+  .mini-note { font-size: 11px; color: var(--tx3); font-family: var(--mono); margin-top: 8px; line-height: 1.5; }
+  .muted { color: var(--tx3); }
+  .negative { color: var(--red) !important; }
+  .positive { color: var(--grn) !important; }
+  .phase-name { max-width: 340px; white-space: normal !important; }
+</style>
+
+</head>
+
+<body>
+<nav class="nav">
+  <div class="nav-brand">Primeline · <strong>Obra 118</strong></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('p1',this)">Painel Financeiro</button>
+    <button class="nav-tab" onclick="showPage('p2',this)">Cash Flow &amp; Planeamento</button>
+  </div>
+  <div class="nav-spacer"></div>
+  <div class="nav-date" id="nav-date"></div>
+  <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">
+    <span class="theme-icon" id="theme-icon">🌙</span>
+    <span id="theme-label">Escuro</span>
+  </button>
+</nav>
+
+<div class="page active" id="p1">
+
+  <div class="obra-header">
+    <div>
+      <div class="oh-eyebrow">Primeline Engenharia e Construção</div>
+      <div class="oh-title">OBRA 118 — SABÓIA 37 <span class="oh-ref">Investimento</span></div>
+      <div class="oh-desc">Av. Sabóia, 37 — Monte Estoril · Investimento próprio Primeline</div>
+    </div>
+    <div class="oh-meta">
+      <div class="oh-item"><span class="lbl">Investidor</span><span class="val">Primeline</span></div>
+      <div class="oh-item"><span class="lbl">Responsável</span><span class="val">José Travi</span></div>
+      <div class="oh-item"><span class="lbl">Início</span><span class="val">16/03/2026</span></div>
+      <div class="oh-item"><span class="lbl">Fim previsto</span><span class="val">15/06/2026 <span class="pill pill-amb">em análise</span></span></div>
+    </div>
+  </div>
+
+  <div class="sbar">
+    <div class="sbar-item"><span class="sbar-lbl">Tipo</span><span class="sbar-val">Investimento próprio</span></div>
+    <div class="sbar-item"><span class="sbar-lbl">Prazo base</span><span class="sbar-val">60 dias</span></div>
+    <div class="sbar-item"><span class="sbar-lbl">Estado</span><span class="sbar-val" style="color:var(--blu)">Em curso</span></div>
+    <div class="sbar-item"><span class="sbar-lbl">Cenário base</span><span class="sbar-val">31/08/2026</span></div>
+    <div class="sbar-item"><span class="sbar-lbl">Extensão</span><span class="sbar-val" style="color:var(--amb)">30/09/2026</span></div>
+    <div class="sbar-item"><span class="sbar-lbl">Atualizado</span><span class="sbar-val">02/07/2026</span></div>
+  </div>
+
+  <div class="sec sec-main">Resumo de investimento</div>
+  <div class="card adm-card adm-main">
+    <div class="adm-head">
+      <div class="adm-title">Mapa de composição dos totais</div>
+    </div>
+    <div class="tbl-wrap">
+      <table class="adm-table">
+        <thead>
+          <tr>
+            <th>Indicador</th>
+            <th class="td-r adm-muted">Referência Rev00</th>
+            <th class="td-r">Revisto</th>
+            <th class="td-r">Realizado lançado</th>
+            <th class="td-r">Final estimado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="adm-label">Custo / investimento s/ IVA</td>
+            <td class="adm-val adm-muted" id="adm-orc-siva">—</td>
+            <td class="adm-val" id="adm-rev-siva">—</td>
+            <td class="adm-val" id="adm-real-efetivo">—</td>
+            <td class="adm-val" id="adm-final-efetivo">—</td>
+          </tr>
+          <tr>
+            <td class="adm-label">Cash out c/ IVA</td>
+            <td class="adm-val adm-muted" id="adm-orc-civa">—</td>
+            <td class="adm-val" id="adm-rev-civa">—</td>
+            <td class="adm-val" id="adm-real-civa">—</td>
+            <td class="adm-val" id="adm-final-civa">—</td>
+          </tr>
+          <tr class="adm-total-row">
+            <td class="adm-label">Desvio face à referência</td>
+            <td class="adm-val adm-muted">—</td>
+            <td class="adm-val">—</td>
+            <td class="adm-val">—</td>
+            <td class="adm-val" id="adm-desvio">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="adm-fixed">
+      <div>
+        <div class="l">Critério de leitura</div>
+        <div class="adm-formula">s/ IVA = custo económico · c/ IVA = cash out · custo efetivo considera IVA não dedutível</div>
+      </div>
+      <div class="v" id="adm-desvio-pct">—</div>
+    </div>
+  </div>
+
+  <div class="sec">KPIs — Investimento próprio</div>
+  <div class="g3">
+    <div class="kpi bl">
+      <div class="kpi-tag">Orçamento referência Rev00</div>
+      <div class="kpi-val" style="color:var(--blu)" id="kpi-orcamento">—</div>
+      <div class="kpi-sub">sem IVA · base de comparação</div>
+    </div>
+    <div class="kpi al">
+      <div class="kpi-tag">Custo final estimado 31/08</div>
+      <div class="kpi-val" style="color:var(--amb)" id="kpi-final">—</div>
+      <div class="kpi-sub">cash out estimado c/ IVA</div>
+    </div>
+    <div class="kpi rl">
+      <div class="kpi-tag">Desvio estimado c/ IVA</div>
+      <div class="kpi-val" style="color:var(--red)" id="kpi-desvio">—</div>
+      <div class="kpi-sub">face ao orçamento inicial c/ IVA</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-tag">Investimento realizado lançado</div>
+      <div class="kpi-val" id="kpi-realizado">—</div>
+      <div class="kpi-sub">materiais + custos internos lançados</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-tag">Investimento por realizar</div>
+      <div class="kpi-val" id="kpi-por-realizar">—</div>
+      <div class="kpi-sub">até cenário 31/08</div>
+    </div>
+    <div class="kpi vl">
+      <div class="kpi-tag">Cenário com extensão 30/09</div>
+      <div class="kpi-val" style="color:var(--vio)" id="kpi-extensao">—</div>
+      <div class="kpi-sub">inclui extensão de mão de obra</div>
+    </div>
+  </div>
+
+  <div class="sec">Cenários de prazo</div>
+  <div class="g3">
+    <div class="sc active">
+      <div class="sc-tag">Cenário base 31/08 <span class="pill pill-blu">referência</span></div>
+      <div class="sc-row"><span class="l">Cash out estimado</span><span class="v" id="sc-base-cash">—</span></div>
+      <div class="sc-row"><span class="l">Custo efetivo estimado</span><span class="v" id="sc-base-efetivo">—</span></div>
+      <div class="sc-row"><span class="l">Desvio c/ IVA</span><span class="v" style="color:var(--red)" id="sc-base-desvio">—</span></div>
+    </div>
+    <div class="sc">
+      <div class="sc-tag">Extensão 30/09</div>
+      <div class="sc-row"><span class="l">Cash out estimado</span><span class="v" id="sc-ext-cash">—</span></div>
+      <div class="sc-row"><span class="l">Custo efetivo estimado</span><span class="v" id="sc-ext-efetivo">—</span></div>
+      <div class="sc-row"><span class="l">Impacto extensão</span><span class="v" style="color:var(--amb)" id="sc-ext-impacto">—</span></div>
+    </div>
+    <div class="sc">
+      <div class="sc-tag">Realizado lançado</div>
+      <div class="sc-row"><span class="l">Cash out realizado</span><span class="v" id="sc-real-cash">—</span></div>
+      <div class="sc-row"><span class="l">Custo efetivo realizado</span><span class="v" id="sc-real-efetivo">—</span></div>
+      <div class="sc-row"><span class="l">% face ao cenário base</span><span class="v" style="color:var(--blu)" id="sc-real-pct">—</span></div>
+    </div>
+  </div>
+
+  <div class="sec">Progresso</div>
+  <div class="card">
+    <div class="prog">
+      <div class="prog-hd"><span class="prog-lbl">% obra executada</span><span class="prog-pct" style="color:var(--grn)" id="prog-obra-pct">0,0%</span></div>
+      <div class="prog-track"><div class="prog-fill" id="prog-obra-fill" style="width:0%;background:var(--grn)"></div></div>
+    </div>
+    <div class="prog">
+      <div class="prog-hd"><span class="prog-lbl">% prazo consumido</span><span class="prog-pct" style="color:var(--blu)" id="prog-prazo-pct">—</span></div>
+      <div class="prog-track"><div class="prog-fill" id="prog-prazo-fill" style="width:0%;background:var(--blu)"></div></div>
+    </div>
+    <div class="mini-note">A percentagem de obra executada deve vir da aba <strong>5_Planeamento</strong>, por fases e ponderação. A versão atual fica pronta para atualização manual do Diretor de Obra.</div>
+  </div>
+
+  <div class="sec">Subempreitadas / fornecedores relevantes</div>
+  <div class="card tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Fornecedor</th>
+        <th>Especialidade</th>
+        <th>Trabalho</th>
+        <th>Estado</th>
+        <th class="td-r">Valor base</th>
+        <th class="td-r">Valor c/ IVA</th>
+        <th class="td-r">Dif. face C.D.</th>
+      </tr></thead>
+      <tbody id="subs-tbody"></tbody>
+      <tfoot><tr id="subs-tfoot"></tr></tfoot>
+    </table>
+  </div>
+
+  <div class="sec">Pontos de atenção</div>
+  <div class="g3" id="alertas-grid">
+    <div class="alert-box alert-box-red">
+      <div class="alert-box-title">🔴 Urgente</div>
+      <ul class="alert-list" id="alert-urgente"></ul>
+    </div>
+    <div class="alert-box alert-box-amb">
+      <div class="alert-box-title">🟡 Atenção</div>
+      <ul class="alert-list" id="alert-atencao"></ul>
+    </div>
+    <div class="alert-box alert-box-blu">
+      <div class="alert-box-title">🔵 Pendente</div>
+      <ul class="alert-list" id="alert-pendente"></ul>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Primeline · Obra 118 · SABÓIA 37</span>
+    <button class="refresh-btn" onclick="renderAll()">↻ Actualizar</button>
+    <span id="p1-time"></span>
+  </div>
+</div>
+
+<div class="page" id="p2">
+
+  <div class="obra-header">
+    <div>
+      <div class="oh-eyebrow">Primeline Engenharia e Construção</div>
+      <div class="oh-title">Cash Flow &amp; Planeamento <span class="oh-ref">OBRA 118</span></div>
+      <div class="oh-desc">Previsão mensal de investimento · Cash out · Planeamento por fases</div>
+    </div>
+    <div class="oh-meta">
+      <div class="oh-item"><span class="lbl">Início</span><span class="val">16/03/2026</span></div>
+      <div class="oh-item"><span class="lbl">Fim previsto</span><span class="val">15/06/2026</span></div>
+      <div class="oh-item"><span class="lbl">Cash out 31/08</span><span class="val" style="color:var(--amb)" id="oh-cash-base">—</span></div>
+      <div class="oh-item"><span class="lbl">Cash out 30/09</span><span class="val" style="color:var(--vio)" id="oh-cash-ext">—</span></div>
+    </div>
+  </div>
+
+  <div class="sec">Previsão mensal — cash out do investimento</div>
+  <div class="card">
+    <div class="cf-legend">
+      <span><span class="leg-dot" style="background:var(--amb)"></span>Cash out mensal previsto</span>
+      <span><span class="leg-dot" style="background:var(--blu)"></span>Acumulado</span>
+      <span><span class="leg-dot" style="background:var(--red);border-radius:50%"></span>Mês de maior saída</span>
+    </div>
+    <div class="chart-wrap" id="cf-chart-wrap" style="padding-top:22px">
+      <div class="timeline" id="cf-chart"></div>
+    </div>
+    <div style="font-size:11px;color:var(--tx3);margin-top:12px;font-family:var(--mono);line-height:1.6;border-top:1px solid var(--bd);padding-top:10px">
+      <strong style="color:var(--tx2)">Cash out</strong> — dinheiro que sai da conta, com IVA. &nbsp;·&nbsp;
+      <strong style="color:var(--tx2)">Custo efetivo</strong> — custo económico depois de considerar IVA não dedutível.
+    </div>
+    <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap" id="cf-summary"></div>
+  </div>
+
+  <div class="sec">Detalhe por mês</div>
+  <div class="month-grid" id="month-grid"></div>
+
+  <div class="sec">Planeamento de fases</div>
+  <div class="card gantt-wrap">
+    <div class="gantt" id="gantt"></div>
+  </div>
+
+  <div class="sec">Resumo financeiro previsional</div>
+  <div class="g4">
+    <div class="kpi al">
+      <div class="kpi-tag">Cash out base 31/08</div>
+      <div class="kpi-val" style="color:var(--amb)" id="p2-cash-base">—</div>
+      <div class="kpi-sub">total previsto c/ IVA</div>
+    </div>
+    <div class="kpi vl">
+      <div class="kpi-tag">Cash out extensão 30/09</div>
+      <div class="kpi-val" style="color:var(--vio)" id="p2-cash-ext">—</div>
+      <div class="kpi-sub">cenário de extensão</div>
+    </div>
+    <div class="kpi bl">
+      <div class="kpi-tag">Custo efetivo base</div>
+      <div class="kpi-val" style="color:var(--blu)" id="p2-ef-base">—</div>
+      <div class="kpi-sub">sem IVA dedutível</div>
+    </div>
+    <div class="kpi rl">
+      <div class="kpi-tag">Mês de maior saída</div>
+      <div class="kpi-val" style="color:var(--red)" id="p2-pior-mes">—</div>
+      <div class="kpi-sub" id="p2-pior-mes-sub">—</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Primeline · Obra 118 · SABÓIA 37</span>
+    <button class="refresh-btn" onclick="renderAll()">↻ Actualizar</button>
+    <span id="p2-time"></span>
+  </div>
+</div>
+
+<script>
+const DATA = {"obra": {"nome": "OBRA 118 - SABÓIA 37", "ref": "Obra 118", "local": "Av. Sabóia, 37 — Monte Estoril", "tipo": "Investimento próprio", "investidor": "Primeline", "responsavel": "José Travi", "inicio": "16/03/2026", "fim": "15/06/2026", "prazo": "60 dias", "estado": "Em curso", "atualizacao": "02/07/2026"}, "kpis": {"orc_ini_siva": 39907.53, "orc_ini_civa": 49086.2619, "orc_rev_siva": 50690.159999999996, "orc_rev_civa": 62348.8968, "realizado_civa": 9639.6208, "realizado_efetivo": 9168.82, "por_realizar": 44287.359200000006, "cfinal_3108": 53926.98, "cfinal_3009": 56971.78, "efetivo_3108": 43843.07317, "efetivo_3009": 46887.87317, "desvio_ini_civa": 4840.7181000000055, "desvio_ini_siva": 3935.5431700000045, "desvio_pct": 9.86165560918381, "mat_total_civa": 2517.7608, "cost_total": 7121.86}, "forecast": [{"mes": "01/03", "mes_iso": "01/03/2026", "tipo": "Real/Previsto", "real": 0.0, "prev": 0.0, "total": 0.0, "acum": 0.0, "efetivo": 0.0, "efetivo_acum": 0.0, "label": "Mar 26"}, {"mes": "01/04", "mes_iso": "01/04/2026", "tipo": "Real/Previsto", "real": 0.0, "prev": 0.0, "total": 0.0, "acum": 0.0, "efetivo": 0.0, "efetivo_acum": 0.0, "label": "Abr 26"}, {"mes": "01/05", "mes_iso": "01/05/2026", "tipo": "Real/Previsto", "real": 0.0, "prev": 0.0, "total": 0.0, "acum": 0.0, "efetivo": 0.0, "efetivo_acum": 0.0, "label": "Mai 26"}, {"mes": "01/06", "mes_iso": "01/06/2026", "tipo": "Real/Previsto", "real": 0.0, "prev": 9871.939999999999, "total": 9871.94, "acum": 9871.94, "efetivo": 8025.96748, "efetivo_acum": 8025.96748, "label": "Jun 26"}, {"mes": "01/07", "mes_iso": "01/07/2026", "tipo": "Previsto", "real": 0.0, "prev": 24000.0, "total": 24000.0, "acum": 33871.94, "efetivo": 19512.19512, "efetivo_acum": 27538.1626, "label": "Jul 26"}, {"mes": "01/08", "mes_iso": "01/08/2026", "tipo": "Previsto", "real": 0.0, "prev": 20055.04, "total": 20055.04, "acum": 53926.98, "efetivo": 16304.91057, "efetivo_acum": 43843.07317, "label": "Ago 26"}, {"mes": "01/09", "mes_iso": "01/09/2026", "tipo": "Previsto", "real": 0.0, "prev": 3044.8, "total": 3044.8, "acum": 56971.78, "efetivo": 3044.8, "efetivo_acum": 46887.87317, "label": "Set 26"}], "subs": [{"nome": "Antonio Magalhaes", "esp": "Elétrica", "trab": "Eletrica", "estado": "Adjudicado / iniciado", "base": 1700.0, "comiva": 2091.0, "cd": 1800.0, "dif": 100.0}, {"nome": "Antonio Carneiro", "esp": "AVAC", "trab": "Carpinteria", "estado": "Adjudicado", "base": 21670.0, "comiva": 26654.1, "cd": 13389.6, "dif": 13389.6}, {"nome": "Odem", "esp": "AVAC", "trab": "Portas cassete", "estado": "Adjudicado / a arrancar", "base": 359.41, "comiva": 442.07, "cd": 440.0, "dif": 80.59}, {"nome": "—", "esp": "Vidros IS", "trab": "Louças e metais", "estado": "Adjudicado", "base": 3345.0, "comiva": 4114.35, "cd": 3345.0, "dif": 3345.0}, {"nome": "Sanimaia", "esp": "Inox", "trab": "Torneiras", "estado": "Em análise", "base": 983.0, "comiva": 1209.09, "cd": 0.0, "dif": -983.0}, {"nome": "Leroy", "esp": "Carpintaria", "trab": "Sanita", "estado": "Em comparação", "base": 345.05, "comiva": 424.41, "cd": 688.8, "dif": 343.75}, {"nome": "Leroy", "esp": "—", "trab": "Canal de chuveiro", "estado": "—", "base": 88.0, "comiva": 108.24, "cd": 0.0, "dif": -88.0}, {"nome": "Haier", "esp": "—", "trab": "Equipamentos de cozinha", "estado": "—", "base": 3367.74, "comiva": 4142.32, "cd": 0.0, "dif": 0.0}, {"nome": "Fluxion", "esp": "—", "trab": "Ar condicionado", "estado": "—", "base": 2708.0, "comiva": 3330.84, "cd": 2706.0, "dif": -2.0}, {"nome": "Ariston", "esp": "—", "trab": "Termoacumulador", "estado": "—", "base": 289.0, "comiva": 355.47, "cd": 0.0, "dif": 0.0}, {"nome": "AEG", "esp": "—", "trab": "Extractor de cozinha", "estado": "—", "base": 349.0, "comiva": 429.27, "cd": 0.0, "dif": 0.0}, {"nome": "Okgres", "esp": "—", "trab": "Rev.ceramico de banho chao", "estado": "—", "base": 44.74, "comiva": 55.03, "cd": 0.0, "dif": -44.74}], "planning": [{"fase": "F01 — PREPARAÇÃO | Preparation", "inicio": "16/03/2026", "fim": "20/03/2026", "pct": 0, "estado": "Por iniciar"}, {"fase": "F02 — DEMOLIÇÕES E REMOÇÕES | Demolitions", "inicio": "23/03/2026", "fim": "02/04/2026", "pct": 0, "estado": "Por iniciar"}, {"fase": "F03 — BETONILHAS / IMPERMEABILIZAÇÕES / REBOCOS | Screeds / Waterproofing / Render", "inicio": "06/04/2026", "fim": "16/04/2026", "pct": 0, "estado": "Por iniciar"}, {"fase": "F04 — INFRAESTRUTURAS | MEP Infrastructure", "inicio": "06/04/2026", "fim": "19/05/2026", "pct": 0, "estado": "Por iniciar"}, {"fase": "F05 — PAREDES / TETOS / PLADUR | Walls / Ceilings", "inicio": "17/04/2026", "fim": "22/05/2026", "pct": 0, "estado": "Por iniciar"}, {"fase": "F06 — PORTAS | Doors", "inicio": "25/05/2026", "fim": "26/05/2026", "pct": 0, "estado": "Por iniciar"}, {"fase": "F07 — PINTURAS | Painting", "inicio": "25/05/2026", "fim": "29/05/2026", "pct": 0, "estado": "Por iniciar"}, {"fase": "F08 — REVESTIMENTOS | Finishes", "inicio": "20/05/2026", "fim": "28/05/2026", "pct": 0, "estado": "Por iniciar"}, {"fase": "F09 — LOUÇAS E METAIS | Sanitaryware and Fixtures", "inicio": "29/05/2026", "fim": "11/06/2026", "pct": 0, "estado": "Por iniciar"}, {"fase": "F10 — CARPINTARIAS | Joinery", "inicio": "29/05/2026", "fim": "09/06/2026", "pct": 0, "estado": "Por iniciar"}, {"fase": "F11 — EQUIPAMENTOS / ACABAMENTOS | Equipment / Final Finishes", "inicio": "11/06/2026", "fim": "15/06/2026", "pct": 0, "estado": "Por iniciar"}], "alerts": {"urgente": [], "atencao": ["Carpintaria e inox mantêm maior impacto na comparação com o orçamento de referência.", "Confirmar com José Travi/contabilidade o enquadramento final do IVA e custo efetivo.", "Atualizar percentagens executadas no planeamento para alimentar o painel."], "pendente": ["Validar ajuste a confirmar de 189,10 €.", "Confirmar adjudicações finais pendentes e datas de pagamento."]}};
+
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  document.getElementById('theme-icon').textContent  = isLight ? '☀️' : '🌙';
+  document.getElementById('theme-label').textContent = isLight ? 'Claro' : 'Escuro';
+  localStorage.setItem('primeline-theme', isLight ? 'light' : 'dark');
+}
+
+(function() {
+  const saved = localStorage.getItem('primeline-theme');
+  if (saved === 'light') document.documentElement.classList.add('light');
+})();
+
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'p2') setTimeout(renderCashChart, 50);
+}
+
+const now = new Date();
+document.getElementById('nav-date').textContent = now.toLocaleDateString('pt-PT', {weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+
+function eur(n) { return (parseFloat(n)||0).toLocaleString('pt-PT',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' €'; }
+function pct(n,d=1) { return (parseFloat(n)||0).toLocaleString('pt-PT',{minimumFractionDigits:d,maximumFractionDigits:d}) + '%'; }
+
+function setText(id, value) { const el = document.getElementById(id); if (el) el.textContent = value; }
+
+function renderKpis() {
+  const k = DATA.kpis;
+  setText('adm-orc-siva', eur(k.orc_ini_siva));
+  setText('adm-rev-siva', eur(k.orc_rev_siva));
+  setText('adm-real-efetivo', eur(k.realizado_efetivo));
+  setText('adm-final-efetivo', eur(k.efetivo_3108));
+  setText('adm-orc-civa', eur(k.orc_ini_civa));
+  setText('adm-rev-civa', eur(k.orc_rev_civa));
+  setText('adm-real-civa', eur(k.realizado_civa));
+  setText('adm-final-civa', eur(k.cfinal_3108));
+  setText('adm-desvio', eur(k.desvio_ini_civa));
+  setText('adm-desvio-pct', pct(k.desvio_pct));
+
+  setText('kpi-orcamento', eur(k.orc_ini_siva));
+  setText('kpi-final', eur(k.cfinal_3108));
+  setText('kpi-desvio', eur(k.desvio_ini_civa));
+  setText('kpi-realizado', eur(k.realizado_civa));
+  setText('kpi-por-realizar', eur(k.por_realizar));
+  setText('kpi-extensao', eur(k.cfinal_3009));
+
+  setText('sc-base-cash', eur(k.cfinal_3108));
+  setText('sc-base-efetivo', eur(k.efetivo_3108));
+  setText('sc-base-desvio', eur(k.desvio_ini_civa));
+  setText('sc-ext-cash', eur(k.cfinal_3009));
+  setText('sc-ext-efetivo', eur(k.efetivo_3009));
+  setText('sc-ext-impacto', eur(k.cfinal_3009-k.cfinal_3108));
+  setText('sc-real-cash', eur(k.realizado_civa));
+  setText('sc-real-efetivo', eur(k.realizado_efetivo));
+  setText('sc-real-pct', pct((k.realizado_civa/k.cfinal_3108)*100));
+
+  setText('oh-cash-base', eur(k.cfinal_3108));
+  setText('oh-cash-ext', eur(k.cfinal_3009));
+  setText('p2-cash-base', eur(k.cfinal_3108));
+  setText('p2-cash-ext', eur(k.cfinal_3009));
+  setText('p2-ef-base', eur(k.efetivo_3108));
+}
+
+function estadoPill(estado) {
+  const e = (estado||'').toLowerCase();
+  let cls = 'pill-blu';
+  if (e.includes('adjudicado')) cls='pill-grn';
+  if (e.includes('análise') || e.includes('comparação')) cls='pill-amb';
+  if (e.includes('bloqueado') || e.includes('atrasado')) cls='pill-red';
+  return `<span class="pill ${cls}">${estado||'—'}</span>`;
+}
+
+function renderSubs() {
+  const body = document.getElementById('subs-tbody');
+  let totalBase=0,totalComIva=0,totalDif=0;
+  body.innerHTML = DATA.subs.map(s => {
+    totalBase += Number(s.base)||0; totalComIva += Number(s.comiva)||0; totalDif += Number(s.dif)||0;
+    return `<tr>
+      <td>${s.nome}</td>
+      <td>${s.esp}</td>
+      <td class="td-l">${s.trab}</td>
+      <td>${estadoPill(s.estado)}</td>
+      <td class="td-r">${eur(s.base)}</td>
+      <td class="td-r">${eur(s.comiva)}</td>
+      <td class="td-r ${s.dif<0?'negative':'positive'}">${eur(s.dif)}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('subs-tfoot').innerHTML = `<td colspan="4">TOTAL VISÍVEL</td><td class="td-r">${eur(totalBase)}</td><td class="td-r">${eur(totalComIva)}</td><td class="td-r">${eur(totalDif)}</td>`;
+}
+
+function renderAlerts() {
+  ['urgente','atencao','pendente'].forEach(key => {
+    const el = document.getElementById('alert-'+key);
+    const list = DATA.alerts[key] || [];
+    el.innerHTML = list.length ? list.map(x => `<li>${x}</li>`).join('') : '<li style="color:var(--tx3)">Sem itens críticos lançados.</li>';
+  });
+}
+
+function renderCashChart() {
+  const el = document.getElementById('cf-chart');
+  const vals = DATA.forecast.map(m => Math.abs(Number(m.total)||0));
+  const max = Math.max(...vals, 1);
+  const worst = DATA.forecast.reduce((a,b)=>(Number(b.total)||0)>(Number(a.total)||0)?b:a, DATA.forecast[0]||{});
+  setText('p2-pior-mes', worst.label || '—');
+  setText('p2-pior-mes-sub', eur(worst.total||0));
+  el.innerHTML = DATA.forecast.map(m => {
+    const v = Number(m.total)||0;
+    const h = Math.max(3, Math.round((Math.abs(v)/max)*96));
+    const risk = (m.label===worst.label && v>0);
+    return `<div class="tl-col" title="${m.label} · ${eur(v)}">
+      <div class="tl-bars">
+        <div class="${risk?'bar-in neg':'bar-out'}" style="height:${h}px"></div>
+      </div>
+      <div class="tl-month ${risk?'risk':''}">${m.label}</div>
+    </div>`;
+  }).join('');
+  const sum = document.getElementById('cf-summary');
+  sum.innerHTML = [
+    `Acumulado base: ${eur(DATA.kpis.cfinal_3108)}`,
+    `Acumulado extensão: ${eur(DATA.kpis.cfinal_3009)}`,
+    `Custo efetivo base: ${eur(DATA.kpis.efetivo_3108)}`
+  ].map(t=>`<span class="pill pill-blu">${t}</span>`).join('');
+}
+
+function renderMonths() {
+  const el = document.getElementById('month-grid');
+  const maxTotal = Math.max(...DATA.forecast.map(x=>Number(x.total)||0), 1);
+  el.innerHTML = DATA.forecast.map(m => {
+    const total = Number(m.total)||0;
+    let cls = total === maxTotal ? 'risk' : (total>0 ? 'caution' : 'past');
+    return `<div class="month-card ${cls}">
+      <div class="mc-month">${m.label}</div>
+      <div class="mc-out">Cash out: ${eur(total)}</div>
+      <div class="mc-in">Efetivo: ${eur(m.efetivo)}</div>
+      <div class="mc-saldo">Acum.: ${eur(m.acum)}</div>
+      <div class="mc-badge">${m.tipo||''}</div>
+    </div>`;
+  }).join('');
+}
+
+function parsePTDate(s) {
+  const [d,m,y] = s.split('/').map(Number);
+  return new Date(y,m-1,d);
+}
+
+function renderGantt() {
+  const rows = DATA.planning || [];
+  const el = document.getElementById('gantt');
+  if (!rows.length) { el.innerHTML = '<div class="muted">Sem planeamento carregado.</div>'; return; }
+  const starts = rows.map(r=>parsePTDate(r.inicio).getTime());
+  const ends = rows.map(r=>parsePTDate(r.fim).getTime());
+  const min = Math.min(...starts), max = Math.max(...ends);
+  const span = Math.max(max-min, 86400000);
+  el.innerHTML = `<div class="gantt-row header" style="grid-template-columns: 280px 1fr 70px;">
+      <div class="gantt-fase">Fase</div><div>Período</div><div class="gantt-pct">%</div>
+    </div>` + rows.map((r,i) => {
+      const st = parsePTDate(r.inicio).getTime();
+      const en = parsePTDate(r.fim).getTime();
+      const left = Math.max(0, ((st-min)/span)*100);
+      const width = Math.max(3, ((en-st)/span)*100);
+      const color = i%3===0 ? 'var(--blu)' : (i%3===1 ? 'var(--amb)' : 'var(--grn)');
+      return `<div class="gantt-row" style="grid-template-columns: 280px 1fr 70px;">
+        <div class="gantt-fase phase-name">${r.fase}</div>
+        <div class="gantt-bar-wrap">
+          <div class="gantt-bar" style="left:${left}%;width:${width}%;background:${color};">
+            <span class="gantt-bar-label">${r.inicio} → ${r.fim}</span>
+          </div>
+        </div>
+        <div class="gantt-pct">${pct(r.pct||0)}</div>
+      </div>`;
+  }).join('');
+}
+
+function renderProgress() {
+  const pctObra = 0;
+  setText('prog-obra-pct', pct(pctObra));
+  document.getElementById('prog-obra-fill').style.width = pctObra + '%';
+  const inicio = parsePTDate(DATA.obra.inicio);
+  const fim = parsePTDate(DATA.obra.fim);
+  const hoje = new Date();
+  let prazo = ((hoje - inicio) / (fim - inicio)) * 100;
+  prazo = Math.max(0, Math.min(100, prazo));
+  setText('prog-prazo-pct', pct(prazo));
+  document.getElementById('prog-prazo-fill').style.width = prazo + '%';
+}
+
+function renderAll() {
+  renderKpis(); renderSubs(); renderAlerts(); renderCashChart(); renderMonths(); renderGantt(); renderProgress();
+  const stamp = 'Atualizado localmente · ' + new Date().toLocaleString('pt-PT');
+  setText('p1-time', stamp); setText('p2-time', stamp);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (document.documentElement.classList.contains('light')) {
+    document.getElementById('theme-icon').textContent='☀️';
+    document.getElementById('theme-label').textContent='Claro';
+  }
+  renderAll();
+});
+</script>
+</body>
+</html>
