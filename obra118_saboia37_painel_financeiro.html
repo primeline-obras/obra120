@@ -1181,20 +1181,66 @@ function parsePTDate(s) {
   return new Date(Number(m[3]), Number(m[2])-1, Number(m[1]));
 }
 
-function buildForecast(rows) {
+function monthStartOf(d) { return new Date(d.getFullYear(), d.getMonth(), 1); }
+function monthEndOf(d) { return new Date(d.getFullYear(), d.getMonth() + 1, 0); }
+function monthCountInclusive(start, end) {
+  if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || end < start) return 1;
+  return Math.max(1, (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 1);
+}
+function rangesOverlap(a1, a2, b1, b2) {
+  return Number.isFinite(a1.getTime()) && Number.isFinite(a2.getTime()) && a1 <= b2 && a2 >= b1;
+}
+function sumOrcamento(rawRows, keys) {
+  return (rawRows || []).reduce((sum, r) => sum + numByKey(r, keys), 0);
+}
+function plannedSivaForMonth(orcamentoRows, mStart, mEnd) {
+  const rows = orcamentoRows || [];
+  let total = 0;
+  rows.forEach(o => {
+    const considerar = norm(valByKey(o, ['Considerar na previsão futura']));
+    if (considerar !== 'sim') return;
+    const inicio = parsePTDate(valByKey(o, ['Fase ativa início']));
+    const fim = parsePTDate(valByKey(o, ['Fase ativa fim']));
+    if (!rangesOverlap(inicio, fim, mStart, mEnd)) return;
+
+    let mensal = numByKey(o, ['Valor previsão mensal s/ IVA', 'Valor previsao mensal s/ IVA', 'Valor previsão mensal sem IVA']);
+    if (!mensal) {
+      const revisto = numByKey(o, ['Valor orçamento revisto sem IVA']);
+      mensal = revisto / monthCountInclusive(inicio, fim);
+    }
+    total += Number(mensal) || 0;
+  });
+  return total;
+}
+
+function buildForecast(rows, orcamentoRows) {
   let acum = 0;
+  const hasOrcamento = (orcamentoRows || []).length > 0;
   return (rows || []).map(r => {
+    const mesTxt = clean(valByKey(r, ['Mês']));
+    const mesDate = parsePTDate(mesTxt);
+    const mStart = Number.isFinite(mesDate.getTime()) ? monthStartOf(mesDate) : new Date(NaN);
+    const mEnd = Number.isFinite(mesDate.getTime()) ? monthEndOf(mesDate) : new Date(NaN);
+    const tipo = clean(valByKey(r, ['Tipo']));
+    const tipoN = norm(tipo);
+
+    const realSiva = numByKey(r, ['Saídas reais S/ IVA']);
     const real = numByKey(r, ['Saídas reais C/ IVA']);
-    const prev = numByKey(r, ['Saídas previstas C/ IVA']);
-    const total = numByKey(r, ['Saídas totais C/ IVA']);
-    const efetivo = numByKey(r, ['Saídas totais S/ IVA']);
+
+    let prevSiva = hasOrcamento ? plannedSivaForMonth(orcamentoRows, mStart, mEnd) : numByKey(r, ['Saídas previstas S/ IVA']);
+    if (tipoN === 'real') prevSiva = 0;
+    const prev = prevSiva * 1.23;
+
+    const totalSiva = realSiva + prevSiva;
+    const total = real + prev;
     acum += total;
+
     return {
-      mes: clean(valByKey(r, ['Mês'])),
-      mes_iso: clean(valByKey(r, ['Mês'])),
-      tipo: clean(valByKey(r, ['Tipo'])),
-      real, prev, total, acum, efetivo,
-      label: shortMonth(valByKey(r, ['Mês']))
+      mes: mesTxt,
+      mes_iso: mesTxt,
+      tipo,
+      real, realSiva, prev, prevSiva, total, totalSiva, acum, efetivo: totalSiva,
+      label: shortMonth(mesTxt)
     };
   });
 }
@@ -1293,7 +1339,7 @@ function buildAlerts(raw) {
 function transformRawData(raw) {
   const p = raw.painelDados || {};
   const inv = raw.investimentoDados || {};
-  const forecast = buildForecast(raw.previsaoFinanceira || []);
+  const forecast = buildForecast(raw.previsaoFinanceira || [], raw.orcamento || []);
   const planning = buildPlanning(raw.planeamento || [], raw.orcamento || []);
   const maior = forecast.reduce((a,b) => (b.prev || 0) > (a.prev || 0) ? b : a, forecast[0] || {});
 
@@ -1307,22 +1353,34 @@ function transformRawData(raw) {
     ? Math.round((planEnd - planStart) / 86400000) + 1
     : null;
 
+  const orcRows = raw.orcamento || [];
+  const calcOrcIniSiva = sumOrcamento(orcRows, ['Valor orçamento inicial sem IVA']);
+  const calcOrcIniCiva = sumOrcamento(orcRows, ['Valor orçamento inicial com IVA']);
+  const calcOrcRevSiva = sumOrcamento(orcRows, ['Valor orçamento revisto sem IVA']);
+  const calcOrcRevCiva = sumOrcamento(orcRows, ['Valor orçamento revisto com IVA']);
+  const calcRealSiva = forecast.reduce((s,m) => s + (Number(m.realSiva)||0), 0);
+  const calcRealCiva = forecast.reduce((s,m) => s + (Number(m.real)||0), 0);
+  const calcPrevSiva = forecast.reduce((s,m) => s + (Number(m.totalSiva)||0), 0);
+  const calcPrevCiva = forecast.reduce((s,m) => s + (Number(m.total)||0), 0);
+  const calcMaior = forecast.reduce((max,m) => Math.max(max, Number(m.prev)||0), 0);
+  const calcDesvioRev = calcPrevCiva - (calcOrcRevCiva || numByKey(inv, ['Orçamento revisto com IVA']));
+
   const k = {
-    orc_ini_siva: numByKey(inv, ['Orçamento inicial sem IVA']),
-    orc_ini_civa: numByKey(inv, ['Orçamento inicial com IVA']),
-    orc_rev_siva: numByKey(inv, ['Orçamento revisto sem IVA']),
-    orc_rev_civa: numByKey(inv, ['Orçamento revisto com IVA']),
-    realizado_siva: numByKey(inv, ['Custo realizado s/ IVA']),
-    realizado_civa: numByKey(inv, ['Custo realizado c/ IVA']),
-    previsao_siva: numByKey(inv, ['Previsão até ao fim s/ IVA']),
-    previsao_civa: numByKey(inv, ['Previsão até ao fim c/ IVA']),
-    desvio_ini_siva: numByKey(inv, ['Desvio face orçamento inicial s/ IVA']),
-    desvio_rev_civa: numByKey(inv, ['Desvio face orçamento revisto c/ IVA']),
-    desvio_pct: pctByKey(inv, ['Desvio percentual']),
+    orc_ini_siva: calcOrcIniSiva || numByKey(inv, ['Orçamento inicial sem IVA']),
+    orc_ini_civa: calcOrcIniCiva || numByKey(inv, ['Orçamento inicial com IVA']),
+    orc_rev_siva: calcOrcRevSiva || numByKey(inv, ['Orçamento revisto sem IVA']),
+    orc_rev_civa: calcOrcRevCiva || numByKey(inv, ['Orçamento revisto com IVA']),
+    realizado_siva: calcRealSiva || numByKey(inv, ['Custo realizado s/ IVA']),
+    realizado_civa: calcRealCiva || numByKey(inv, ['Custo realizado c/ IVA']),
+    previsao_siva: calcPrevSiva || numByKey(inv, ['Previsão até ao fim s/ IVA']),
+    previsao_civa: calcPrevCiva || numByKey(inv, ['Previsão até ao fim c/ IVA']),
+    desvio_ini_siva: calcPrevSiva - (calcOrcIniSiva || numByKey(inv, ['Orçamento inicial sem IVA'])),
+    desvio_rev_civa: calcDesvioRev || numByKey(inv, ['Desvio face orçamento revisto c/ IVA']),
+    desvio_pct: (calcOrcRevCiva || numByKey(inv, ['Orçamento revisto com IVA'])) ? (calcDesvioRev / (calcOrcRevCiva || numByKey(inv, ['Orçamento revisto com IVA']))) * 100 : pctByKey(inv, ['Desvio percentual']),
     ajuste: numByKey(inv, ['Ajuste a confirmar']),
-    cash_acum: numByKey(inv, ['Cash out acumulado']),
-    cash_previsto: numByKey(inv, ['Cash out previsto até ao fim']),
-    maior_saida: numByKey(inv, ['Maior saída prevista mensal']) || (maior.prev || 0)
+    cash_acum: calcRealCiva || numByKey(inv, ['Cash out acumulado']),
+    cash_previsto: calcPrevCiva || numByKey(inv, ['Cash out previsto até ao fim']),
+    maior_saida: calcMaior || numByKey(inv, ['Maior saída prevista mensal']) || (maior.prev || 0)
   };
   k.por_realizar_civa = Math.max(0, k.previsao_civa - k.realizado_civa);
 
